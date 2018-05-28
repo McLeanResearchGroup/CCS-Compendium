@@ -1,0 +1,723 @@
+---
+title: "20180502JAP_iceberg_serum_lipids"
+author: "JAPicache"
+date: "5/2/2018"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+#packages
+```{r}
+library(tidyverse)
+library(plotly)
+library(data.table)
+library(plyr)
+
+ID <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS_Database_June2018/Progenesis/20180427JAP_IDs.csv",
+               header = TRUE, stringsAsFactors = FALSE)
+all <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/allMASTER.csv",
+                header = TRUE, stringsAsFactors = FALSE)
+serum <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS_Database_June2018/Progenesis/20180515JAP_progenesis-DT_out.csv",
+                  header = TRUE, stringsAsFactors = FALSE)
+classfits <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS_Database_June2018/ClassFits.csv",
+                      header = TRUE, stringsAsFactors = FALSE)
+
+```
+
+#progenesis deduplication
+```{r}
+#setDT(lsfull)[, paste0(c("RT", "mz"), 1:2) := tstrsplit(Compound, "_")]
+ID <- ID[!duplicated(ID[,"Compound"]),] #should be 955 rows
+ID <- ID[,c("RTm", "mz.p", "Adducts", "Charge", "Formula", "Isotope.Similarity", "Theoretical.Isotope.Distribution")]
+#write.csv(ID, "~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS_Database_June2018/Progenesis/20180430_ls-dedup.csv")
+
+#importing trend data
+setwd("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/PrismAnalyses/AllClasses/PlusIntervals")
+trends <- list.files(pattern = "*.csv")
+curves <- lapply(trends, read.csv)
+
+#min-max
+all <- all[order(all$Super.Class, all$Class),]
+
+class <- classfits
+
+for (i in seq_along(class[,1])) {
+  class[i, "mz.min"] <- min(subset(all, all$Class == class[i,1], rm.na = TRUE)$mz)
+  class[i, "mz.max"] <- max(subset(all, all$Class == class[i,1], rm.na = TRUE)$mz)
+  class[i, "ccsz.min"] <- max(subset(all, all$Class == class[i,1], rm.na = TRUE)$CCS.z)
+  class[i, "ccsz.max"] <- max(subset(all, all$Class == class[i,1], rm.na = TRUE)$CCS.z)
+}
+
+class[class$class == "Glycerophospholipids", "ccsz.min"] <- 141.1088
+class[class$class == "Glycerophospholipids", "ccsz.max"] <- 150.7000
+class[class$class == "Carbohydrates and carbohydrate conjugates", "mz.min"] <- 105.0225
+class[class$class == "Carbohydrates and carbohydrate conjugates", "mz.max"] <- 1505.8861
+class[class$class == "Carbohydrates and carbohydrate conjugates", "ccsz.min"] <- 112.6000
+class[class$class == "Carbohydrates and carbohydrate conjugates", "ccsz.max"] <- 399.0000
+class[class$class == "Ceramides", "mz.min"] <- 548.5406
+class[class$class == "Ceramides", "mz.max"] <- 674.6427
+class[class$class == "Ceramides", "ccsz.min"] <- 257.25
+class[class$class == "Ceramides", "ccsz.max"] <- 257.25
+class[class$class == "Glycosphingolipids", "mz.min"] <- 710.5934
+class[class$class == "Glycosphingolipids", "mz.max"] <- 898.7839
+class[class$class == "Glycosphingolipids", "ccsz.min"] <- 278.95
+class[class$class == "Glycosphingolipids", "ccsz.max"] <- 318.70
+class[class$class == "Glycerophosphocholines", "mz.min"] <- 312.0848
+class[class$class == "Glycerophosphocholines", "mz.max"] <- 1016.8258
+class[class$class == "Glycerophosphocholines", "ccsz.min"] <- 189.2000
+class[class$class == "Glycerophosphocholines", "ccsz.max"] <- 327.9600
+class[class$class == "Glycerophosphoethanolamines", "mz.min"] <- 410.1944
+class[class$class == "Glycerophosphoethanolamines", "mz.max"] <- 856.5258
+class[class$class == "Glycerophosphoethanolamines", "ccsz.min"] <- 199.4600
+class[class$class == "Glycerophosphoethanolamines", "ccsz.max"] <- 293.5200
+class[class$class == "Glycerophosphoserines", "mz.min"] <- 788.5441
+class[class$class == "Glycerophosphoserines", "mz.max"] <- 938.5863
+class[class$class == "Glycerophosphoserines", "ccsz.min"] <- 280.81
+class[class$class == "Glycerophosphoserines", "ccsz.max"] <- 306.87
+class[class$class == "Phosphosphingolipids", "mz.min"] <- 703.5754
+class[class$class == "Phosphosphingolipids", "mz.max"] <- 865.7138
+class[class$class == "Phosphosphingolipids", "ccsz.min"] <- 278.77
+class[class$class == "Phosphosphingolipids", "ccsz.max"] <- 309.76
+
+#write.csv(class, "~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS_Database_June2018/classfits_range.csv")
+
+```
+
+#pymatch
+```{r}
+#ID <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS_Database_June2018/Progenesis/20180430_ls-dedup.csv")
+ID <- ID[!duplicated(ID[,"Compound"]),] #should be 955 rows
+ID <- ID[,c("RTm", "mz.p", "Adducts", "Charge", "Formula", "Isotope.Similarity", "Theoretical.Isotope.Distribution")]
+#write.csv(ID, "~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS_Database_June2018/Progenesis/20180430_ls-dedup.csv")
+ID <- ID[order(ID$RTm, ID$mz),]
+ID$mz.r <- round(ID$mz, digits = 2)
+ID$RT.r <- round(ID$RTm, digits = 1)
+rownames(ID) <- 1:nrow(ID)
+
+res1 <- read.delim("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS_Database_June2018/Progenesis/20180425JAP_IMS_pos_rep1_12.txt")
+res2 <- read.delim("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS_Database_June2018/Progenesis/20180425JAP_IMS_pos_rep2_13.txt")
+res3 <- read.delim("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS_Database_June2018/Progenesis/20180425JAP_IMS_pos_rep3_14.txt")
+res <- list(res1, res2, res3)
+rm(res1, res2, res3)
+
+for (r in seq_along(res)) {
+  res[[r]][,"RTm"] <- res[[r]][,"RTs"]/60
+  res[[r]] <- res[[r]][,c("RTs", "RTm", "mz", "DT")]
+  res[[r]] <- subset(res[[r]], res[[r]][,"RTm"] >=1.14)
+  res[[r]] <- res[[r]][order(res[[r]][,"RTm"], res[[r]][,"mz"]),]
+  res[[r]] <- subset(res[[r]], res[[r]]$DT >= 15)
+  res[[r]] <- res[[r]][!duplicated(res[[r]][,c(1:3)]),]
+  res[[r]][,"mz.r"] <- round(res[[r]][,"mz"], digits = 2)
+  res[[r]][,"RT.r"] <- round(res[[r]][,"RTm"], digits = 1)
+  res[[r]][,"DT.r"] <- round(res[[r]][, "DT"], digits = 0)
+  rownames(res[[r]]) <- 1:nrow(res[[r]])
+}
+
+match1 <- merge(ID, res[[1]], by = c("mz.r", "RT.r"))
+match1 <- match1[,c(1:9, 11:14)]
+match1 <- match1[order(match1$mz, match1$RTm.y),]
+
+match2 <- merge(ID, res[[2]], by = c("mz.r", "RT.r"))
+match2 <- match2[,c(1:9, 11:14)]
+match2 <- match2[order(match2$mz, match2$RTm.y),]
+
+match3 <- merge(ID, res[[3]], by = c("mz.r", "RT.r"))
+match3 <- match3[,c(1:9, 11:14)]
+match3 <- match3[order(match3$mz, match3$RTm.y),]
+
+match <- list(match1, match2, match3)
+rm(res1, res2, res3, match1, match2, match3)
+
+#for (m in seq_along(match)) {
+#  for (r in seq_along(res)) {
+#    match[[m]] <- res[[r]][which(inrange(res[[r]][,"mz"], ID[,"mz"] - ID[,"mz"]*5e-6, ID[,"mz"] + ID[,"mz"]*5e-6, incbounds = TRUE) & inrange(res[[r]][,"RTm"], ID[,"RTm"] - 0.5, ID[,"RTm"] + 0.5, incbounds = TRUE)),]
+#    match[[m]] <- subset(match[[m]], match[[m]]$DT >= 15)
+#    match[[m]] <- match[[m]][!duplicated(match[[m]][c(1:3)]),]
+#    rownames(match[[m]]) <- 1:nrow(match[[m]])
+#  }
+#  match[[m]][,"mz.r"] <- round(match[[m]][,"mz"], digits = 2)
+#  match[[m]][,"RT.r"] <- round(match[[m]][,"RTm"], digits = 1)
+#}
+
+```
+
+#unknown_plots
+```{r}
+#temp <- as.data.frame(matrix(NA, nrow = 3149, ncol = 22))
+#s.names <- c(colnames(serum))
+#colnames(temp) <- s.names
+#serum <- rbind(serum, temp)
+
+#trends
+lipids <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/PrismAnalyses/alllipids_4P.csv",
+                   header = TRUE, stringsAsFactors = FALSE)
+faPCI <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/PrismAnalyses/AllClasses/PlusIntervals/lip_facyl_cipi_power_ALL.csv",
+                  header = TRUE, stringsAsFactors = FALSE)
+steroidPCI <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/PrismAnalyses/AllClasses/PlusIntervals/lip_steroids_cipi_power_ALL.csv",
+                  header = TRUE, stringsAsFactors = FALSE)
+prenolPCI <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/PrismAnalyses/AllClasses/PlusIntervals/lip_prenol_cipi_4P_ALL.csv",
+                  header = TRUE, stringsAsFactors = FALSE)
+#glycerophosphos
+pcPCI <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/PrismAnalyses/AllClasses/PlusIntervals/lip_pc_cipi_power_ALL.csv",
+                  header = TRUE, stringsAsFactors = FALSE) #glycerphosphocholines #in glyphos
+pePCI <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/PrismAnalyses/AllClasses/PlusIntervals/lip_pe_cipi_power_ALL.csv",
+                  header = TRUE, stringsAsFactors = FALSE) #glycerophosphoethanolamines #in glyphos
+psPCI <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/PrismAnalyses/AllClasses/PlusIntervals/lip_ps_cipi_4P_ALL.csv",
+                  header = TRUE, stringsAsFactors = FALSE) #glycerophosphoserines #in glyphos
+#sphingos
+gslPCI <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/PrismAnalyses/AllClasses/PlusIntervals/lip_glycosphingo_cipi_5P_ALL.csv",
+                  header = TRUE, stringsAsFactors = FALSE) #glycosphingo #in sphingo
+psphingoPCI <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/PrismAnalyses/AllClasses/PlusIntervals/lip_phosphosphingo_cipi_power_ALL.csv",
+                  header = TRUE, stringsAsFactors = FALSE) #phosphosphingo #in sphingo
+cerPCI <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/PrismAnalyses/AllClasses/PlusIntervals/lip_ceramide_cipi_power_ALL.csv",
+                  header = TRUE, stringsAsFactors = FALSE) #ceramides #in sphingo
+
+#plot
+serum.p <- plot_ly(serum, x= ~serum$mz.p, x0 = 0, y= ~serum$ccsz, y0 = 0,
+                   type = "scatter", mode = "markers", showlegend = TRUE) %>%
+  add_trace(faPCI, x = ~faPCI$linemz, y = ~faPCI$lineccs,
+            name = "Fatty Acyls", type = 'scatter', mode = 'lines',
+            line = list(color = "#114805", width = 3),
+            legendgroup = "FA", showlegend = TRUE) %>%
+  add_trace(faPCI, x = ~faPCI$linemz, y = ~(faPCI$lineccs + faPCI$pi),
+            name = "Upper 99% PI - FA", type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(17, 72, 5, 0.25)",
+            line = list(color = "#114805", width = 3, dash = 'dash'),
+            legendgroup = "FA", showlegend = FALSE) %>%
+  add_trace(faPCI, x = ~faPCI$linemz, y = ~(faPCI$lineccs - faPCI$pi),
+            name = "Lower 99% PI - FA", type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(17, 72, 5, 0.25)",
+            line = list(color = "#114805", width = 3, dash = 'dash'),
+            legendgroup = "FA", showlegend = FALSE) %>%
+  add_trace(faPCI, x = ~faPCI$linemz, y = ~(faPCI$lineccs + faPCI$ci),
+            name = "Upper 99% CI - FA", type = 'scatter', mode = 'lines',
+            line = list(color = "#114805", width = 3, dash = 'solid'),
+            legendgroup = "FA", showlegend = FALSE) %>%
+  add_trace(faPCI, x = ~faPCI$linemz, y = ~(faPCI$lineccs - faPCI$ci),
+            name = "Lower 99% CI - FA", type = 'scatter', mode = 'lines',
+            line = list(color = "#114805", width = 3, dash = 'solid'),
+            legendgroup = "FA", showlegend = FALSE) %>%
+  add_trace(steroidPCI, x = ~steroidPCI$linemz, y = ~steroidPCI$lineccs,
+            name = "Steroids", type = 'scatter', mode = 'lines',
+            line = list(color = "#216811", width = 3),
+            legendgroup = "Steroids", showlegend = TRUE) %>%
+  add_trace(steroidPCI, x = ~steroidPCI$linemz, y = ~(steroidPCI$lineccs + steroidPCI$pi),
+            name = "Upper 99% PI - Steroid", type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(33, 104, 17, 0.25)",
+            line = list(color = "#216811", width = 3, dash = 'dash'),
+            legendgroup = "Steroids", showlegend = FALSE) %>%
+  add_trace(steroidPCI, x = ~steroidPCI$linemz, y = ~(steroidPCI$lineccs - steroidPCI$pi),
+            name = "Lower 99% PI - Steroid", type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(33, 104, 17, 0.25)",
+            line = list(color = "#216811", width = 3, dash = 'dash'),
+            legendgroup = "Steroids", showlegend = FALSE) %>%
+  add_trace(steroidPCI, x = ~steroidPCI$linemz, y = ~(steroidPCI$lineccs + steroidPCI$ci),
+            name = "Upper 99% CI - Steroid", type = 'scatter', mode = 'lines',
+            line = list(color = "#216811", width = 3, dash = 'solid'),
+            legendgroup = "Steroids", showlegend = FALSE) %>%
+  add_trace(steroidPCI, x = ~steroidPCI$linemz, y = ~(steroidPCI$lineccs - steroidPCI$ci),
+            name = "Lower 99% CI - Steroid", type = 'scatter', mode = 'lines',
+            line = list(color = "#216811", width = 3, dash = 'solid'),
+            legendgroup = "Steroids", showlegend = FALSE) %>%
+  add_trace(prenolPCI, x = ~prenolPCI$linemz, y = ~prenolPCI$lineccs,
+            name = "Prenol Lipids", type = 'scatter', mode = 'lines',
+            line = list(color = "#2D9914", width = 3),
+            legendgroup = "Prenol Lipids", showlegend = TRUE) %>%
+  add_trace(prenolPCI, x = ~prenolPCI$linemz, y = ~(prenolPCI$lineccs + prenolPCI$pi),
+            name = "Upper 99% PI - Prenol", type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(45, 153, 20, 0.25)",
+            line = list(color = "#2D9914", width = 3, dash = 'dash'),
+            legendgroup = "Prenol Lipids", showlegend = FALSE) %>%
+  add_trace(prenolPCI, x = ~prenolPCI$linemz, y = ~(prenolPCI$lineccs - prenolPCI$pi),
+            name = "Lower 99% PI - Prenol", type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(45, 153, 20, 0.25)",
+            line = list(color = "#2D9914", width = 3, dash = 'dash'),
+            legendgroup = "Prenol Lipids", showlegend = FALSE) %>%
+  add_trace(prenolPCI, x = ~prenolPCI$linemz, y = ~(prenolPCI$lineccs + prenolPCI$ci),
+            name = "Upper 99% CI - Prenol", type = 'scatter', mode = 'lines',
+            line = list(color = "#2D9914", width = 3, dash = 'solid'),
+            legendgroup = "Prenol Lipids", showlegend = FALSE) %>%
+  add_trace(prenolPCI, x = ~prenolPCI$linemz, y = ~(prenolPCI$lineccs - prenolPCI$ci),
+            name = "Lower 99% CI - Prenol", type = 'scatter', mode = 'lines',
+            line = list(color = "#2D9914", width = 3, dash = 'solid'),
+            legendgroup = "Prenol Lipids", showlegend = FALSE) %>%
+  add_trace(pcPCI, x = ~pcPCI$linemz, y = ~pcPCI$lineccs,
+            name = "Phosphocholines", type = 'scatter', mode = 'lines',
+            line = list(color = "#1430FA", width = 3),
+            legendgroup = "Phosphocholines", showlegend = TRUE) %>%
+  add_trace(pcPCI, x = ~pcPCI$linemz, y = ~(pcPCI$lineccs + pcPCI$pi),
+            name = "Upper 99% PI - PC", type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(20, 48, 250, 0.25)",
+            line = list(color = "#1430FA", width = 3, dash = 'dash'),
+            legendgroup = "Phosphocholines", showlegend = FALSE) %>%
+  add_trace(pcPCI, x = ~pcPCI$linemz, y = ~(pcPCI$lineccs - pcPCI$pi),
+            name = "Lower 99% PI - PC", type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(20, 48, 250, 0.25)",
+            line = list(color = "#1430FA", width = 3, dash = 'dash'),
+            legendgroup = "Phosphocholines", showlegend = FALSE) %>%
+  add_trace(pcPCI, x = ~pcPCI$linemz, y = ~(pcPCI$lineccs + pcPCI$ci),
+            name = "Upper 99% CI - PC", type = 'scatter', mode = 'lines',
+            line = list(color = "#1430FA", width = 3, dash = 'solid'),
+            legendgroup = "Phosphocholines", showlegend = FALSE) %>%
+  add_trace(pcPCI, x = ~pcPCI$linemz, y = ~(pcPCI$lineccs - pcPCI$ci),
+            name = "Lower 99% CI - PC", type = 'scatter', mode = 'lines',
+            line = list(color = "#1430FA", width = 3, dash = 'solid'),
+            legendgroup = "Phosphocholines", showlegend = FALSE) %>%
+  add_trace(pePCI, x = ~pePCI$linemz, y = ~pePCI$lineccs,
+            name = "Phosphoethanolamines", type = 'scatter', mode = 'lines',
+            line = list(color = "#E56A52", width = 3),
+            legendgroup = "pe", showlegend = TRUE) %>%
+  add_trace(pePCI, x = ~pePCI$linemz, y = ~(pePCI$lineccs + pePCI$pi),
+            name = "Upper 99% PI - PE", type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(229, 106, 82, 0.25)",
+            line = list(color = "#E56A52", width = 3, dash = 'dash'),
+            legendgroup = "pe", showlegend = FALSE) %>%
+  add_trace(pePCI, x = ~pePCI$linemz, y = ~(pePCI$lineccs - pePCI$pi),
+            name = "Lower 99% PI - PE", type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(229, 106, 82, 0.25)",
+            line = list(color = "#E56A52", width = 3, dash = 'dash'),
+            legendgroup = "pe", showlegend = FALSE) %>%
+  add_trace(pePCI, x = ~pePCI$linemz, y = ~(pePCI$lineccs + pePCI$ci),
+            name = "Upper 99% CI- PE", type = 'scatter', mode = 'lines',
+            line = list(color = "#E56A52", width = 3, dash = 'solid'),
+            legendgroup = "pe", showlegend = FALSE) %>%
+  add_trace(pePCI, x = ~pePCI$linemz, y = ~(pePCI$lineccs - pePCI$ci),
+            name = "Lower 99% CI - PE", type = 'scatter', mode = 'lines',
+            line = list(color = "#E56A52", width = 3, dash = 'solid'),
+            legendgroup = "pe", showlegend = FALSE) %>%
+  add_trace(psPCI, x = ~psPCI$linemz, y = ~psPCI$lineccs,
+            name = "Phosphoserines", type = 'scatter', mode = 'lines',
+            line = list(color = "#BEECB2", width = 3),
+            legendgroup = "ps", showlegend = TRUE) %>%
+  add_trace(psPCI, x = ~psPCI$linemz, y = ~(psPCI$lineccs + psPCI$pi), type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(190, 236, 178, 0.25)",
+            line = list(color = "#BEECB2", width = 3, dash = 'dash'),
+            legendgroup = "ps", showlegend = FALSE) %>%
+  add_trace(psPCI, x = ~psPCI$linemz, y = ~(psPCI$lineccs - psPCI$pi), type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(190, 236, 178, 0.25)",
+            line = list(color = "#BEECB2", width = 3, dash = 'dash'),
+            legendgroup = "ps", showlegend = FALSE) %>%
+  add_trace(psPCI, x = ~psPCI$linemz, y = ~(psPCI$lineccs + psPCI$ci), type = 'scatter', mode = 'lines',
+            line = list(color = "#BEECB2", width = 3, dash = 'solid'),
+            legendgroup = "ps", showlegend = FALSE) %>%
+  add_trace(psPCI, x = ~psPCI$linemz, y = ~(psPCI$lineccs - psPCI$ci), type = 'scatter', mode = 'lines',
+            line = list(color = "#BEECB2", width = 3, dash = 'solid'),
+            legendgroup = "ps", showlegend = FALSE) %>%
+  add_trace(cerPCI, x = ~cerPCI$linemz, y = ~cerPCI$lineccs,
+          name = "Ceramides", type = 'scatter', mode = 'lines',
+          line = list(color = "#BEECB2", width = 3),
+          legendgroup = "cer", showlegend = TRUE) %>%
+  add_trace(cerPCI, x = ~cerPCI$linemz, y = ~(cerPCI$lineccs + cerPCI$pi), type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(190, 236, 178, 0.25)",
+            line = list(color = "#BEECB2", width = 3, dash = 'dash'),
+            legendgroup = "cer", showlegend = FALSE) %>%
+  add_trace(cerPCI, x = ~cerPCI$linemz, y = ~(cerPCI$lineccs - cerPCI$pi), type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(190, 236, 178, 0.25)",
+            line = list(color = "#BEECB2", width = 3, dash = 'dash'),
+            legendgroup = "cer", showlegend = FALSE) %>%
+  add_trace(cerPCI, x = ~cerPCI$linemz, y = ~(cerPCI$lineccs + cerPCI$ci), type = 'scatter', mode = 'lines',
+            line = list(color = "#BEECB2", width = 3, dash = 'solid'),
+            legendgroup = "cer", showlegend = FALSE) %>%
+  add_trace(cerPCI, x = ~cerPCI$linemz, y = ~(cerPCI$lineccs - cerPCI$ci), type = 'scatter', mode = 'lines',
+            line = list(color = "#BEECB2", width = 3, dash = 'solid'),
+            legendgroup = "cer", showlegend = FALSE) %>%
+  add_trace(gslPCI, x = ~gslPCI$linemz, y = ~gslPCI$lineccs,
+          name = "Glycosphingolipids", type = 'scatter', mode = 'lines',
+          line = list(color = "#BEECB2", width = 3),
+          legendgroup = "gsl", showlegend = TRUE) %>%
+  add_trace(gslPCI, x = ~gslPCI$linemz, y = ~(gslPCI$lineccs + gslPCI$pi), type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(190, 236, 178, 0.25)",
+            line = list(color = "#BEECB2", width = 3, dash = 'dash'),
+            legendgroup = "gsl", showlegend = FALSE) %>%
+  add_trace(gslPCI, x = ~gslPCI$linemz, y = ~(gslPCI$lineccs - gslPCI$pi), type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(190, 236, 178, 0.25)",
+            line = list(color = "#BEECB2", width = 3, dash = 'dash'),
+            legendgroup = "gsl", showlegend = FALSE) %>%
+  add_trace(gslPCI, x = ~gslPCI$linemz, y = ~(gslPCI$lineccs + gslPCI$ci), type = 'scatter', mode = 'lines',
+            line = list(color = "#BEECB2", width = 3, dash = 'solid'),
+            legendgroup = "gsl", showlegend = FALSE) %>%
+  add_trace(gslPCI, x = ~gslPCI$linemz, y = ~(gslPCI$lineccs - gslPCI$ci), type = 'scatter', mode = 'lines',
+            line = list(color = "#BEECB2", width = 3, dash = 'solid'),
+            legendgroup = "gsl", showlegend = FALSE) %>%
+  add_trace(psphingoPCI, x = ~psphingoPCI$linemz, y = ~psphingoPCI$lineccs,
+          name = "Phosphoshingolipids", type = 'scatter', mode = 'lines',
+          line = list(color = "#BEECB2", width = 3),
+          legendgroup = "pshingo", showlegend = TRUE) %>%
+  add_trace(psphingoPCI, x = ~psphingoPCI$linemz, y = ~(psphingoPCI$lineccs + psphingoPCI$pi), type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(190, 236, 178, 0.25)",
+            line = list(color = "#BEECB2", width = 3, dash = 'dash'),
+            legendgroup = "pshingo", showlegend = FALSE) %>%
+  add_trace(psphingoPCI, x = ~psphingoPCI$linemz, y = ~(psphingoPCI$lineccs - psphingoPCI$pi), type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(190, 236, 178, 0.25)",
+            line = list(color = "#BEECB2", width = 3, dash = 'dash'),
+            legendgroup = "pshingo", showlegend = FALSE) %>%
+  add_trace(psphingoPCI, x = ~psphingoPCI$linemz, y = ~(psphingoPCI$lineccs + psphingoPCI$ci), type = 'scatter', mode = 'lines',
+            line = list(color = "#BEECB2", width = 3, dash = 'solid'),
+            legendgroup = "pshingo", showlegend = FALSE) %>%
+  add_trace(psphingoPCI, x = ~psphingoPCI$linemz, y = ~(psphingoPCI$lineccs - psphingoPCI$ci), type = 'scatter', mode = 'lines',
+            line = list(color = "#BEECB2", width = 3, dash = 'solid'),
+            legendgroup = "pshingo", showlegend = FALSE) %>%
+  add_trace(serum, x= ~serum$mz.p, x0 = 0, y= ~serum$ccsz, y0 = 0,
+            type = "scatter", mode = "markers", showlegend = TRUE,
+            marker = list(size = 8, symbol = "x-thin-open", color = "rgba(50, 50, 50, 0.85)")) %>%
+  layout(xaxis = list(title = "<b>m/z</b>",
+                      titlefont = list(family = "Arial", size = 30, color = "#000000"),
+                      zeroline = FALSE, showline = TRUE, linewidth = 10,
+                      ticks = "outside", ticklen = 10, tickwidth = 10,
+                      tickfont = list(family = "Arial", size = 26, color = "#000000"),
+                      showgrid = FALSE),
+         yaxis = list(title = "<b>CCS/z</b>",
+                      titlefont = list(family = "Arial", size = 30, color = "#000000"),
+                      zeroline = FALSE, showline = TRUE, linewidth = 10,
+                      ticks = "outside", ticklen = 10, tickwidth = 10,
+                      tickfont = list(family = "Arial", tick0 = 0, size = 26, color = "#000000"),
+                      showgrid = FALSE, autosize = TRUE),
+         margin = list(t = 100, l = 100, b = 100))
+serum.p
+
+#all-serum
+a.s.l <- plot_ly(all, x= ~all$mz, x0 = 0, y= ~all$CCS.z, y0 = 0,
+                    type = "scatter", mode = "markers", showlegend = TRUE) %>%
+  add_trace(serum, x= ~serum$mz.p, x0 = 0, y= ~serum$ccsz, y0 = 0,
+            type = "scatter", mode = "markers", showlegend = TRUE,
+            marker = list(size = 8, symbol = "x-thin-open", color = "rgba(50, 50, 50, 0.85)")) %>%
+  add_trace(all, x= ~all$mz, x0 = 0, y= ~all$CCS.z, y0 = 0,
+                    type = "scatter", mode = "markers", showlegend = TRUE,
+                    marker = list(size = 15, color = "rgba(50, 50, 50, 0.5)", symbol = "circle-open")) %>%
+  add_trace(tmp, x= ~tmp$mz.p, x0 = 0, y= ~tmp$ccsz, y0 = 0,
+            type = "scatter", mode = "markers", showlegend = FALSE,
+            marker = list(size = 15, symbol = "x-thin-open", color = "#1430FA")) %>%
+  layout(
+#    title = "<b>United CCS Compendium (N>3700)</b>",
+#         titlefont = list(family = "Arial", size = 40, color = "#000000"),
+         autosize = TRUE,
+         xaxis = list(
+#           title = "<b>m/z</b>",
+#                      titlefont = list(family = "Arial", size = 30, color = "#000000"),
+                      zeroline = FALSE, showline = TRUE, linewidth = 10,
+                      ticks = "outside", ticklen = 10, tickwidth = 10,
+                      tickfont = list(family = "Arial", size = 26, color = "#000000"),
+                      showgrid = FALSE),
+         yaxis = list(
+#           title = "<b>CCS/z</b>",
+#                      titlefont = list(family = "Arial", size = 30, color = "#000000"),
+                      zeroline = FALSE, showline = TRUE, linewidth = 10,
+                      ticks = "outside", ticklen = 10, tickwidth = 10,
+                      tickfont = list(family = "Arial", tick0 = 0, size = 26, color = "#000000"),
+                      showgrid = FALSE),
+         margin = list(t = 100, l = 100, b = 100))
+a.s.l
+
+
+```
+
+#ID-CCS match
+```{r}
+
+#min-max
+all <- all[order(all$Super.Class, all$Class),]
+
+class <- classfits
+rm(classfits)
+
+for (i in seq_along(class[,1])) {
+  class[i, "mz.min"] <- min(subset(all, all$Class == class[i,1], rm.na = TRUE)$mz)
+  class[i, "mz.max"] <- max(subset(all, all$Class == class[i,1], rm.na = TRUE)$mz)
+  class[i, "ccsz.min"] <- max(subset(all, all$Class == class[i,1], rm.na = TRUE)$CCS.z)
+  class[i, "ccsz.max"] <- max(subset(all, all$Class == class[i,1], rm.na = TRUE)$CCS.z)
+}
+
+class[class$class == "Glycerophospholipids", "ccsz.min"] <- 141.1088
+class[class$class == "Glycerophospholipids", "ccsz.max"] <- 150.7000
+class[class$class == "Carbohydrates and carbohydrate conjugates", "mz.min"] <- 105.0225
+class[class$class == "Carbohydrates and carbohydrate conjugates", "mz.max"] <- 1505.8861
+class[class$class == "Carbohydrates and carbohydrate conjugates", "ccsz.min"] <- 112.6000
+class[class$class == "Carbohydrates and carbohydrate conjugates", "ccsz.max"] <- 399.0000
+class[class$class == "Ceramides", "mz.min"] <- 548.5406
+class[class$class == "Ceramides", "mz.max"] <- 674.6427
+class[class$class == "Ceramides", "ccsz.min"] <- 257.25
+class[class$class == "Ceramides", "ccsz.max"] <- 257.25
+class[class$class == "Glycosphingolipids", "mz.min"] <- 710.5934
+class[class$class == "Glycosphingolipids", "mz.max"] <- 898.7839
+class[class$class == "Glycosphingolipids", "ccsz.min"] <- 278.95
+class[class$class == "Glycosphingolipids", "ccsz.max"] <- 318.70
+class[class$class == "Glycerophosphocholines", "mz.min"] <- 312.0848
+class[class$class == "Glycerophosphocholines", "mz.max"] <- 1016.8258
+class[class$class == "Glycerophosphocholines", "ccsz.min"] <- 189.2000
+class[class$class == "Glycerophosphocholines", "ccsz.max"] <- 327.9600
+class[class$class == "Glycerophosphoethanolamines", "mz.min"] <- 410.1944
+class[class$class == "Glycerophosphoethanolamines", "mz.max"] <- 856.5258
+class[class$class == "Glycerophosphoethanolamines", "ccsz.min"] <- 199.4600
+class[class$class == "Glycerophosphoethanolamines", "ccsz.max"] <- 293.5200
+class[class$class == "Glycerophosphoserines", "mz.min"] <- 788.5441
+class[class$class == "Glycerophosphoserines", "mz.max"] <- 938.5863
+class[class$class == "Glycerophosphoserines", "ccsz.min"] <- 280.81
+class[class$class == "Glycerophosphoserines", "ccsz.max"] <- 306.87
+class[class$class == "Phosphosphingolipids", "mz.min"] <- 703.5754
+class[class$class == "Phosphosphingolipids", "mz.max"] <- 865.7138
+class[class$class == "Phosphosphingolipids", "ccsz.min"] <- 278.77
+class[class$class == "Phosphosphingolipids", "ccsz.max"] <- 309.76
+
+#IDserum
+IDserum <- merge(ID, serum, by = c("mz.p", "RTm"))
+IDserum <- IDserum[order(IDserum$RTm, IDserum$mz.p),]
+IDserum <- IDserum[,c("RTm", "mz.p", "Formula", "Theoretical.Isotope.Distribution.x", "Isotope.Similarity.x", "Adducts", "Charge",
+                      "rt1", "mz1", "ppm1", "dt1", "sfCCS1",
+                      "rt2", "mz2", "ppm2", "DT2", "sfCCS2",
+                      "rt3", "mz3", "ppm3", "DT3", "sfCCS3",
+                      "ccs", "ccsz", "rsd")]
+colnames(IDserum) <- c("RTm", "mzp", "Formula", "Theoretical.Isotope.Distribution", "Isotope.Score", "Adducts", "Charge",
+                      "rt1", "mz1", "ppm1", "dt1", "sfCCS1",
+                      "rt2", "mz2", "ppm2", "dt2", "sfCCS2",
+                      "rt3", "mz3", "ppm3", "dt3", "sfCCS3",
+                      "ccs", "ccsz", "rsd")
+rownames(IDserum) <- 1:nrow(IDserum)
+
+#IDserum pair numbers
+counts <- ddply(IDserum, .(IDserum$RTm, IDserum$mzp), nrow)
+quantile(counts$Freq)
+median(counts$Freq)
+
+p <- plot_ly(y = counts$Freq, type = "box", boxpoints = "all", jitter = 0.4,
+             name = "Drift Times per RT-m/z Pair", showlegend = TRUE,
+             whiskerwidth = 0.25,
+             marker = list(size = 10, symbol = "x-thin-open", color = "rgba(20, 48, 250, 0.85)"),
+             line = list(color = "rgba(20, 48, 250, 0.85)"))
+p
+
+#match by min/max
+if (IDserum[between(IDserum, class[1,"mz.min"], class[1, "mz.max"])]) {
+  print(class[1, "class"])
+  } else {
+  print("False")
+}
+
+sample.class <- function(mz, min, max) {
+  mz %in% min:max
+}
+
+test <- apply(IDserum$mz.p, MARGIN = 1, sample.class(IDserum$mz.p, class[1, "mz.min"], class[1, "mz.max"]))
+
+```
+
+#serum lipids by subclass
+```{r}
+#match by min/max_lipids
+
+#s.l <- subset(IDserum, IDserum$mzp >= 125 & IDserum$mzp < 1017)
+#s.l <- subset(s.l, s.l$ccsz >= 115 & s.l$ccsz < 328)
+#s.l <- s.l[order(s.l$mzp, s.l$ccsz),]
+#write.csv(s.l, "~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS_Database_June2018/serum_lipids.csv")
+sl.full <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS_Database_June2018/serum_lipids.csv", header = TRUE, stringsAsFactors = FALSE)
+s.l <- sl.full[order(sl.full$RTm, sl.full$mzp, sl.full$rsd),]
+
+counts2 <- ddply(s.l, .(s.l$Class, s.l$Subclass), nrow)
+quantile(counts$Freq)
+median(counts$Freq)
+
+#plot
+sl.p <- plot_ly(s.l, x= ~s.l$mzp, x0 = 0, y= ~s.l$ccsz, y0 = 0,
+                   type = "scatter", mode = "markers", showlegend = TRUE) %>%
+  add_trace(faPCI, x = ~faPCI$linemz, y = ~faPCI$lineccs,
+            name = "Fatty Acyls", type = 'scatter', mode = 'lines',
+            line = list(color = "#E471EC", width = 3),
+            legendgroup = "FA", showlegend = TRUE) %>%
+  add_trace(faPCI, x = ~faPCI$linemz, y = ~(faPCI$lineccs + faPCI$pi),
+            name = "Upper 99% PI - FA", type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(228, 113, 236, 0.25)",
+            line = list(color = "#E471EC", width = 3, dash = 'dash'),
+            legendgroup = "FA", showlegend = FALSE) %>%
+  add_trace(faPCI, x = ~faPCI$linemz, y = ~(faPCI$lineccs - faPCI$pi),
+            name = "Lower 99% PI - FA", type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(228, 113, 236, 0.25)",
+            line = list(color = "#E471EC", width = 3, dash = 'dash'),
+            legendgroup = "FA", showlegend = FALSE) %>%
+  add_trace(faPCI, x = ~faPCI$linemz, y = ~(faPCI$lineccs + faPCI$ci),
+            name = "Upper 99% CI - FA", type = 'scatter', mode = 'lines',
+            line = list(color = "#E471EC", width = 3, dash = 'solid'),
+            legendgroup = "FA", showlegend = FALSE) %>%
+  add_trace(faPCI, x = ~faPCI$linemz, y = ~(faPCI$lineccs - faPCI$ci),
+            name = "Lower 99% CI - FA", type = 'scatter', mode = 'lines',
+            line = list(color = "#E471EC", width = 3, dash = 'solid'),
+            legendgroup = "FA", showlegend = FALSE) %>%
+  add_trace(steroidPCI, x = ~steroidPCI$linemz, y = ~steroidPCI$lineccs,
+            name = "Steroids", type = 'scatter', mode = 'lines',
+            line = list(color = "#F7AE56", width = 3),
+            legendgroup = "Steroids", showlegend = TRUE) %>%
+  add_trace(steroidPCI, x = ~steroidPCI$linemz, y = ~(steroidPCI$lineccs + steroidPCI$pi),
+            name = "Upper 99% PI - Steroid", type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(247, 174, 86, 0.25)",
+            line = list(color = "#F7AE56", width = 3, dash = 'dash'),
+            legendgroup = "Steroids", showlegend = FALSE) %>%
+  add_trace(steroidPCI, x = ~steroidPCI$linemz, y = ~(steroidPCI$lineccs - steroidPCI$pi),
+            name = "Lower 99% PI - Steroid", type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(247, 174, 86, 0.25)",
+            line = list(color = "#F7AE56", width = 3, dash = 'dash'),
+            legendgroup = "Steroids", showlegend = FALSE) %>%
+  add_trace(steroidPCI, x = ~steroidPCI$linemz, y = ~(steroidPCI$lineccs + steroidPCI$ci),
+            name = "Upper 99% CI - Steroid", type = 'scatter', mode = 'lines',
+            line = list(color = "#F7AE56", width = 3, dash = 'solid'),
+            legendgroup = "Steroids", showlegend = FALSE) %>%
+  add_trace(steroidPCI, x = ~steroidPCI$linemz, y = ~(steroidPCI$lineccs - steroidPCI$ci),
+            name = "Lower 99% CI - Steroid", type = 'scatter', mode = 'lines',
+            line = list(color = "#F7AE56", width = 3, dash = 'solid'),
+            legendgroup = "Steroids", showlegend = FALSE) %>%
+  add_trace(prenolPCI, x = ~prenolPCI$linemz, y = ~prenolPCI$lineccs,
+            name = "Prenol Lipids", type = 'scatter', mode = 'lines',
+            line = list(color = "#FE574A", width = 3),
+            legendgroup = "Prenol Lipids", showlegend = TRUE) %>%
+  add_trace(prenolPCI, x = ~prenolPCI$linemz, y = ~(prenolPCI$lineccs + prenolPCI$pi),
+            name = "Upper 99% PI - Prenol", type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(254, 87, 74, 0.25)",
+            line = list(color = "#FE574A", width = 3, dash = 'dash'),
+            legendgroup = "Prenol Lipids", showlegend = FALSE) %>%
+  add_trace(prenolPCI, x = ~prenolPCI$linemz, y = ~(prenolPCI$lineccs - prenolPCI$pi),
+            name = "Lower 99% PI - Prenol", type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(254, 87, 74, 0.25)",
+            line = list(color = "#FE574A", width = 3, dash = 'dash'),
+            legendgroup = "Prenol Lipids", showlegend = FALSE) %>%
+  add_trace(prenolPCI, x = ~prenolPCI$linemz, y = ~(prenolPCI$lineccs + prenolPCI$ci),
+            name = "Upper 99% CI - Prenol", type = 'scatter', mode = 'lines',
+            line = list(color = "#FE574A", width = 3, dash = 'solid'),
+            legendgroup = "Prenol Lipids", showlegend = FALSE) %>%
+  add_trace(prenolPCI, x = ~prenolPCI$linemz, y = ~(prenolPCI$lineccs - prenolPCI$ci),
+            name = "Lower 99% CI - Prenol", type = 'scatter', mode = 'lines',
+            line = list(color = "#FE574A", width = 3, dash = 'solid'),
+            legendgroup = "Prenol Lipids", showlegend = FALSE) %>%
+  add_trace(pcPCI, x = ~pcPCI$linemz, y = ~pcPCI$lineccs,
+            name = "Phosphocholines", type = 'scatter', mode = 'lines',
+            line = list(color = "#1430FA", width = 3),
+            legendgroup = "Phosphocholines", showlegend = TRUE) %>%
+  add_trace(pcPCI, x = ~pcPCI$linemz, y = ~(pcPCI$lineccs + pcPCI$pi),
+            name = "Upper 99% PI - PC", type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(20, 48, 250, 0.25)",
+            line = list(color = "#1430FA", width = 3, dash = 'dash'),
+            legendgroup = "Phosphocholines", showlegend = FALSE) %>%
+  add_trace(pcPCI, x = ~pcPCI$linemz, y = ~(pcPCI$lineccs - pcPCI$pi),
+            name = "Lower 99% PI - PC", type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(20, 48, 250, 0.25)",
+            line = list(color = "#1430FA", width = 3, dash = 'dash'),
+            legendgroup = "Phosphocholines", showlegend = FALSE) %>%
+  add_trace(pcPCI, x = ~pcPCI$linemz, y = ~(pcPCI$lineccs + pcPCI$ci),
+            name = "Upper 99% CI - PC", type = 'scatter', mode = 'lines',
+            line = list(color = "#1430FA", width = 3, dash = 'solid'),
+            legendgroup = "Phosphocholines", showlegend = FALSE) %>%
+  add_trace(pcPCI, x = ~pcPCI$linemz, y = ~(pcPCI$lineccs - pcPCI$ci),
+            name = "Lower 99% CI - PC", type = 'scatter', mode = 'lines',
+            line = list(color = "#1430FA", width = 3, dash = 'solid'),
+            legendgroup = "Phosphocholines", showlegend = FALSE) %>%
+  add_trace(pePCI, x = ~pePCI$linemz, y = ~pePCI$lineccs,
+            name = "Phosphoethanolamines", type = 'scatter', mode = 'lines',
+            line = list(color = "#88F56E", width = 3),
+            legendgroup = "pe", showlegend = TRUE) %>%
+  add_trace(pePCI, x = ~pePCI$linemz, y = ~(pePCI$lineccs + pePCI$pi),
+            name = "Upper 99% PI - PE", type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(136, 245, 110, 0.25)",
+            line = list(color = "#88F56E", width = 3, dash = 'dash'),
+            legendgroup = "pe", showlegend = FALSE) %>%
+  add_trace(pePCI, x = ~pePCI$linemz, y = ~(pePCI$lineccs - pePCI$pi),
+            name = "Lower 99% PI - PE", type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(136, 245, 110, 0.25)",
+            line = list(color = "#88F56E", width = 3, dash = 'dash'),
+            legendgroup = "pe", showlegend = FALSE) %>%
+  add_trace(pePCI, x = ~pePCI$linemz, y = ~(pePCI$lineccs + pePCI$ci),
+            name = "Upper 99% CI- PE", type = 'scatter', mode = 'lines',
+            line = list(color = "#88F56E", width = 3, dash = 'solid'),
+            legendgroup = "pe", showlegend = FALSE) %>%
+  add_trace(pePCI, x = ~pePCI$linemz, y = ~(pePCI$lineccs - pePCI$ci),
+            name = "Lower 99% CI - PE", type = 'scatter', mode = 'lines',
+            line = list(color = "#88F56E", width = 3, dash = 'solid'),
+            legendgroup = "pe", showlegend = FALSE) %>%
+  add_trace(psPCI, x = ~psPCI$linemz, y = ~psPCI$lineccs,
+            name = "Phosphoserines", type = 'scatter', mode = 'lines',
+            line = list(color = "#BEECB2", width = 3),
+            legendgroup = "ps", showlegend = TRUE) %>%
+  add_trace(psPCI, x = ~psPCI$linemz, y = ~(psPCI$lineccs + psPCI$pi), type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(190, 236, 178, 0.25)",
+            line = list(color = "#BEECB2", width = 3, dash = 'dash'),
+            legendgroup = "ps", showlegend = FALSE) %>%
+  add_trace(psPCI, x = ~psPCI$linemz, y = ~(psPCI$lineccs - psPCI$pi), type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(190, 236, 178, 0.25)",
+            line = list(color = "#BEECB2", width = 3, dash = 'dash'),
+            legendgroup = "ps", showlegend = FALSE) %>%
+  add_trace(psPCI, x = ~psPCI$linemz, y = ~(psPCI$lineccs + psPCI$ci), type = 'scatter', mode = 'lines',
+            line = list(color = "#BEECB2", width = 3, dash = 'solid'),
+            legendgroup = "ps", showlegend = FALSE) %>%
+  add_trace(psPCI, x = ~psPCI$linemz, y = ~(psPCI$lineccs - psPCI$ci), type = 'scatter', mode = 'lines',
+            line = list(color = "#BEECB2", width = 3, dash = 'solid'),
+            legendgroup = "ps", showlegend = FALSE) %>%
+  add_trace(cerPCI, x = ~cerPCI$linemz, y = ~cerPCI$lineccs,
+          name = "Ceramides", type = 'scatter', mode = 'lines',
+          line = list(color = "#BEECB2", width = 3),
+          legendgroup = "cer", showlegend = TRUE) %>%
+  add_trace(cerPCI, x = ~cerPCI$linemz, y = ~(cerPCI$lineccs + cerPCI$pi), type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(190, 236, 178, 0.25)",
+            line = list(color = "#BEECB2", width = 3, dash = 'dash'),
+            legendgroup = "cer", showlegend = FALSE) %>%
+  add_trace(cerPCI, x = ~cerPCI$linemz, y = ~(cerPCI$lineccs - cerPCI$pi), type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(190, 236, 178, 0.25)",
+            line = list(color = "#BEECB2", width = 3, dash = 'dash'),
+            legendgroup = "cer", showlegend = FALSE) %>%
+  add_trace(cerPCI, x = ~cerPCI$linemz, y = ~(cerPCI$lineccs + cerPCI$ci), type = 'scatter', mode = 'lines',
+            line = list(color = "#BEECB2", width = 3, dash = 'solid'),
+            legendgroup = "cer", showlegend = FALSE) %>%
+  add_trace(cerPCI, x = ~cerPCI$linemz, y = ~(cerPCI$lineccs - cerPCI$ci), type = 'scatter', mode = 'lines',
+            line = list(color = "#BEECB2", width = 3, dash = 'solid'),
+            legendgroup = "cer", showlegend = FALSE) %>%
+  add_trace(gslPCI, x = ~gslPCI$linemz, y = ~gslPCI$lineccs,
+          name = "Glycosphingolipids", type = 'scatter', mode = 'lines',
+          line = list(color = "#BEECB2", width = 3),
+          legendgroup = "gsl", showlegend = TRUE) %>%
+  add_trace(gslPCI, x = ~gslPCI$linemz, y = ~(gslPCI$lineccs + gslPCI$pi), type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(190, 236, 178, 0.25)",
+            line = list(color = "#BEECB2", width = 3, dash = 'dash'),
+            legendgroup = "gsl", showlegend = FALSE) %>%
+  add_trace(gslPCI, x = ~gslPCI$linemz, y = ~(gslPCI$lineccs - gslPCI$pi), type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(190, 236, 178, 0.25)",
+            line = list(color = "#BEECB2", width = 3, dash = 'dash'),
+            legendgroup = "gsl", showlegend = FALSE) %>%
+  add_trace(gslPCI, x = ~gslPCI$linemz, y = ~(gslPCI$lineccs + gslPCI$ci), type = 'scatter', mode = 'lines',
+            line = list(color = "#BEECB2", width = 3, dash = 'solid'),
+            legendgroup = "gsl", showlegend = FALSE) %>%
+  add_trace(gslPCI, x = ~gslPCI$linemz, y = ~(gslPCI$lineccs - gslPCI$ci), type = 'scatter', mode = 'lines',
+            line = list(color = "#BEECB2", width = 3, dash = 'solid'),
+            legendgroup = "gsl", showlegend = FALSE) %>%
+  add_trace(psphingoPCI, x = ~psphingoPCI$linemz, y = ~psphingoPCI$lineccs,
+          name = "Phosphoshingolipids", type = 'scatter', mode = 'lines',
+          line = list(color = "#BEECB2", width = 3),
+          legendgroup = "pshingo", showlegend = TRUE) %>%
+  add_trace(psphingoPCI, x = ~psphingoPCI$linemz, y = ~(psphingoPCI$lineccs + psphingoPCI$pi), type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(190, 236, 178, 0.25)",
+            line = list(color = "#BEECB2", width = 3, dash = 'dash'),
+            legendgroup = "pshingo", showlegend = FALSE) %>%
+  add_trace(psphingoPCI, x = ~psphingoPCI$linemz, y = ~(psphingoPCI$lineccs - psphingoPCI$pi), type = 'scatter', mode = 'lines',
+            fill = "tonexty", fillcolor = "rgba(190, 236, 178, 0.25)",
+            line = list(color = "#BEECB2", width = 3, dash = 'dash'),
+            legendgroup = "pshingo", showlegend = FALSE) %>%
+  add_trace(psphingoPCI, x = ~psphingoPCI$linemz, y = ~(psphingoPCI$lineccs + psphingoPCI$ci), type = 'scatter', mode = 'lines',
+            line = list(color = "#BEECB2", width = 3, dash = 'solid'),
+            legendgroup = "pshingo", showlegend = FALSE) %>%
+  add_trace(psphingoPCI, x = ~psphingoPCI$linemz, y = ~(psphingoPCI$lineccs - psphingoPCI$ci), type = 'scatter', mode = 'lines',
+            line = list(color = "#BEECB2", width = 3, dash = 'solid'),
+            legendgroup = "pshingo", showlegend = FALSE) %>%
+  add_trace(s.l, x= ~s.l$mzp, x0 = 0, y= ~s.l$ccsz, y0 = 0,
+            type = "scatter", mode = "markers", showlegend = TRUE,
+            marker = list(size = 8, symbol = "x-thin-open", color = "rgba(50, 50, 50, 0.85)")) %>%
+  layout(xaxis = list(title = "<b>m/z</b>",
+                      titlefont = list(family = "Arial", size = 30, color = "#000000"),
+                      zeroline = FALSE, showline = TRUE, linewidth = 10,
+                      ticks = "outside", ticklen = 10, tickwidth = 10,
+                      tickfont = list(family = "Arial", size = 26, color = "#000000"),
+                      showgrid = FALSE),
+         yaxis = list(title = "<b>CCS/z</b>",
+                      titlefont = list(family = "Arial", size = 30, color = "#000000"),
+                      zeroline = FALSE, showline = TRUE, linewidth = 10,
+                      ticks = "outside", ticklen = 10, tickwidth = 10,
+                      tickfont = list(family = "Arial", tick0 = 0, size = 26, color = "#000000"),
+                      showgrid = FALSE, autosize = TRUE),
+         margin = list(t = 100, l = 100, b = 100))
+sl.p
+
+```
+

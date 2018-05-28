@@ -1,0 +1,593 @@
+---
+title: "iceberg"
+author: "JA Picache & BS Rose"
+date: "12/18/2017"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+setwd("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/InputData/")
+setwd("~/Box Sync/20171218JAP_iceberg/InputData/")
+library(tidyverse)
+library(data.table)
+library(plotly)
+library(plyr)
+
+```
+
+#Data Prep
+```{r}
+
+#MSMLS prep - done
+
+fullMSMLSpos <- read.csv("MSMLSfull_JAPclass_pos.csv", header = TRUE, stringsAsFactors = FALSE)
+fullMSMLSneg <- read.csv("MSMLSfull_JAPclass_neg.csv", header = TRUE, stringsAsFactors = FALSE)
+
+#pos
+fullMSMLSpos$m.z <- as.numeric(as.character(fullMSMLSpos$m.z))
+fullMSMLSpos$SF.CCSavg <- as.numeric(as.character(fullMSMLSpos$SF.CCSavg))
+MSMLSpos <- fullMSMLSpos[!is.na(fullMSMLSpos$m.z) & !is.na(fullMSMLSpos$SF.CCSavg),]
+MSMLSpos$Adduct <- ifelse (MSMLSpos$Adduct == "(M+H)+" | MSMLSpos$Adduct == "(M+H)+*", "[M+H]", MSMLSpos$Adduct)
+MSMLSpos$Adduct <- ifelse (MSMLSpos$Adduct == "(M+Na)+" | MSMLSpos$Adduct == "(M+Na)+*", "[M+Na]", MSMLSpos$Adduct)
+MSMLSpos$Adduct <- ifelse (MSMLSpos$Adduct == "(M+2H)2+", "[M+2H]", MSMLSpos$Adduct)
+MSMLSpos$Adduct <- ifelse (MSMLSpos$Adduct == "(M+H)+[-H2O]", "[M+H-H2O]", MSMLSpos$Adduct)
+MSMLSpos$Adduct <- ifelse (MSMLSpos$Adduct == "(M+K)+", "[M+K]", MSMLSpos$Adduct)
+MSMLSpos$Adduct <- ifelse (MSMLSpos$Adduct == "(M+Na)+[-H2O]", "[M+Na-H2O]", MSMLSpos$Adduct)
+MSMLSpos$Adduct <- ifelse (MSMLSpos$Adduct == "(M+H)+[-H2O]", "[M+H-H2O]", MSMLSpos$Adduct)
+MSMLSpos$Adduct <- ifelse (MSMLSpos$Adduct == "(M+NH4)+", "[M+NH4]", MSMLSpos$Adduct)
+MSMLSpos$Adduct <- ifelse (MSMLSpos$Adduct == "M+", "[M+]", MSMLSpos$Adduct)
+MSMLSpos$Adduct <- ifelse (MSMLSpos$Adduct == "M+[-H+Na]", "[M-H+Na]", MSMLSpos$Adduct)
+
+curMSMLSpos <- as.data.frame(cbind(MSMLSpos$Compound, MSMLSpos$Formula, MSMLSpos$CAS_MSMLS, MSMLSpos$m.z, MSMLSpos$Adduct, MSMLSpos$SF.CCSavg, MSMLSpos$RSD, MSMLSpos$Kingdom, MSMLSpos$Super.Class, MSMLSpos$Class, MSMLSpos$Subclass))
+curMSMLSpos$Source <- "McLean/MSMLS"
+curMSMLSpos$DOI <- "unpublished"
+colnames(curMSMLSpos) <- c("Compound", "Formula", "CAS", "mz", "Adduct", "CCS", "RSD", "Kingdom", "Super.Class", "Class", "Subclass", "Source", "DOI")
+rownames(curMSMLSpos) <- 1:nrow(curMSMLSpos)
+
+curMSMLSpos$Class <- as.character(curMSMLSpos$Class)
+curMSMLSpos$Class <- ifelse(curMSMLSpos$Class == "Pyridines and derivatives ", "Pyridines and derivatives", curMSMLSpos$Class)
+
+#neg
+fullMSMLSneg$Adduct <- as.numeric(as.character(fullMSMLSneg$Adduct))
+fullMSMLSneg$RSD <- as.numeric(as.character(fullMSMLSneg$RSD))
+MSMLSneg <- fullMSMLSneg[!is.na(fullMSMLSneg$Adduct) & !is.na(fullMSMLSneg$RSD),]
+MSMLSneg$SF.DT1 <- ifelse(MSMLSneg$SF.DT1 == "(M-2H+Na)-", "[M-2H+Na]", MSMLSneg$SF.DT1)
+MSMLSneg$SF.DT1 <- ifelse(MSMLSneg$SF.DT1 == "(M-H)-", "[M-H]", MSMLSneg$SF.DT1)
+MSMLSneg$SF.DT1 <- ifelse(MSMLSneg$SF.DT1 == "(M-H)-[+H2O]", "[M-H+H2O]", MSMLSneg$SF.DT1)
+MSMLSneg$SF.DT1 <- ifelse(MSMLSneg$SF.DT1 == "(M+Cl)-", "[M+Cl]", MSMLSneg$SF.DT1)
+MSMLSneg$SF.DT1 <- ifelse(MSMLSneg$SF.DT1 == "[M-H2O-H]", "[M-H-H2O]", MSMLSneg$SF.DT1)
+MSMLSneg$SF.DT1 <- ifelse(MSMLSneg$SF.DT1 == "[M+Na-H]", "[M-H+Na]", MSMLSneg$SF.DT1)
+
+curMSMLSneg <- as.data.frame(cbind(MSMLSneg$Compound, MSMLSneg$Formula, MSMLSneg$CAS_MSMLS, MSMLSneg$Adduct, MSMLSneg$SF.DT1, MSMLSneg$RSD, MSMLSneg$Percent.Difference_SFvsMF, MSMLSneg$Kingdom, MSMLSneg$Super.Class, MSMLSneg$Class, MSMLSneg$Subclass))
+curMSMLSneg$Source <- "McLean/MSMLS"
+curMSMLSneg$DOI <- "unpublished"
+colnames(curMSMLSneg) <- c("Compound", "Formula", "CAS", "mz", "Adduct", "CCS", "RSD", "Kingdom", "Super.Class", "Class", "Subclass", "Source", "DOI")
+rownames(curMSMLSneg) <- 1:nrow(curMSMLSneg)
+
+rm(MSMLSpos, MSMLSneg)
+
+
+#JCM - done
+
+fullJCM <- read.csv("JCM.csv", header = TRUE, stringsAsFactors = FALSE)
+
+#DOI assignment
+fullJCM$Ref. <- ifelse(fullJCM$Ref. == 1, "unpublished", fullJCM$Ref.)
+fullJCM$Ref. <- ifelse(fullJCM$Ref. == 2, "10.1021/ac4038448", fullJCM$Ref.)
+fullJCM$Ref. <- ifelse(fullJCM$Ref. == 3, "10.1021/acs.analchem.6b04171", fullJCM$Ref.)
+fullJCM$Ref. <- ifelse(fullJCM$Ref. == 4, "10.1021/acs.analchem.6b01728", fullJCM$Ref.)
+fullJCM$Ref. <- ifelse(fullJCM$Ref. == 5, "10.1021/acs.analchem.7b01729", fullJCM$Ref.)
+fullJCM$Ref. <- ifelse(fullJCM$Ref. == 6, "10.1016/j.ijms.2017.09.014", fullJCM$Ref.)
+fullJCM$Ref. <- ifelse(fullJCM$Ref. == 7, "10.1039/C8AN00056E", fullJCM$Ref.)
+fullJCM$Ref. <- ifelse(fullJCM$Ref. == 8, "10.1016/j.aca.2016.07.031", fullJCM$Ref.)
+fullJCM$Ref. <- ifelse(fullJCM$Ref. == 9, "10.1021/ac5001652", fullJCM$Ref.)
+fullJCM$Ref. <- ifelse(fullJCM$Ref. == 10, "10.1021/acs.analchem.5b01084", fullJCM$Ref.)
+fullJCM$Source <- "McLean"
+#49 overlap with Andrzej's data; we're going to include both
+
+#pos
+curJCMpos <- as.data.frame(subset(fullJCM, fullJCM$Ion == "pos"))
+curJCMpos <- as.data.frame(subset(curJCMpos[,c(1, 3, 2, 5, 8:9, 11, 14:18, 13)]))
+colnames(curJCMpos) <- c("Compound", "Formula", "CAS", "mz", "Adduct", "CCS", "RSD", "Kingdom", "Super.Class", "Class", "Subclass", "Source", "DOI")
+
+#pos adducts
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "(-2H2O+H)+", "[M+H-2H2O]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "(-2H2O+Na)+", "[M+Na-2H2O]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "(-H+2Na)+", "[M+2Na-H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "(-H2O+H)+", "[M+H-H2O]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "(+)", "[M+]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "(+H)+", "[M+H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "(+Na)+", "[M+Na]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+10H", "[M+10H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+11H", "[M+11H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+12H", "[M+12H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+13H", "[M+13H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+14H", "[M+14H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+15H", "[M+15H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+16H", "[M+16H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+17H", "[M+17H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+18H", "[M+18H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+19H", "[M+19H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+20H", "[M+20H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+21H", "[M+21H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+22H", "[M+22H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+23H", "[M+23H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+24H", "[M+24H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+25H", "[M+25H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+26H", "[M+26H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+27H", "[M+27H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+28H", "[M+28H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+29H", "[M+29H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+2H", "[M+2H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+30H", "[M+30H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+31H", "[M+31H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+3H", "[M+3H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+4H", "[M+4H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+5H", "[M+5H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+6H", "[M+6H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+7H", "[M+7H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+8H", "[M+8H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+9H", "[M+9H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+H", "[M+H]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+Na", "[M+Na]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+K", "[M+K]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "+", "[M+]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "(+K)+", "[M+K]", curJCMpos$Adduct)
+curJCMpos$Adduct <- ifelse(curJCMpos$Adduct == "(-H2O+Na)+", "[M+H-H2O]", curJCMpos$Adduct)
+
+#neg
+curJCMneg <- as.data.frame(subset(fullJCM, fullJCM$Ion == "neg"))
+curJCMneg <- as.data.frame(subset(curJCMneg[,c(1, 3, 2, 5, 8:9, 11, 14:18, 13)]))
+colnames(curJCMneg) <- c("Compound", "Formula", "CAS", "mz", "Adduct", "CCS", "RSD", "Kingdom", "Super.Class", "Class", "Subclass", "Source", "DOI")
+
+#neg adducts
+curJCMneg$Adduct <- ifelse(curJCMneg$Adduct == "-2H", "[M-2H]", curJCMneg$Adduct)
+curJCMneg$Adduct <- ifelse(curJCMneg$Adduct == "-3H", "[M-3H]", curJCMneg$Adduct)
+curJCMneg$Adduct <- ifelse(curJCMneg$Adduct == "[M+CH3COO]", "[M+CH3COO-]", curJCMneg$Adduct)
+curJCMneg$Adduct <- ifelse(curJCMneg$Adduct == "+CF3COO(-)", "[M+CF3COO-]", curJCMneg$Adduct)
+curJCMneg$Adduct <- ifelse(curJCMneg$Adduct == "+OH(-)", "[M+OH-]", curJCMneg$Adduct)
+curJCMneg$Adduct <- ifelse(curJCMneg$Adduct == "(-H)", "[M-H]", curJCMneg$Adduct)
+curJCMneg$Adduct <- ifelse(curJCMneg$Adduct == "+Ac", "[M+CF3COO-]", curJCMneg$Adduct)
+
+
+#ABpeptide - done
+
+fullABpeptide <- read.csv("AB_trypticpeptidic.csv", header = TRUE, stringsAsFactors = FALSE)
+
+curABpeptide <- as.data.frame(cbind(fullABpeptide[, c(1, 3, 24, 41, 43)]))
+curABpeptide$rsd.1 <- gsub("%", "", curABpeptide$rsd.1)
+curABpeptide <- subset(curABpeptide, !(is.na(curABpeptide$avg.1)))
+row.names(curABpeptide) <- 1:nrow(curABpeptide)
+curABpeptide$formula <- as.character(curABpeptide$formula)
+curABpeptide$CAS <- NA
+#curABpeptide$CAS <- fullJCM$CAS.Number[match(curABpeptide$peptide, fullJCM$Compound.Name)] #This isn't working.
+curABpeptide$Kingdom <- "Organic compounds"
+curABpeptide$Super.Class <- "Organic acids and derivatives"
+curABpeptide$Class <- "Tryptic peptides"
+curABpeptide$Subclass <- NA
+curABpeptide$Adduct <- "[M+H]"
+curABpeptide$Adduct <- as.character(curABpeptide$Adduct)
+curABpeptide$Adduct <- ifelse(endsWith(curABpeptide$formula, "Na"), "[M+Na]", curABpeptide$Adduct)
+curABpeptide$Source <-"McLean/AB"
+curABpeptide$DOI <- "unpublished"
+curABpeptide <- curABpeptide[,c(1, 2, 6, 3, 11, 4:5, 7:10, 12, 13)]
+colnames(curABpeptide) <- c("Compound", "Formula", "CAS", "mz", "Adduct", "CCS", "RSD", "Kingdom", "Super.Class", "Class", "Subclass", "Source", "DOI")
+
+rm(fullABpeptide, fullJCM)
+
+
+#ABxeno - done
+
+fullABxeno <- read.csv("AB_xeno.csv", header = TRUE, stringsAsFactors = FALSE)
+
+curABxeno <- as.data.frame(cbind(fullABxeno$compound, fullABxeno$formula, fullABxeno$mz, fullABxeno$Adduct, fullABxeno$CCS, fullABxeno$RSD, fullABxeno$CAS, fullABxeno$Kingdom, fullABxeno$Super.Class, fullABxeno$Class, fullABxeno$Subclass))
+curABxeno$Source <- "McLean/AB"
+curABxeno$DOI <- "unpublished"
+curABxeno <- curABxeno[,c(1, 2, 7, 3:6, 8:13)]
+colnames(curABxeno) <- c("Compound", "Formula", "CAS", "mz", "Adduct", "CCS", "RSD", "Kingdom", "Super.Class", "Class", "Subclass", "Source", "DOI")
+curABxeno$RSD <- gsub("%", "", curABxeno$RSD)
+row.names(curABxeno) <- 1:nrow(curABxeno)
+
+#adduct classification
+curABxeno$Adduct <- ifelse(curABxeno$Adduct == "", NA, "[M+H-H2O]")
+curABxeno$Formula <- as.character(curABxeno$Formula)
+curABxeno$Adduct <- ifelse(endsWith(curABxeno$Formula, ")2Na"), "[2M+Na]", curABxeno$Adduct)
+curABxeno$Adduct <- ifelse(endsWith(curABxeno$Formula, ")2H"), "[2M+H]", curABxeno$Adduct)
+curABxeno$Adduct <- ifelse(endsWith(curABxeno$Formula, ")2K"), "[2M+K]", curABxeno$Adduct)
+curABxeno$Adduct <- ifelse(endsWith(curABxeno$Formula, "HNa"), "[M+H+Na]", curABxeno$Adduct)
+curABxeno$Adduct <- ifelse(endsWith(curABxeno$Formula, "HK"), "[M+H+K]", curABxeno$Adduct)
+curABxeno$Adduct <- ifelse(endsWith(curABxeno$Formula, "HH2O"), "[M+H+H2O]", curABxeno$Adduct)
+curABxeno$Adduct <- ifelse(endsWith(curABxeno$Formula, "HHH"), "[M+3H]", curABxeno$Adduct)
+curABxeno$Adduct <- ifelse(endsWith(curABxeno$Formula, "NH4"), "[M+NH4]", curABxeno$Adduct)
+curABxeno$Adduct <- ifelse(endsWith(curABxeno$Formula, "Cu"), "[M+Cu]", curABxeno$Adduct)
+curABxeno$Adduct <- ifelse(endsWith(curABxeno$Formula, "HH") & is.na(curABxeno$Adduct), "[M+2H]", curABxeno$Adduct)
+curABxeno$Adduct <- ifelse(endsWith(curABxeno$Formula, "K") & is.na(curABxeno$Adduct), "[M+K]", curABxeno$Adduct)
+curABxeno$Adduct <- ifelse(endsWith(curABxeno$Formula, "Na") & is.na(curABxeno$Adduct), "[M+Na]", curABxeno$Adduct)
+curABxeno$Adduct <- ifelse(endsWith(curABxeno$Formula, "H") & is.na(curABxeno$Adduct), "[M+H]", curABxeno$Adduct)
+curABxeno$Adduct <- ifelse(is.na(curABxeno$Adduct), "[M+H]", curABxeno$Adduct)
+
+rm(fullABxeno)
+
+
+#CBM sugars - done
+
+fullCBM <- read.csv("CBM_sugars.csv", header = TRUE, stringsAsFactors = FALSE)
+
+curCBM <- as.data.frame(cbind(fullCBM[, c(1, 2, 3, 5, 7, 9, 11:15)]))
+curCBM <- curCBM[,c(1, 2, 7, 3:6, 8:11)]
+curCBM$Source <- "McLean/CBM"
+curCBM$DOI <- "unpublished"
+colnames(curCBM) <- c("Compound", "Formula", "CAS", "mz", "Adduct", "CCS", "RSD", "Kingdom", "Super.Class", "Class", "Subclass", "Source", "DOI")
+curCBM$Adduct <- ifelse(curCBM$Adduct == "(+Na)", "[M+Na]", curCBM$Adduct)
+curCBM$Adduct <- ifelse(curCBM$Adduct == "(+K)", "[M+K]", curCBM$Adduct)
+
+rm(fullCBM)
+
+
+#PNNL by adduct
+
+fullPNNL1 <- read.csv("PNNL_fullprimary.csv", header = TRUE, stringsAsFactors = FALSE)
+fullPNNL2 <- read.csv("PNNL_fullsecondary.csv", header = TRUE, stringsAsFactors = FALSE)
+fullPNNLx <- read.csv("PNNL_fullxeno.csv", header = TRUE, stringsAsFactors = FALSE)
+fullPNNLxz <- read.csv("PNNL_fullxeno_specialcharge.csv", header = TRUE, stringsAsFactors = FALSE)
+
+colnames(fullPNNL1)[1] <- "Compound"
+colnames(fullPNNL2)[1] <- "Compound"
+colnames(fullPNNLx)[1] <- "Compound"
+
+mh <- as.data.frame(rbind(fullPNNL1[,c(1:3, 5, 9:10)], fullPNNL2[,c(1:3, 5, 9:10)], fullPNNLx[,c(1:3, 5, 9:10)]))
+mh$Ω.Average <- ifelse(mh$Ω.Average == "" | mh$Formula == "Formula", NA, mh$Ω.Average)
+mh <- mh[!is.na(mh$Ω.Average),]
+mh$Adduct <- "[M+H]"
+mh$Adduct <- ifelse(mh$CAS == "62-49-7" | mh$CAS == "528-58-5" | mh$CAS == "13270-61-6" | mh$CAS == "10463-84-0" , "[M*]", mh$Adduct)
+mh$Adduct <- ifelse(mh$CAS == "68-19-9" | mh$CAS == "84366-81-4", "[M+2H]", mh$Adduct)
+mh$Source <- "PNNL/Baker"
+mh$DOI <- "10.1039/C7SC03464D"
+mh <- as.data.frame(cbind(mh[c(1, 3, 2, 4, 7, 5:6, 8:9)]))
+colnames(mh) <- c("Compound", "Formula", "CAS", "mz", "Adduct", "CCS", "RSD", "Source", "DOI")
+row.names(mh) <- 1:nrow(mh)
+
+mna <- as.data.frame(rbind(fullPNNL1[,c(1:3, 11, 15:16)], fullPNNL2[,c(1:3, 11, 15:16)], fullPNNLx[,c(1:3, 11, 15:16)]))
+mna$Ω.Average <- ifelse(mna$Ω.Average == "" | mna$Formula == "Formula", NA, mna$Ω.Average)
+mna <- mna[!is.na(mna$Ω.Average),]
+mna$Adduct <- "[M+Na]"
+mna$Adduct <- ifelse(mna$CAS == "68-19-9", "[M+2Na]", mna$Adduct)
+mna$Source <- "PNNL/Baker"
+mna$DOI <- "10.1039/C7SC03464D"
+mna <- as.data.frame(cbind(mna[c(1, 3, 2, 4, 7, 5:6, 8:9)]))
+colnames(mna) <- c("Compound", "Formula", "CAS", "mz", "Adduct", "CCS", "RSD", "Source", "DOI")
+row.names(mna) <- 1:nrow(mna)
+
+minush <- as.data.frame(rbind(fullPNNL1[,c(1:3, 11, 15:16)], fullPNNL2[,c(1:3, 11, 15:16)], fullPNNLx[,c(1:3, 11, 15:16)]))
+minush$Ω.Average <- ifelse(minush$Ω.Average == "" | minush$Formula == "Formula", NA, minush$Ω.Average)
+minush <- minush[!is.na(minush$Ω.Average),]
+minush$Adduct <- "[M-H]"
+minush$Source <- "PNNL/Baker"
+minush$DOI <- "10.1039/C7SC03464D"
+minush <- as.data.frame(cbind(minush[c(1, 3, 2, 4, 7, 5:6, 8:9)]))
+colnames(minush) <- c("Compound", "Formula", "CAS", "mz", "Adduct", "CCS", "RSD", "Source", "DOI")
+row.names(minush) <- 1:nrow(minush)
+
+minusclo <- rbind(fullPNNLxz[1:26,])
+minusclo <- as.data.frame(cbind(minusclo[c(1, 3, 2, 5, 9, 10)]))
+minusclo$Class <- "PCB"
+minusclo$Adduct <- "[M-Cl+O]"
+minusclo$Source <- "PNNL/Baker"
+colnames(minusclo) <- c("Compound", "Formula", "CAS", "mz", "CCS", "RSD", "Class", "Adduct", "Source")
+minusclo$DOI <- "10.1039/C7SC03464D"
+
+minusbro <- rbind(fullPNNLxz[28:43,])
+minusbro <- as.data.frame(cbind(minusbro[c(1, 3, 2, 5, 9, 10)]))
+minusbro$Class <- "BDE"
+minusbro$Adduct <- "[M-Br+O]"
+minusbro$Source <- "PNNL/Baker"
+colnames(minusbro) <- c("Compound", "Formula", "CAS", "mz", "CCS", "RSD", "Class", "Adduct", "Source")
+minusbro$DOI <- "10.1039/C7SC03464D"
+
+mrad <- rbind(fullPNNLxz[45:nrow(fullPNNLxz),])
+mrad <- as.data.frame(cbind(mrad[c(1, 3, 2, 5, 9, 10)]))
+mrad$Class <- "PAH"
+mrad$Adduct <- "[M*]"
+mrad$Source <- "PNNL/Baker"
+colnames(mrad) <- c("Compound", "Formula", "CAS", "mz", "CCS", "RSD", "Class", "Adduct", "Source")
+mrad$DOI <- "10.1039/C7SC03464D"
+
+write.csv(mh, file = "~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/PNNLout/mh.csv")
+write.csv(minush, file = "~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/PNNLout/minush.csv")
+write.csv(mna, file = "~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/PNNLout/mna.csv")
+write.csv(minusbro, file = "~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/PNNLout/minusbro.csv")
+write.csv(minusclo, file = "~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/PNNLout/minusclo.csv")
+write.csv(mrad, file = "~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/PNNLout/mrad.csv")
+
+#PNNL Classification
+
+#colnames(fullPNNL1)[2] <- "CAS"
+#colnames(fullPNNL2)[2] <- "CAS"
+#colnames(fullPNNLx)[2] <- "CAS"
+##colnames(fullPNNLxz)[2] <- "CAS"
+#colnames(fullMSMLSpos)[30] <- "CAS"
+#colnames(fullMSMLSneg)[31] <- "CAS"
+
+#class1 <- merge(fullPNNL1, fullMSMLSpos, "CAS")
+#class1 <- as.data.frame(cbind(class1[,c(2:3, 1, 4:7, 21:26, 8:9)]))
+##class1 <- merge(class1, fullMSMLSneg, "CAS")
+##class1 <- as.data.frame(cbind(class1[,c(2:3, 1, 4:18, 58:61)]))
+#class2 <- merge(fullPNNL2, fullMSMLSpos, "CAS")
+#class2 <- as.data.frame(cbind(class2[,c(2:3, 1, 5, 9:11, 15:17, 21:22, 50, 53, 61:64)]))
+#classx <- merge(fullPNNLx, fullMSMLSpos, "CAS")
+#classx <- as.data.frame(cbind(classx[,c(2:3, 1, 5, 9:11, 15:17, 21:22, 50, 53, 61:64)]))
+##classxz <- merge(fullPNNLxz, fullMSMLSpos, "CAS") #empty
+
+#mh.match <- merge(mh, class1, "CAS")
+#mh.match <- mh.match[,c(2:3, 1, 4:7, 21:26, 8:9)]
+#mh.match <- mh.match[!duplicated(mh.match),]
+#colnames(mh.match)[9] <- c("HMDB.ID")
+
+#mna.match <- merge(mna, class1, "CAS")
+#mna.match <- as.data.frame(cbind(mna.match[,c(2:3, 1, 4:7, 21:26, 8:9)]))
+#mna.match <- mna.match[!duplicated(mna.match),]
+#colnames(mna.match)[9] <- c("HMDB.ID")
+
+#minush.match <- merge(minush, class1, "CAS")
+#minush.match <- as.data.frame(cbind(minush.match[,c(2:3, 1, 4:7, 21:26, 8:9)]))
+#minush.match <- minush.match[!duplicated(minush.match),]
+#colnames(minush.match)[9] <- c("HMDB.ID")
+
+#mrad.match <- merge(mrad, class1, "CAS") #empty
+#minusbro.match <- merge(minusbro, class1, "CAS") #empty
+#minusclo.match <- merge(minusclo, class1, "CAS") #empty
+
+#MSMLS matched output
+#write.csv(mh.match, file = "~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/PNNLout/mh.match.csv")
+#write.csv(minush.match, file = "~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/PNNLout/minush.match.csv")
+#write.csv(mna.match, file = "~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/PNNLout/mna.match.csv")
+#write.csv(minusbro, file = "~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/PNNLout/minusbro.match.csv")
+#write.csv(minusclo, file = "~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/PNNLout/minusclo.match.csv")
+#write.csv(mrad, file = "~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/PNNLout/mrad.match.csv")
+
+#fully classified
+mh_class <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/PNNLout/mh_class.csv", header = TRUE, stringsAsFactors = FALSE)
+mna_class <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/PNNLout/mna_class.csv", header = TRUE, stringsAsFactors = FALSE)
+mrad_class <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/PNNLout/mrad_class.csv", header = TRUE, stringsAsFactors = FALSE)
+minush_class <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/PNNLout/minush_class.csv", header = TRUE, stringsAsFactors = FALSE)
+minusbro_class <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/PNNLout/minusbro_class.csv", header = TRUE, stringsAsFactors = FALSE)
+minusclo_class <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/PNNLout/minusclo_class.csv", header = TRUE, stringsAsFactors = FALSE)
+
+rm(fullMSMLSpos, fullMSMLSneg, fullPNNL1, fullPNNL2, fullPNNLx, fullPNNLxz, mh, mh.match, mna, mna.match, mrad, minush, minush.match, minusbro, minusclo, class1, class2, classx)
+
+```
+
+
+#curated MASTER list_pos
+```{r}
+MASTERpos <- as.data.frame(rbind(curJCMpos, curMSMLSpos, curCBM, curABpeptide, curABxeno, mh_class, mna_class, mrad_class))
+MASTERpos$mz <- as.numeric(as.character(MASTERpos$mz))
+MASTERpos$CCS <- as.numeric(as.character(MASTERpos$CCS))
+MASTERpos$RSD <- as.numeric(as.character(MASTERpos$RSD))
+rm(curMSMLSpos, mh_class, mna_class, mrad_class, curCBM, curABxeno, curABpeptide, curJCMpos)
+curMASTERpos <- MASTERpos[!is.na(MASTERpos$mz) & !is.na(MASTERpos$CCS),]
+curMASTERpos <- curMASTERpos[order(curMASTERpos$mz, curMASTERpos$CCS),]
+
+curMASTERpos$Charge <- NA
+curMASTERpos$Adduct <- ifelse(curMASTERpos$Adduct == "[M+]", "[M*]", curMASTERpos$Adduct)
+curMASTERpos$Adduct <- ifelse(curMASTERpos$Adduct == "[M-H+2Na]", "[M+2Na-H]", curMASTERpos$Adduct)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M*]" | curMASTERpos$Adduct == "[M+H]" | curMASTERpos$Adduct == "[M+Na]" |curMASTERpos$Adduct == "[M+H-H2O]" | curMASTERpos$Adduct == "[M+K]" |curMASTERpos$Adduct == "[M-H]" | curMASTERpos$Adduct == "[M+H+H2O]" | curMASTERpos$Adduct == "[M+H-2H2O]" | curMASTERpos$Adduct == "[2M+H]" | curMASTERpos$Adduct == "[M+2Na-H]" | curMASTERpos$Adduct == "[2M+Na]" | curMASTERpos$Adduct == "[M+Na-2H2O]" | curMASTERpos$Adduct == "[M+NH4]" | curMASTERpos$Adduct == "[M+H+K]" | curMASTERpos$Adduct == "[M+Cu]" | curMASTERpos$Adduct == "[2M+K]", 1, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+2H]" | curMASTERpos$Adduct == "[M+2Na]" | curMASTERpos$Adduct == "[M+H+Na]" | curMASTERpos$Adduct == "[M+H+K]", 2, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+3H]", 3, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+4H]", 4, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+5H]", 5, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+6H]", 6, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+7H]", 7, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+8H]", 8, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+9H]", 9, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+10H]", 10, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+11H]", 11, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+12H]", 12, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+13H]", 13, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+14H]", 14, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+15H]", 15, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+16H]", 16, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+17H]", 17, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+18H]", 18, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+19H]", 19, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+20H]", 20, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+21H]", 21, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+22H]", 22, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+23H]", 23, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+24H]", 24, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+25H]", 25, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+26H]", 26, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+27H]", 27, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+28H]", 28, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+29H]", 29, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+30H]", 30, curMASTERpos$Charge)
+curMASTERpos$Charge <- ifelse(curMASTERpos$Adduct == "[M+31H]", 31, curMASTERpos$Charge)
+
+curMASTERpos$Charge <- as.numeric(curMASTERpos$Charge)
+curMASTERpos$CCS.z <- curMASTERpos$CCS/curMASTERpos$Charge
+curMASTERpos$CCS.z <- as.numeric(as.character(curMASTERpos$CCS.z))
+curMASTERpos <- curMASTERpos[, c(1:5, 14, 6:7, 15, 8:13)]
+
+curMASTERpos$Kingdom <- ifelse(curMASTERpos$Kingdom == "Organic Compounds" | curMASTERpos$Kingdom == "Organic Compounds ", "Organic compounds", curMASTERpos$Kingdom)
+curMASTERpos$Kingdom <- ifelse(curMASTERpos$Kingdom == "Inorganic Compounds" | curMASTERpos$Kingdom == "Inorganic coumpounds", "Inorganic compounds", curMASTERpos$Kingdom)
+curMASTERpos$Super.Class <- ifelse(curMASTERpos$Super.Class == "Organoheterocyclic compound", "Organoheterocyclic compounds", curMASTERpos$Super.Class)
+curMASTERpos$Super.Class <- ifelse(curMASTERpos$Super.Class == "Polyhedralcarbon molecule", "Polyhedralcarbon molecules", curMASTERpos$Super.Class)
+curMASTERpos$Super.Class <- ifelse(curMASTERpos$Super.Class == "Organic Polymers", "Organic polymers", curMASTERpos$Super.Class)
+curMASTERpos$Class <- ifelse(curMASTERpos$Class == "Fatty Acyls", "Fatty acyls", curMASTERpos$Class)
+curMASTERpos$Class <- ifelse(curMASTERpos$Class == "Tryptic Peptide" | curMASTERpos$Class == "Tryptic peptide", "Tryptic peptides", curMASTERpos$Class)
+curMASTERpos$Class <- ifelse(curMASTERpos$Class == "Organic phosophonic acids and derivatives", "Organic phosphonic acids and derivatives", curMASTERpos$Class)
+curMASTERpos$Subclass <- ifelse(curMASTERpos$Class == "Ceramides", "Ceramides", curMASTERpos$Subclass)
+curMASTERpos$Class <- ifelse(curMASTERpos$Class == "Ceramides", "Sphingolipids", curMASTERpos$Class)
+curMASTERpos$Subclass <- ifelse(curMASTERpos$Class == "Glycerophosphates", "Glycerophosphates", curMASTERpos$Subclass)
+curMASTERpos$Subclass <- ifelse(curMASTERpos$Class == "Glycerophosphocholines", "Glycerophosphocholines", curMASTERpos$Subclass)
+curMASTERpos$Subclass <- ifelse(curMASTERpos$Class == "Glycerophosphoethanolamines", "Glycerophosphoethanolamines", curMASTERpos$Subclass)
+curMASTERpos$Subclass <- ifelse(curMASTERpos$Class == "Glycerophosphoserines", "Glycerophosphoserines", curMASTERpos$Subclass)
+curMASTERpos$Subclass <- ifelse(curMASTERpos$Class == "Glycerophosphocholines", "Glycerophosphocholines", curMASTERpos$Subclass)
+curMASTERpos$Class <- ifelse(curMASTERpos$Subclass == "Glycerophosphates" | curMASTERpos$Subclass == "Glycerophosphocholines" | curMASTERpos$Subclass == "Glycerophosphoethanolamines" | curMASTERpos$Subclass == "Glycerophosphoserines", "Glycerophospholipids", curMASTERpos$Class)
+curMASTERpos$Subclass <- ifelse(curMASTERpos$Class == "Glycosphingolipids", "Glycosphingolipids", curMASTERpos$Subclass)
+curMASTERpos$Subclass <- ifelse(curMASTERpos$Class == "Phosphosphingolipids", "Phosphosphingolipids", curMASTERpos$Subclass)
+curMASTERpos$Subclass <- ifelse(curMASTERpos$Subclass == "Lineolic acids and derivates", "Lineolic acids and derivatives", curMASTERpos$Subclass)
+curMASTERpos$Class <- ifelse(curMASTERpos$Subclass == "Glycosphingolipids" | curMASTERpos$Subclass == "Phosphosphingolipids", "Sphingolipids", curMASTERpos$Class)
+curMASTERpos$Class <- ifelse(curMASTERpos$Class == "Fatty Acyls", "Fatty acyls", curMASTERpos$Class)
+curMASTERpos$Class <- ifelse(curMASTERpos$Class == "Linear 1,3-diarypropanoids", "Linear 1,3-diarylpropanoids", curMASTERpos$Class)
+curMASTERpos$Super.Class <- ifelse(curMASTERpos$Super.Class == "Organooxygen compounds", "Organic oxygen compounds", curMASTERpos$Super.Class)
+curMASTERpos$Class <- ifelse(curMASTERpos$Class == "Alcohols and polyols" | curMASTERpos$Class == "Carbohydrates and carbohydrate conjugates", "Organooxygen compounds", curMASTERpos$Class)
+curMASTERpos$Subclass <- ifelse(curMASTERpos$Subclass == "Polyols", "Alcohols and polyols", curMASTERpos$Subclass)
+curMASTERpos$Subclass <- ifelse(curMASTERpos$Subclass == "Monosaccharides", "Carbohydrates and carbohydrate conjugates", curMASTERpos$Subclass)
+
+write.csv(curMASTERpos, file = "~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/CuratedMaster_pos.csv")
+rm(MASTERpos)
+
+```
+
+
+#master pos plotly
+```{r}
+#FIX for weird symbols! "¬†" "√Ç"
+curMASTERpos <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/CuratedMaster_pos.csv", header = TRUE, stringsAsFactors = FALSE)
+curMASTERpos <- read.csv("~/Box Sync/20171218JAP_iceberg/R-output/CuratedMaster_pos.csv", header = TRUE, stringsAsFactors = FALSE)
+row.names(curMASTERpos) <- 1:nrow(curMASTERpos)
+curMASTERpos$Shape <- curMASTERpos$Charge
+curMASTERpos$Shape <- ifelse(curMASTERpos$Shape >=5, 5, curMASTERpos$Shape)
+curMASTERpos$Subclass <- ifelse(curMASTERpos$Subclass == "Carohydrates and carbohydrate conjugates", "Carbohydrates and carbohydrate conjugates", curMASTERpos$Subclass)
+
+super.col <- c("#740D1C", "#A5142A", "#F42813", "#DF7F12", "#C9A544", "#E3CD10", "#5DE310", "#1C9E30", "#10C890", "#23D1E3", "#3B9DE0", "#072DC8", "#6B33EC", "#BAA2F0", "#E471EC", "#D12196", "#C8C8C8")
+sym <- c("circle", "square", "diamond", "cross", "triangle-up") #1, 2, 3, 4, >4
+
+posplotly <- plot_ly(curMASTERpos, x= ~curMASTERpos$mz, x0 = 0, y= ~curMASTERpos$CCS.z, y0 = 0, type = "scatter", mode = "markers", showlegend = TRUE, color = ~Super.Class, colors = ~super.col, marker = list(size = 10), symbol = ~Shape, symbols = ~sym, stream = list(maxpoints = 10000), text = ~paste("Name: ", Compound, "<br>Formula: ", Formula, "<br>CAS: ", CAS, "<br>m/z:", curMASTERpos$mz, "<br>Charge Species: ", Adduct,"+", "<br>CCS/z:",CCS,"+/-", RSD,"%", "<br>Class/Subclass: ", Class,"/",Subclass, "<br>Source: ", Source, "<br>DOI: ", DOI), hoverlabel = list(font = list(family = "Arial", size = 20))) %>%
+  #add_trace(curMASTERpos, x= ~mz, y= ~CCS.z, type = "scatter", mode = "markers", showlegend = TRUE, color = ~Super.Class) %>%
+  add_trace(serum, x= ~serum$mz.p, x0 = 0, y= ~serum$CCSz, y0 = 0, type = "scatter", mode = "markers", showlegend = FALSE, symbol = ~serum$charge, symbols = c("circle-cross-open", "square-cross-open", "square-cross-open")) %>%
+    layout(title = "<b>CCS Compendium (cations, N>2600)</b>", titlefont = list(family = "Arial", size = 40, color = "#000000"), autosize = TRUE,
+         xaxis = list(title = "<b>m/z</b>", titlefont = list(family = "Arial", size = 30, color = "#000000"), zeroline = FALSE, showline = TRUE, linewidth = 10, ticks = "outside", ticklen = 10, tickwidth = 10, tickfont = list(family = "Arial", size = 26, color = "#000000"),showgrid = FALSE),
+         yaxis = list(title = "<b>CCS/z</b>", titlefont = list(family = "Arial", size = 30, color = "#000000"), zeroline = FALSE, showline = TRUE, linewidth = 10, ticks = "outside", ticklen = 10, tickwidth = 10, tickfont = list(family = "Arial", tick0 = 0, size = 26, color = "#000000"), showgrid = FALSE),
+        margin = list(t = 100, l = 100, b = 100))
+posplotly
+
+Sys.setenv("plotly_username"="jpicache")
+Sys.setenv("plotly_api_key"="aWljyzCLa4hmvZfCaoR9")
+api_create(posplotly, filename = "McLeanLab_Database_pos")
+
+```
+
+
+#curated MASTER list_negative mode
+```{r}
+MASTERneg <- as.data.frame(rbind(curJCMneg, curMSMLSneg, minush_class, minusbro_class, minusclo_class))
+rm(curMSMLSneg, minush_class, minusbro_class, minusclo_class, curJCMneg)
+
+MASTERneg$mz <- as.numeric(as.character(MASTERneg$mz))
+MASTERneg$CCS <- as.numeric(as.character(MASTERneg$CCS))
+MASTERneg$RSD <- as.numeric(as.character(MASTERneg$RSD))
+
+curMASTERneg <- MASTERneg[!is.na(MASTERneg$mz) & !is.na(MASTERneg$CCS),]
+curMASTERneg <- curMASTERneg[order(curMASTERneg$mz, curMASTERneg$CCS),]
+
+curMASTERneg$Charge <- NA
+curMASTERneg$Charge <- ifelse(curMASTERneg$Adduct == "[M-H]" | curMASTERneg$Adduct == "[M-Na]" | curMASTERneg$Adduct == "[M-H_H2O]" | curMASTERneg$Adduct == "[M-2H+Na]" | curMASTERneg$Adduct == "[M-H+H2O]" | curMASTERneg$Adduct == "[M-Cl+O]" | curMASTERneg$Adduct == "[M-Br+O]" | curMASTERneg$Adduct == "[M+CF3COO-]" | curMASTERneg$Adduct == "[M+OH-]" | curMASTERneg$Adduct == "[M-H-H2O]", 1, curMASTERneg$Charge)
+curMASTERneg$Charge <- ifelse(curMASTERneg$Adduct == "[M-2H]", 2, curMASTERneg$Charge)
+curMASTERneg$Charge <- ifelse(curMASTERneg$Adduct == "[M-3H]", 3, curMASTERneg$Charge)
+curMASTERneg$Class <- ifelse(curMASTERneg$Class == "Fatty Acyls", "Fatty acyls", curMASTERneg$Class)
+curMASTERneg$Class <- ifelse(curMASTERneg$Class == "Linear 1,3-diarypropanoids", "Linear 1,3-diarylpropanoids", curMASTERneg$Class)
+curMASTERneg$Super.Class <- ifelse(curMASTERneg$Super.Class == "Organooxygen compounds", "Organic oxygencompounds", curMASTERneg$Super.Class)
+curMASTERneg$Class <- ifelse(curMASTERneg$Class == "Alcohols and polyols" | curMASTERneg$Class == "Carbohydrates and carbohydrate conjugates", "Organooxygen compounds", curMASTERneg$Class)
+curMASTERneg$Subclass <- ifelse(curMASTERneg$Subclass == "Polyols", "Alcohols and polyols", curMASTERneg$Subclass)
+curMASTERneg$Subclass <- ifelse(curMASTERneg$Subclass == "Monosaccharides", "Carbohydrates and carbohydrate conjugates", curMASTERneg$Subclass)
+
+curMASTERneg$Charge <- as.numeric(curMASTERneg$Charge)
+curMASTERneg$CCS.z <- curMASTERneg$CCS/curMASTERneg$Charge
+curMASTERneg$CCS.z <- as.numeric(as.character(curMASTERneg$CCS.z))
+curMASTERneg <- curMASTERneg[, c(1:5, 14, 6:7, 15, 8:13)]
+
+curMASTERneg$Super.Class <- ifelse(curMASTERneg$Super.Class == "Organoheterocyclic compound", "Organoheterocyclic compounds", curMASTERneg$Super.Class)
+curMASTERneg$Class <- ifelse(curMASTERneg$Class == "Pyridines and derivatives¬†", "Pyridines and derivatives", curMASTERneg$Class)
+
+write.csv(curMASTERneg, file = "~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/CuratedMaster_neg.csv")
+rm(MASTERneg)
+
+```
+
+
+#master neg plotly
+```{r}
+#FIX for weird symbols! "¬†"
+curMASTERneg <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/CuratedMaster_neg.csv", header = TRUE, stringsAsFactors = FALSE)
+curMASTERneg$Super.Class <- ifelse(curMASTERneg$Super.Class == "Organic Polymers", "Organic polymers", curMASTERneg$Super.Class)
+curMASTERneg$Shape <- curMASTERneg$Charge
+row.names(curMASTERneg) <- 1:nrow(curMASTERneg)
+
+negplotly <- plot_ly(curMASTERneg, x= ~curMASTERneg$mz, y= ~curMASTERneg$CCS.z, type = "scatter", mode = "markers", showlegend = TRUE, color = ~Super.Class, colors = ~super.col, marker = (list(size = 10)), symbol = ~Shape, symbols = ~sym
+                     #, text = ~paste("Name: ", Compound, "<br>Formula: ", Formula, "<br>CAS: ", CAS, "<br>m/z:", curMASTERneg$mz, "<br>Adduct: ", Adduct,"-", "<br>CCS:",CCS,"+/-", RSD, "<br>Class/Subclass: ", Class,"/",Subclass, "<br>Source: ", Source, "<br>DOI: ", DOI)
+                     ) %>%
+  #add_trace(neg99, x = ~neg99$mz4P, y = ~neg99$CCS.z4P, name = "y = 456.6 + (-130.8 - 456.6)/(1 + (x/273.9)^0.0007268) <br>R^2 = 0.978", type = 'scatter', mode = 'lines', line = list(color = "#000000", width = 3), showlegend = TRUE) %>%
+  #add_trace(neg99, x = ~neg99$mz4P, y = ~(neg99$CCS.z4P + neg99$PI4P), name = "Upper 99% PI", type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(129, 250, 93, 0.3)", line = list(color = "#000000", width = 3, dash = 'dash'), showlegend = TRUE) %>%
+  #add_trace(neg99, x = ~neg99$mz4P, y = ~(neg99$CCS.z4P - neg99$PI4P), name = "Lower 99% PI", type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(129, 250, 93, 0.3)", line = list(color = "#000000", width = 3, dash = 'dash'), showlegend = TRUE) %>%
+  #add_trace(curMASTERneg, x= ~mz, y= ~CCS.z, type = "scatter", mode = "markers", showlegend = TRUE, color = ~Super.Class) %>%
+  layout(title = "<b>CCS Compendium (anions)</b>", titlefont = list(size = 30), autosize = TRUE,
+         xaxis = list(title = "<b>m/z</b>", titlefont = list(size = 22, color = "#000000"), zeroline = FALSE, showline = TRUE, linewidth = 4, ticks = "outside", ticklen = 10, tickwidth = 3, tickfont = list(size = 16, color = "#000000"),showgrid = FALSE),
+         yaxis = list(title = "<b>CCS/z</b>", titlefont = list(size = 22, color = "#000000"), zeroline = FALSE, showline = TRUE, linewidth = 4, ticks = "outside", ticklen = 10, tickwidth = 3, tickfont = list(size = 16, color = "#000000"), showgrid = FALSE),
+         margin = list(t = 70, l = 70, b = 70))
+negplotly
+
+Sys.setenv("plotly_username"="jpicache")
+Sys.setenv("plotly_api_key"="aWljyzCLa4hmvZfCaoR9")
+api_create(negplotly, filename = "McLeanLab_Database_neg")
+
+```
+
+
+#concatenation
+```{r}
+all <- rbind(curMASTERpos, curMASTERneg)
+all$Super.Class <- ifelse(all$Super.Class == "Organic Polymers", "Organic polymers", all$Super.Class)
+all$Class <- ifelse(all$Class == "Fatty Acyls", "Fatty acyls", all$Class)
+all$Shape <- all$Charge
+all$Shape <- ifelse(all$Shape >=5, 5, all$Shape)
+row.names(all) <- 1:nrow(all)
+
+#write.csv(all, "~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/allMASTER.csv")
+all <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/allMASTER.csv")
+all <- all[order(all$Super.Class, all$Class),]
+
+super.col <- c("#740D1C", "#A5142A", "#F42813", "#DF7F12", "#C9A544", "#E3CD10", "#5DE310", "#1C9E30", "#10C890", "#23D1E3", "#3B9DE0", "#072DC8", "#6B33EC", "#BAA2F0", "#E471EC", "#D12196", "#C8C8C8")
+sym <- c("circle-open", "square-open", "diamond-open", "cross-open", "triangle-up-open") #1, 2, 3, 4, >4
+
+all.plot <- plot_ly(all, x= ~all$mz, x0 = 0, y= ~all$CCS.z, y0 = 0,
+                    type = "scatter", mode = "markers", showlegend = TRUE,
+                    color = ~Super.Class, colors = ~super.col,
+                    marker = list(size = 15), symbol = ~Shape, symbols = ~sym,
+                    text = ~paste("Name: ", Compound,
+                                  "<br>Formula", Formula,
+                                  "<br>CAS: ", CAS,
+                                  "<br>m/z:", mz,
+                                  "<br>Charge Species: ", Adduct,
+                                  "<br>CCS/z:",CCS,"+/-", RSD,"%",
+                                  "<br>Class/Subclass: ", Class,"/",Subclass,
+                                  "<br>Source: ", Source,
+                                  "<br>DOI: ", DOI),
+                    hoverlabel = list(font = list(family = "Arial", size = 14, color = "#000000"))) %>%
+  layout(
+    title = "<b>United CCS Compendium (N>3700)</b>",
+         titlefont = list(family = "Arial", size = 40, color = "#000000"),
+         autosize = TRUE,
+         xaxis = list(title = "<b>m/z</b>",
+                      titlefont = list(family = "Arial", size = 30, color = "#000000"),
+                      zeroline = FALSE, showline = TRUE, linewidth = 10,
+                      ticks = "outside", ticklen = 10, tickwidth = 10,
+                      tickfont = list(family = "Arial", size = 26, color = "#000000"),
+                      showgrid = FALSE),
+         yaxis = list(title = "<b>CCS/z</b>",
+                      titlefont = list(family = "Arial", size = 30, color = "#000000"),
+                      zeroline = FALSE, showline = TRUE, linewidth = 10,
+                      ticks = "outside", ticklen = 10, tickwidth = 10,
+                      tickfont = list(family = "Arial", tick0 = 0, size = 26, color = "#000000"),
+                      showgrid = FALSE),
+         margin = list(t = 100, l = 100, b = 100))
+all.plot
+
+Sys.setenv("plotly_username"="jpicache")
+Sys.setenv("plotly_api_key"="aWljyzCLa4hmvZfCaoR9")
+api_create(all.plot, filename = "McLeanLab_Database")
+
+```

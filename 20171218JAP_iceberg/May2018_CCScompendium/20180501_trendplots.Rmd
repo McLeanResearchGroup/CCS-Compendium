@@ -1,0 +1,676 @@
+---
+title: "Class Trend Plots"
+output: html_notebook
+---
+
+Import and organize data
+```{r}
+library(plotly)
+library(ggplot2)
+library(data.table)
+library(plyr)
+
+setwd("~/Box Sync/20171218JAP_iceberg/PrismAnalyses/AllClasses/PlusIntervals")
+trends <- list.files(pattern = "*.csv")
+curves <- lapply(trends, read.csv)
+
+for(i in seq_along(curves))  {
+  curves[[i]] <- cbind(curves[[i]][, c(1,2,5,6)])
+}
+```
+
+Proteins and related compounds
+```{r}
+protplot <- plot_ly(curves[[33]], x= ~curves[[33]]$linemz, y= ~curves[[33]]$lineccs,
+                    name = "Polypeptides", type = 'scatter', mode = 'lines', 
+                    line = list(color = "#4CBBFF", width = 3), legendgroup = "b", showlegend = T) %>%
+      add_trace(curves[[33]], x = ~curves[[33]]$linemz, y = (curves[[33]]$lineccs + curves[[33]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(156, 217, 255, 0.2)", 
+            line = list(color = "#9CD9FF", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+     add_trace(curves[[33]], x = ~curves[[33]]$linemz, y = (curves[[33]]$lineccs - curves[[33]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(156, 217, 255, 0.2)", 
+            line = list(color = "#9CD9FF", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F)%>%
+     add_trace(curves[[33]], x = ~curves[[33]]$linemz, y = (curves[[33]]$lineccs + curves[[33]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#4CBBFF", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+     add_trace(curves[[33]], x = ~curves[[33]]$linemz, y = (curves[[33]]$lineccs - curves[[33]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#4CBBFF", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  #proteins- orange
+        add_trace(curves[[34]], x= ~curves[[34]]$linemz, y= ~curves[[34]]$lineccs,
+                  name = "Proteins", type = 'scatter', mode = 'lines', 
+                  line = list(color = "#FFA600", width = 3),  legendgroup = "a", showlegend = T) %>%
+        add_trace(curves[[34]], x = ~curves[[34]]$linemz, y = (curves[[34]]$lineccs + curves[[34]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 193, 78, 0.2)", 
+            line = list(color = "#FFC14E", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+        add_trace(curves[[34]], x = ~curves[[34]]$linemz, y = (curves[[34]]$lineccs - curves[[34]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 193, 78, 0.2)", 
+            line = list(color = "#FFC14E", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F)%>%
+       add_trace(curves[[34]], x = ~curves[[34]]$linemz, y = (curves[[34]]$lineccs + curves[[34]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFA600", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+        add_trace(curves[[34]], x = ~curves[[34]]$linemz, y = (curves[[34]]$lineccs - curves[[34]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFA600", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+  #tryptic peptides- purple
+        add_trace(curves[[39]], x= ~curves[[39]]$linemz, y= ~curves[[39]]$lineccs, 
+                 name = "Tryptic peptides", type = 'scatter', mode = 'lines', 
+                 line = list(color = "#A65CFF", width = 3), legendgroup = "d", showlegend = T) %>%
+            add_trace(curves[[39]], x = ~curves[[39]]$linemz, y = (curves[[39]]$lineccs + curves[[39]]$pi), 
+                 type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203, 161, 254, 0.2)", 
+                 line = list(color = "#CBA1FE", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F) %>%
+            add_trace(curves[[39]], x = ~curves[[39]]$linemz, y = (curves[[39]]$lineccs - curves[[39]]$pi), 
+                 type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203, 161, 254, 0.2)", 
+                 line = list(color = "#CBA1FE", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F)%>%
+            add_trace(curves[[39]], x = ~curves[[39]]$linemz, y = (curves[[39]]$lineccs + curves[[39]]$ci), 
+                 type = 'scatter', mode = 'lines', 
+                 line = list(color = "#A65CFF", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F) %>%
+            add_trace(curves[[39]], x = ~curves[[39]]$linemz, y = (curves[[39]]$lineccs - curves[[39]]$ci), 
+                 type = 'scatter', mode = 'lines', 
+                 line = list(color = "#A65CFF", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F) %>%
+  #carboxylic acids - green
+         add_trace(curves[[3]], x= ~curves[[3]]$linemz, y= ~curves[[3]]$lineccs,
+            name = "Carboxylic acids and derivatives", type = 'scatter', mode = 'lines', 
+            line = list(color = "#029900", width = 3), legendgroup = "c", showlegend = T) %>%
+         add_trace(curves[[3]], x = ~curves[[3]]$linemz, y = (curves[[3]]$lineccs + curves[[3]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(85, 214, 85, 0.2)", 
+            line = list(color = "#33D633", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+          add_trace(curves[[3]], x = ~curves[[3]]$linemz, y = (curves[[3]]$lineccs - curves[[3]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(85, 214, 85, 0.2)", 
+            line = list(color = "#33D633", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+         add_trace(curves[[3]], x = ~curves[[3]]$linemz, y = (curves[[3]]$lineccs + curves[[3]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#029900", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+         add_trace(curves[[3]], x = ~curves[[3]]$linemz, y = (curves[[3]]$lineccs - curves[[3]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#029900", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+
+    layout(title = "<b>Proteins and related species</b>",
+      xaxis = list(title = "<b>m/z</b>", ticks = "outside", showgrid = FALSE),
+         yaxis = list(title = "<b>CCS/z</b>", ticks = "outside", showgrid = FALSE))
+  
+
+
+
+```
+
+Nucleotides and nucleosides
+```{r}
+nucplot <- plot_ly(curves[[22]], x= ~curves[[22]]$linemz, y= ~curves[[22]]$lineccs,
+                   name = "(5'->5')-dinucleotides", type = 'scatter', mode = 'lines', 
+                   line = list(color = "#0049FF", width = 3), legendgroup = "e", showlegend = T) %>%
+  add_trace(curves[[22]], x = ~curves[[22]]$linemz, y = (curves[[22]]$lineccs + curves[[22]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203, 161, 254, 0.2)", 
+            line = list(color = "#6F98FF", width = 3, dash = 'dash'), legendgroup = "e", showlegend = F) %>%
+  add_trace(curves[[22]], x = ~curves[[22]]$linemz, y = (curves[[22]]$lineccs - curves[[22]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203, 161, 254, 0.2)", 
+            line = list(color = "#6F98FF", width = 3, dash = 'dash'), legendgroup = "e", showlegend = F)%>%
+  add_trace(curves[[22]], x = ~curves[[22]]$linemz, y = (curves[[22]]$lineccs + curves[[22]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#0049FF", width = 3, dash = 'dash'), legendgroup = "e", showlegend = F) %>%
+  add_trace(curves[[22]], x = ~curves[[22]]$linemz, y = (curves[[22]]$lineccs - curves[[22]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#0049FF", width = 3, dash = 'dash'), legendgroup = "e", showlegend = F) %>%
+  #deoxy- purple
+  add_trace(curves[[23]], x= ~curves[[23]]$linemz, y= ~curves[[23]]$lineccs,
+            name = "5'-deoxyribonucleosides", type = 'scatter', mode = 'lines',
+            line = list(color = "#A65CFF", width = 3), legendgroup = "f", showlegend = T) %>%
+  add_trace(curves[[23]], x = ~curves[[23]]$linemz, y = (curves[[23]]$lineccs + curves[[23]]$pi),
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203, 161, 254, 0.23)",
+            line = list(color = "#CBA1FE", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F) %>%
+  add_trace(curves[[23]], x = ~curves[[23]]$linemz, y = (curves[[23]]$lineccs - curves[[23]]$pi),
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203, 161, 254, 0.23)",
+            line = list(color = "#CBA1FE", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F)%>%
+  add_trace(curves[[23]], x = ~curves[[23]]$linemz, y = (curves[[23]]$lineccs + curves[[23]]$ci),
+            type = 'scatter', mode = 'lines',
+            line = list(color = "#A65CFF", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F) %>%
+  add_trace(curves[[23]], x = ~curves[[23]]$linemz, y = (curves[[23]]$lineccs - curves[[23]]$ci),
+            type = 'scatter', mode = 'lines',
+            line = list(color = "#A65CFF", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F) %>%
+  #purine sides - green
+  add_trace(curves[[24]], x= ~curves[[24]]$linemz, y= ~curves[[24]]$lineccs,
+            name = "Purine nucleosides", type = 'scatter', mode = 'lines',
+            line = list(color = "#029900", width = 3), legendgroup = "g", showlegend = T) %>%
+  add_trace(curves[[24]], x = ~curves[[24]]$linemz, y = (curves[[24]]$lineccs + curves[[24]]$pi),
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(85, 214, 83, 0.2)",
+            line = list(color = "#55D653", width = 3, dash = 'dash'), legendgroup = "g", showlegend = F) %>%
+  add_trace(curves[[24]], x = ~curves[[24]]$linemz, y = (curves[[24]]$lineccs - curves[[24]]$pi),
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(85, 214, 83, 0.2)",
+            line = list(color = "#55D653", width = 3, dash = 'dash'), legendgroup = "g", showlegend = F)%>%
+  add_trace(curves[[24]], x = ~curves[[24]]$linemz, y = (curves[[24]]$lineccs + curves[[24]]$ci),
+            type = 'scatter', mode = 'lines',
+            line = list(color = "#029900", width = 3, dash = 'dash'), legendgroup = "g", showlegend = F) %>%
+  add_trace(curves[[24]], x = ~curves[[24]]$linemz, y = (curves[[24]]$lineccs - curves[[24]]$ci),
+            type = 'scatter', mode = 'lines',
+            line = list(color = "#029900", width = 3, dash = 'dash'), legendgroup = "g", showlegend = F) %>%
+  #purine tides - pink
+  add_trace(curves[[25]], x= ~curves[[25]]$linemz, y= ~curves[[25]]$lineccs,
+            name = "Purine nucleotides", type = 'scatter', mode = 'lines',
+            line = list(color = "#FF63D7", width = 3), legendgroup = "h", showlegend = T) %>%
+  add_trace(curves[[25]], x = ~curves[[25]]$linemz, y = (curves[[25]]$lineccs + curves[[25]]$pi),
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 159, 230, 0.2)",
+            line = list(color = "#FF9FE6", width = 3, dash = 'dash'), legendgroup = "h", showlegend = F) %>%
+  add_trace(curves[[25]], x = ~curves[[25]]$linemz, y = (curves[[25]]$lineccs - curves[[25]]$pi),
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 159, 230, 0.2)",
+            line = list(color = "#FF9FE6", width = 3, dash = 'dash'), legendgroup = "h", showlegend = F)%>%
+  add_trace(curves[[25]], x = ~curves[[25]]$linemz, y = (curves[[25]]$lineccs + curves[[25]]$ci),
+            type = 'scatter', mode = 'lines',
+            line = list(color = "#FF63D7", width = 3, dash = 'dash'), legendgroup = "h", showlegend = F) %>%
+  add_trace(curves[[25]], x = ~curves[[25]]$linemz, y = (curves[[25]]$lineccs - curves[[25]]$ci),
+            type = 'scatter', mode = 'lines',
+            line = list(color = "#FF63D7", width = 3, dash = 'dash'), legendgroup = "h", showlegend = F) %>%
+  #pyr sides- teal
+  add_trace(curves[[26]], x= ~curves[[26]]$linemz, y= ~curves[[26]]$lineccs,
+            name = "Pyrimidine nucleosides", type = 'scatter', mode = 'lines',
+            line = list(color = "#03FFBA", width = 3), legendgroup = "i", showlegend = T) %>%
+  add_trace(curves[[26]], x = ~curves[[26]]$linemz, y = (curves[[26]]$lineccs + curves[[26]]$pi),
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(128, 255, 220, 0.2)",
+            line = list(color = "#80FFDC", width = 3, dash = 'dash'), legendgroup = "i", showlegend = F) %>%
+  add_trace(curves[[26]], x = ~curves[[26]]$linemz, y = (curves[[26]]$lineccs - curves[[26]]$pi),
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(128, 255, 220, 0.2)",
+            line = list(color = "#80FFDC", width = 3, dash = 'dash'), legendgroup = "i", showlegend = F)%>%
+  add_trace(curves[[26]], x = ~curves[[26]]$linemz, y = (curves[[26]]$lineccs + curves[[26]]$ci),
+            type = 'scatter', mode = 'lines',
+            line = list(color = "#03FFBA", width = 3, dash = 'dash'), legendgroup = "i", showlegend = F) %>%
+  add_trace(curves[[26]], x = ~curves[[26]]$linemz, y = (curves[[26]]$lineccs - curves[[26]]$ci),
+            type = 'scatter', mode = 'lines',
+            line = list(color = "#03FFBA", width = 3, dash = 'dash'), legendgroup = "i", showlegend = F) %>%
+  #pyr tides- orange
+  add_trace(curves[[27]], x= ~curves[[27]]$linemz, y= ~curves[[27]]$lineccs,
+            name = "Pyrimidine nucleotides", type = 'scatter', mode = 'lines',
+            line = list(color = "#FFA600", width = 3), legendgroup = "j", showlegend = T) %>%
+  add_trace(curves[[27]], x = ~curves[[27]]$linemz, y = (curves[[27]]$lineccs + curves[[27]]$pi),
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 193, 78, 0.2)",
+            line = list(color = "#FFC14E", width = 3, dash = 'dash'), legendgroup = "j", showlegend = F) %>%
+  add_trace(curves[[27]], x = ~curves[[27]]$linemz, y = (curves[[27]]$lineccs - curves[[27]]$pi),
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 193, 78, 0.2)",
+            line = list(color = "#FFC14E", width = 3, dash = 'dash'), legendgroup = "j", showlegend = F)%>%
+  add_trace(curves[[27]], x = ~curves[[27]]$linemz, y = (curves[[27]]$lineccs + curves[[27]]$ci),
+            type = 'scatter', mode = 'lines',
+            line = list(color = "#FFA600", width = 3, dash = 'dash'), legendgroup = "j", showlegend = F) %>%
+  add_trace(curves[[27]], x = ~curves[[27]]$linemz, y = (curves[[27]]$lineccs - curves[[27]]$ci),
+            type = 'scatter', mode = 'lines',
+            line = list(color = "#FFA600", width = 3, dash = 'dash'), legendgroup = "j", showlegend = F) %>%
+    layout(title = "<b>Nucleosides, nucleotides, and analogues</b>",
+      xaxis = list(title = "<b>m/z</b>", ticks = "outside", showgrid = FALSE),
+         yaxis = list(title = "<b>CCS/z</b>", ticks = "outside", showgrid = FALSE))
+
+
+```
+
+Lipids and propanoids
+```{r}
+lipidplot <- plot_ly(curves[[10]], x= ~curves[[10]]$linemz, y= ~curves[[10]]$lineccs,
+            name = "Fatty acyls", type = 'scatter', mode = 'lines', 
+            line = list(color = "#0049FF", width = 3), legendgroup = "a", showlegend = T) %>%
+  add_trace(curves[[10]], x = ~curves[[10]]$linemz, y = (curves[[10]]$lineccs + curves[[10]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(111, 152, 255, 0.2)", 
+            line = list(color = "#6F98FF", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+  add_trace(curves[[10]], x = ~curves[[10]]$linemz, y = (curves[[10]]$lineccs - curves[[10]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(111, 152, 255, 0.2)", 
+            line = list(color = "#6F98FF", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F)%>%
+  add_trace(curves[[10]], x = ~curves[[10]]$linemz, y = (curves[[10]]$lineccs + curves[[10]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#0049FF", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+  add_trace(curves[[10]], x = ~curves[[10]]$linemz, y = (curves[[10]]$lineccs - curves[[10]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#0049FF", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+  #steroids- green
+  add_trace(curves[[19]], x= ~curves[[19]]$linemz, y= ~curves[[19]]$lineccs,
+            name = "Steroids", type = 'scatter', mode = 'lines', 
+            line = list(color = "#029900", width = 3), legendgroup = "b", showlegend = T) %>%
+  add_trace(curves[[19]], x = ~curves[[19]]$linemz, y = (curves[[19]]$lineccs + curves[[19]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(85, 214, 83, 0.2)", 
+            line = list(color = "#55D653", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  add_trace(curves[[19]], x = ~curves[[19]]$linemz, y = (curves[[19]]$lineccs - curves[[19]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(85, 214, 83, 0.2)", 
+            line = list(color = "#55D653", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F)%>%
+  add_trace(curves[[19]], x = ~curves[[19]]$linemz, y = (curves[[19]]$lineccs + curves[[19]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#029900", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  add_trace(curves[[19]], x = ~curves[[19]]$linemz, y = (curves[[19]]$lineccs - curves[[19]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#029900", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  #gpl-pink
+  add_trace(curves[[12]], x= ~curves[[12]]$linemz, y= ~curves[[12]]$lineccs,
+            name = "Glycerophospholipids", type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF63D7", width = 3), legendgroup = "f", showlegend = T) %>%
+  add_trace(curves[[12]], x = ~curves[[12]]$linemz, y = (curves[[12]]$lineccs + curves[[12]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 159, 230, 0.2)", 
+            line = list(color = "#FF9FE6", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F) %>%
+  add_trace(curves[[12]], x = ~curves[[12]]$linemz, y = (curves[[12]]$lineccs - curves[[12]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 159, 230, 0.2)", 
+            line = list(color = "#FF9FE6", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F)%>%
+  add_trace(curves[[12]], x = ~curves[[12]]$linemz, y = (curves[[12]]$lineccs + curves[[12]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF63D7", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F) %>%
+  add_trace(curves[[12]], x = ~curves[[12]]$linemz, y = (curves[[12]]$lineccs - curves[[12]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF63D7", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F)%>%
+  #flavonoids - purple
+    add_trace(curves[[5]], x= ~curves[[5]]$linemz, y= ~curves[[5]]$lineccs,
+            name = "Flavonoids", type = 'scatter', mode = 'lines', 
+            line = list(color = "#A65CFF", width = 3), legendgroup = "c", showlegend = T) %>%
+  add_trace(curves[[5]], x = ~curves[[5]]$linemz, y = (curves[[5]]$lineccs + curves[[5]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203, 161, 254, 0.1)", 
+            line = list(color = "#CBA1FE", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+  add_trace(curves[[5]], x = ~curves[[5]]$linemz, y = (curves[[5]]$lineccs - curves[[5]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203, 161, 254, 0.1)", 
+            line = list(color = "#CBA1FE", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F)%>%
+  add_trace(curves[[5]], x = ~curves[[5]]$linemz, y = (curves[[5]]$lineccs + curves[[5]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#A65CFF", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+  add_trace(curves[[5]], x = ~curves[[5]]$linemz, y = (curves[[5]]$lineccs - curves[[5]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#A65CFF", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+  #isoflavonoids - orange
+  add_trace(curves[[8]], x= ~curves[[8]]$linemz, y= ~curves[[8]]$lineccs,
+            name = "Isoflavonoids", type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFA600", width = 3), legendgroup = "d", showlegend = T) %>%
+  add_trace(curves[[8]], x = ~curves[[8]]$linemz, y = (curves[[8]]$lineccs + curves[[8]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 193, 78, 0.2)", 
+            line = list(color = "#FFC14E", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F) %>%
+  add_trace(curves[[8]], x = ~curves[[8]]$linemz, y = (curves[[8]]$lineccs - curves[[8]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 193, 78, 0.2)", 
+            line = list(color = "#FFC14E", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F)%>%
+  add_trace(curves[[8]], x = ~curves[[8]]$linemz, y = (curves[[8]]$lineccs + curves[[8]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFA600", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F) %>%
+  add_trace(curves[[8]], x = ~curves[[8]]$linemz, y = (curves[[8]]$lineccs - curves[[8]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFA600", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F)%>%
+#sphingolipids-light green
+  add_trace(curves[[18]], x= ~curves[[18]]$linemz, y= ~curves[[18]]$lineccs,
+            name = "Sphingolipids", type = 'scatter', mode = 'lines', 
+            line = list(color = "#71FF6F", width = 3), legendgroup = "e", showlegend = T) %>%
+  add_trace(curves[[18]], x = ~curves[[18]]$linemz, y = (curves[[18]]$lineccs + curves[[18]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(176, 255, 175, 0.3)", 
+            line = list(color = "#B0FFAF", width = 3, dash = 'dash'), legendgroup = "e", showlegend = F) %>%
+  add_trace(curves[[18]], x = ~curves[[18]]$linemz, y = (curves[[18]]$lineccs - curves[[18]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(176, 255, 175, 0.3)", 
+            line = list(color = "#B0FFAF", width = 3, dash = 'dash'), legendgroup = "e", showlegend = F)%>%
+  add_trace(curves[[18]], x = ~curves[[18]]$linemz, y = (curves[[18]]$lineccs + curves[[18]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#71FF6F", width = 3, dash = 'dash'), legendgroup = "e", showlegend = F) %>%
+  add_trace(curves[[18]], x = ~curves[[18]]$linemz, y = (curves[[18]]$lineccs - curves[[18]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#71FF6F", width = 3, dash = 'dash'), legendgroup = "e", showlegend = F) %>%
+    layout(title = "<b> Lipids and phenylpropanoids</b>",
+      xaxis = list(title = "<b>m/z</b>", ticks = "outside", showgrid = FALSE),
+         yaxis = list(title = "<b>CCS/z</b>", ticks = "outside", showgrid = FALSE))
+
+```
+
+Benzenoids and heterocyclic compounds
+```{r}
+benzplot <- plot_ly(curves[[1]], x= ~curves[[1]]$linemz, y= ~curves[[1]]$lineccs,
+          name = "Benzene and substituted derivatives", type = 'scatter', mode = 'lines', 
+          line = list(color = "#0049FF", width = 3), legendgroup = "b", showlegend = T) %>%
+  add_trace(curves[[1]], x = ~curves[[1]]$linemz, y = (curves[[1]]$lineccs + curves[[1]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(111, 152, 255, 0.2)", 
+            line = list(color = "#6F98FF", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  add_trace(curves[[1]], x = ~curves[[1]]$linemz, y = (curves[[1]]$lineccs - curves[[1]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(111, 152, 255, 0.2)", 
+            line = list(color = "#6F98FF", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F)%>%
+  add_trace(curves[[1]], x = ~curves[[1]]$linemz, y = (curves[[1]]$lineccs + curves[[1]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#0049FF", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  add_trace(curves[[1]], x = ~curves[[1]]$linemz, y = (curves[[1]]$lineccs - curves[[1]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#0049FF", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+#naphthalenes- red
+  add_trace(curves[[21]], x= ~curves[[21]]$linemz, y= ~curves[[21]]$lineccs,
+          name = "Naphthalenes", type = 'scatter', mode = 'lines', 
+          line = list(color = "#FF0404", width = 3), legendgroup = "c", showlegend = T) %>%
+  add_trace(curves[[21]], x = ~curves[[21]]$linemz, y = (curves[[21]]$lineccs + curves[[21]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 90,90, 0.2)", 
+            line = list(color = "#FF5A5A", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+  add_trace(curves[[21]], x = ~curves[[21]]$linemz, y = (curves[[21]]$lineccs - curves[[21]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 90,90, 0.2)", 
+            line = list(color = "#FF5A5A", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F)%>%
+  add_trace(curves[[21]], x = ~curves[[21]]$linemz, y = (curves[[21]]$lineccs + curves[[21]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF0404", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+  add_trace(curves[[21]], x = ~curves[[21]]$linemz, y = (curves[[21]]$lineccs - curves[[21]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF0404", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+#phenanthrenes- green
+    add_trace(curves[[31]], x= ~curves[[31]]$linemz, y= ~curves[[31]]$lineccs,
+          name = "Phenanthrenes and derivatives", type = 'scatter', mode = 'lines', 
+          line = list(color = "#029900", width = 3), legendgroup = "d", showlegend = T) %>%
+  add_trace(curves[[31]], x = ~curves[[31]]$linemz, y = (curves[[31]]$lineccs + curves[[31]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(85, 214, 83, 0.2)", 
+            line = list(color = "#55D653", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F) %>%
+  add_trace(curves[[31]], x = ~curves[[31]]$linemz, y = (curves[[31]]$lineccs - curves[[31]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(85, 214, 83, 0.2)", 
+            line = list(color = "#55D653", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F)%>%
+  add_trace(curves[[31]], x = ~curves[[31]]$linemz, y = (curves[[31]]$lineccs + curves[[31]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#029900", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F) %>%
+  add_trace(curves[[31]], x = ~curves[[31]]$linemz, y = (curves[[31]]$lineccs - curves[[31]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#029900", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F) %>%
+#phenols- pink
+  add_trace(curves[[32]], x= ~curves[[32]]$linemz, y= ~curves[[32]]$lineccs,
+          name = "Phenols", type = 'scatter', mode = 'lines', 
+          line = list(color = "#FF63D7", wifth = 3), legendgroup = "f", showlegend = T) %>%
+  add_trace(curves[[32]], x = ~curves[[32]]$linemz, y = (curves[[32]]$lineccs + curves[[32]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 159, 230, 0.2)", 
+            line = list(color = "#FF9FE6", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F) %>%
+  add_trace(curves[[32]], x = ~curves[[32]]$linemz, y = (curves[[32]]$lineccs - curves[[32]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 159, 230, 0.2)", 
+            line = list(color = "#FF9FE6", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F)%>%
+  add_trace(curves[[32]], x = ~curves[[32]]$linemz, y = (curves[[32]]$lineccs + curves[[32]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF63D7", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F) %>%
+  add_trace(curves[[32]], x = ~curves[[32]]$linemz, y = (curves[[32]]$lineccs - curves[[32]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF63D7", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F) %>%
+#pyrenes- orange
+  add_trace(curves[[36]], x= ~curves[[36]]$linemz, y= ~curves[[36]]$lineccs,
+          name = "Pyrenes", type = 'scatter', mode = 'lines', 
+          line = list(color = "#FFA600", wifth = 3), legendgroup = "g", showlegend = T) %>%
+  add_trace(curves[[36]], x = ~curves[[36]]$linemz, y = (curves[[36]]$lineccs + curves[[36]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(155, 193, 78, 0.2)", 
+            line = list(color = "#FFC14E", width = 3, dash = 'dash'), legendgroup = "g", showlegend = F) %>%
+  add_trace(curves[[36]], x = ~curves[[36]]$linemz, y = (curves[[36]]$lineccs - curves[[36]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(155, 193, 78, 0.2)", 
+            line = list(color = "#FFC14E", width = 3, dash = 'dash'), legendgroup = "g", showlegend = F)%>%
+  add_trace(curves[[36]], x = ~curves[[36]]$linemz, y = (curves[[36]]$lineccs + curves[[36]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFA600", width = 3, dash = 'dash'), legendgroup = "g", showlegend = F) %>%
+  add_trace(curves[[36]], x = ~curves[[36]]$linemz, y = (curves[[36]]$lineccs - curves[[36]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFA600", width = 3, dash = 'dash'), legendgroup = "g", showlegend = F) %>%
+    layout(title = "<b>Benzenoids</b>",
+      xaxis = list(title = "<b>m/z</b>", ticks = "outside", showgrid = FALSE),
+         yaxis = list(title = "<b>CCS/z</b>", ticks = "outside", showgrid = FALSE))
+
+```
+
+Heterocyclic
+```{r}
+heteroplot <- plot_ly(curves[[4]], x= ~curves[[4]]$linemz, y= ~curves[[4]]$lineccs,
+            name = "Diazines", type = 'scatter', mode = 'lines', 
+            line = list(color = "#9E9E9E", width = 3), legendgroup = "a", showlegend = T) %>%
+  add_trace(curves[[4]], x = ~curves[[4]]$linemz, y = (curves[[4]]$lineccs + curves[[4]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203, 203, 203, 0.2)", 
+            line = list(color = "#CBCBCB", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+  add_trace(curves[[4]], x = ~curves[[4]]$linemz, y = (curves[[4]]$lineccs - curves[[4]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203, 203, 203, 0.2)", 
+            line = list(color = "#CBCBCB", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F)%>%
+  add_trace(curves[[4]], x = ~curves[[4]]$linemz, y = (curves[[4]]$lineccs + curves[[4]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#9E9E9E", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+  add_trace(curves[[4]], x = ~curves[[4]]$linemz, y = (curves[[4]]$lineccs - curves[[4]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#9E9E9E", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+  #pteridines- purple
+  add_trace(curves[[35]], x= ~curves[[35]]$linemz, y= ~curves[[35]]$lineccs,
+          name = "Pteridines and derivatives", type = 'scatter', mode = 'lines', 
+          line = list(color = "#A65CFF", wifth = 3), legendgroup = "j", showlegend = T) %>%
+  add_trace(curves[[35]], x = ~curves[[35]]$linemz, y = (curves[[35]]$lineccs + curves[[35]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203, 161, 254, 0.2)", 
+            line = list(color = "#CBA1FE", width = 3, dash = 'dash'), legendgroup = "j", showlegend = F) %>%
+  add_trace(curves[[35]], x = ~curves[[35]]$linemz, y = (curves[[35]]$lineccs - curves[[35]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203, 161, 154, 0.2)", 
+            line = list(color = "#CBA1FE", width = 3, dash = 'dash'), legendgroup = "j", showlegend = F)%>%
+  add_trace(curves[[35]], x = ~curves[[35]]$linemz, y = (curves[[35]]$lineccs + curves[[35]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#A65CFF", width = 3, dash = 'dash'), legendgroup = "j", showlegend = F) %>%
+  add_trace(curves[[35]], x = ~curves[[35]]$linemz, y = (curves[[35]]$lineccs - curves[[35]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#A65CFF", width = 3, dash = 'dash'), legendgroup = "j", showlegend = F) %>%
+#indoles - orange
+  add_trace(curves[[7]], x= ~curves[[7]]$linemz, y= ~curves[[7]]$lineccs,
+          name = "Indoles and derivatives", type = 'scatter', mode = 'lines', 
+          line = list(color = "#FFA600", wifth = 3), legendgroup = "i", showlegend = T) %>%
+  add_trace(curves[[7]], x = ~curves[[7]]$linemz, y = (curves[[7]]$lineccs + curves[[7]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(155, 193, 78, 0.2)", 
+            line = list(color = "#FFC14E", width = 3, dash = 'dash'), legendgroup = "i", showlegend = F) %>%
+  add_trace(curves[[7]], x = ~curves[[7]]$linemz, y = (curves[[7]]$lineccs - curves[[7]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(155, 193, 78, 0.2)", 
+            line = list(color = "#FFC14E", width = 3, dash = 'dash'), legendgroup = "i", showlegend = F)%>%
+  add_trace(curves[[7]], x = ~curves[[7]]$linemz, y = (curves[[7]]$lineccs + curves[[7]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFA600", width = 3, dash = 'dash'), legendgroup = "i", showlegend = F) %>%
+  add_trace(curves[[7]], x = ~curves[[7]]$linemz, y = (curves[[7]]$lineccs - curves[[7]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFA600", width = 3, dash = 'dash'), legendgroup = "i", showlegend = F) %>%
+  #quinolines- pink
+  add_trace(curves[[38]], x= ~curves[[38]]$linemz, y= ~curves[[38]]$lineccs,
+          name = "Quinolines and derivatives", type = 'scatter', mode = 'lines', 
+          line = list(color = "#FF63D7", wifth = 3), legendgroup = "b", showlegend = T) %>%
+  add_trace(curves[[38]], x = ~curves[[38]]$linemz, y = (curves[[38]]$lineccs + curves[[38]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 159, 230, 0.2)", 
+            line = list(color = "#FF9FE6", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  add_trace(curves[[38]], x = ~curves[[38]]$linemz, y = (curves[[38]]$lineccs - curves[[38]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 159, 230, 0.2)", 
+            line = list(color = "#FF9FE6", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F)%>%
+  add_trace(curves[[38]], x = ~curves[[38]]$linemz, y = (curves[[38]]$lineccs + curves[[38]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF63D7", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  add_trace(curves[[38]], x = ~curves[[38]]$linemz, y = (curves[[38]]$lineccs - curves[[38]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF63D7", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  #pyridine- yellow
+  add_trace(curves[[37]], x= ~curves[[37]]$linemz, y= ~curves[[37]]$lineccs,
+          name = "Pyridines and derviatives", type = 'scatter', mode = 'lines', 
+          line = list(color = "#FFEE20", wifth = 3), legendgroup = "k", showlegend = T) %>%
+  add_trace(curves[[37]], x = ~curves[[37]]$linemz, y = (curves[[37]]$lineccs + curves[[37]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 242, 89, 0.2)", 
+            line = list(color = "#FFF259", width = 3, dash = 'dash'), legendgroup = "k", showlegend = F) %>%
+  add_trace(curves[[37]], x = ~curves[[37]]$linemz, y = (curves[[37]]$lineccs - curves[[37]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 242, 89, 0.2)", 
+            line = list(color = "#FFF259", width = 3, dash = 'dash'), legendgroup = "k", showlegend = F)%>%
+  add_trace(curves[[37]], x = ~curves[[37]]$linemz, y = (curves[[37]]$lineccs + curves[[37]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFEE20", width = 3, dash = 'dash'), legendgroup = "k", showlegend = F) %>%
+  add_trace(curves[[37]], x = ~curves[[37]]$linemz, y = (curves[[37]]$lineccs - curves[[37]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFEE20", width = 3, dash = 'dash'), legendgroup = "k", showlegend = F) %>%
+  #imidazopyrimidines- light blue
+  add_trace(curves[[6]], x= ~curves[[6]]$linemz, y= ~curves[[6]]$lineccs,
+          name = "Imidazopyrimidines", type = 'scatter', mode = 'lines', 
+          line = list(color = "#4CBBFF", wifth = 3), legendgroup = "h", showlegend = T) %>%
+  add_trace(curves[[6]], x = ~curves[[6]]$linemz, y = (curves[[6]]$lineccs + curves[[6]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(156, 217, 255, 0.2)", 
+            line = list(color = "#9CD9FF", width = 3, dash = 'dash'), legendgroup = "h", showlegend = F) %>%
+  add_trace(curves[[6]], x = ~curves[[6]]$linemz, y = (curves[[6]]$lineccs - curves[[6]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(156, 217, 255, 0.2)", 
+            line = list(color = "#9CD9FF", width = 3, dash = 'dash'), legendgroup = "h", showlegend = F)%>%
+  add_trace(curves[[6]], x = ~curves[[6]]$linemz, y = (curves[[6]]$lineccs + curves[[6]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#4CBBFF", width = 3, dash = 'dash'), legendgroup = "h", showlegend = F) %>%
+  add_trace(curves[[6]], x = ~curves[[6]]$linemz, y = (curves[[6]]$lineccs - curves[[6]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#4CBBFF", width = 3, dash = 'dash'), legendgroup = "h", showlegend = F) %>%
+      layout(title = "<b>Organoheterocyclic compounds</b>",
+      xaxis = list(title = "<b>m/z</b>", ticks = "outside", showgrid = FALSE),
+         yaxis = list(title = "<b>CCS/z</b>", ticks = "outside", showgrid = FALSE))
+
+```
+
+Misc-- Organo-nit, ox, fluor; metals
+```{r}
+miscplot <- plot_ly(curves[[29]], x= ~curves[[29]]$linemz, y= ~curves[[29]]$lineccs, 
+                       name = "Organonitrogen compounds", type = 'scatter', mode = 'lines', 
+                     line = list(color = "#A65CFF", width = 3), legendgroup = "a", showlegend = T) %>%
+  add_trace(curves[[29]], x = ~curves[[29]]$linemz, y = (curves[[29]]$lineccs + curves[[29]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203, 161, 254, 0.2)", 
+            line = list(color = "#CBA1FE", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+  add_trace(curves[[29]], x = ~curves[[29]]$linemz, y = (curves[[29]]$lineccs - curves[[29]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203 161, 254, 0.2)", 
+            line = list(color = "#CBA1FE", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F)%>%
+  add_trace(curves[[29]], x = ~curves[[29]]$linemz, y = (curves[[29]]$lineccs + curves[[29]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#A65CFF", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+  add_trace(curves[[29]], x = ~curves[[29]]$linemz, y = (curves[[29]]$lineccs - curves[[29]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#A65CFF", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+#organooxygens- green
+  add_trace(curves[[30]], x= ~curves[[30]]$linemz, y= ~curves[[30]]$lineccs, 
+            name = "Organooxygen compounds", type = 'scatter', mode = 'lines', 
+          line = list(color = "#029900", width = 3),  legendgroup = "b", showlegend = T) %>%
+  add_trace(curves[[30]], x = ~curves[[30]]$linemz, y = (curves[[30]]$lineccs + curves[[30]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(85, 214, 83, 0.2)", 
+            line = list(color = "#55D653", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  add_trace(curves[[30]], x = ~curves[[30]]$linemz, y = (curves[[30]]$lineccs - curves[[30]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(85, 214, 83, 0.2)", 
+            line = list(color = "#55D653", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F)%>%
+  add_trace(curves[[30]], x = ~curves[[30]]$linemz, y = (curves[[30]]$lineccs + curves[[30]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#029900", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  add_trace(curves[[30]], x = ~curves[[30]]$linemz, y = (curves[[30]]$lineccs - curves[[30]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#029900", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  #organofluorides- orange
+  add_trace(curves[[15]], x= ~curves[[15]]$linemz, y= ~curves[[15]]$lineccs,
+            name = "Organofluorides", type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFA600", width = 3), legendgroup = "d", showlegend = T) %>%
+  add_trace(curves[[15]], x = ~curves[[15]]$linemz, y = (curves[[15]]$lineccs + curves[[15]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 193, 78, 0.2)", 
+            line = list(color = "#FFC14E", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F) %>%
+  add_trace(curves[[15]], x = ~curves[[15]]$linemz, y = (curves[[15]]$lineccs - curves[[15]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 193, 78, 0.2)", 
+            line = list(color = "#FFC14E", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F)%>%
+  add_trace(curves[[15]], x = ~curves[[15]]$linemz, y = (curves[[15]]$lineccs + curves[[15]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFA600", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F) %>%
+  add_trace(curves[[15]], x = ~curves[[15]]$linemz, y = (curves[[15]]$lineccs - curves[[15]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFA600", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F) %>%
+    #metals
+  add_trace(curves[[20]], x= ~curves[[20]]$linemz, y= ~curves[[20]]$lineccs,
+            name = "Homogenous transition metal compounds", type = 'scatter', mode = 'lines', 
+            line = list(color = "#4CBBFF", width = 3), legendgroup = "c", showlegend = T) %>%
+  add_trace(curves[[20]], x = ~curves[[20]]$linemz, y = (curves[[20]]$lineccs + curves[[20]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(156, 217, 255, 0.2)", 
+            line = list(color = "#9CD9FF", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+  add_trace(curves[[20]], x = ~curves[[20]]$linemz, y = (curves[[20]]$lineccs - curves[[20]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(156, 217, 255, 0.2)", 
+            line = list(color = "#9CD9FF", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F)%>%
+  add_trace(curves[[20]], x = ~curves[[20]]$linemz, y = (curves[[20]]$lineccs + curves[[20]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#4CBBFF", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+  add_trace(curves[[20]], x = ~curves[[20]]$linemz, y = (curves[[20]]$lineccs - curves[[20]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#4CBBFF", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+  layout(title = "<b>Miscellaneous</b>",
+    xaxis = list(title = "<b>m/z</b>",  showgrid = FALSE),
+         yaxis = list(title = "<b>CCS/z</b>", showgrid = FALSE))
+
+
+```
+
+Glycerophospholipids
+```{r}
+  #pc-pink
+gplplot <- plot_ly(curves[[13]], x= ~curves[[13]]$linemz, y= ~curves[[13]]$lineccs,
+            name = "Phosphocholines", type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF63D7", width = 3), legendgroup = "f", showlegend = T) %>%
+  add_trace(curves[[13]], x = ~curves[[13]]$linemz, y = (curves[[13]]$lineccs + curves[[13]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 159, 230, 0.2)", 
+            line = list(color = "#FF9FE6", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F) %>%
+  add_trace(curves[[13]], x = ~curves[[13]]$linemz, y = (curves[[13]]$lineccs - curves[[13]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 159, 230, 0.2)", 
+            line = list(color = "#FF9FE6", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F)%>%
+  add_trace(curves[[13]], x = ~curves[[13]]$linemz, y = (curves[[13]]$lineccs + curves[[13]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF63D7", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F) %>%
+  add_trace(curves[[13]], x = ~curves[[13]]$linemz, y = (curves[[13]]$lineccs - curves[[13]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF63D7", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F)%>%
+#pe-light blue
+  add_trace(curves[[14]], x= ~curves[[14]]$linemz, y= ~curves[[14]]$lineccs,
+            name = "Phosphoethanolamines", type = 'scatter', mode = 'lines', 
+            line = list(color = "#4CBBFF", width = 3), legendgroup = "g", showlegend = T) %>%
+  add_trace(curves[[14]], x = ~curves[[14]]$linemz, y = (curves[[14]]$lineccs + curves[[14]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(156, 217, 255, 0.2)", 
+            line = list(color = "#9CD9FF", width = 3, dash = 'dash'), legendgroup = "g", showlegend = F) %>%
+  add_trace(curves[[14]], x = ~curves[[14]]$linemz, y = (curves[[14]]$lineccs - curves[[14]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(156, 217, 255, 0.2)", 
+            line = list(color = "#9CD9FF", width = 3, dash = 'dash'), legendgroup = "g", showlegend = F)%>%
+  add_trace(curves[[14]], x = ~curves[[14]]$linemz, y = (curves[[14]]$lineccs + curves[[14]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#4CBBFF", width = 3, dash = 'dash'), legendgroup = "g", showlegend = F) %>%
+  add_trace(curves[[14]], x = ~curves[[14]]$linemz, y = (curves[[14]]$lineccs - curves[[14]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#4CBBFF", width = 3, dash = 'dash'), legendgroup = "g", showlegend = F)%>%
+  #ps-orange
+  add_trace(curves[[17]], x= ~curves[[17]]$linemz, y= ~curves[[17]]$lineccs,
+            name = "Phosphoserines", type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFA600", width = 3), legendgroup = "h", showlegend = T) %>%
+  add_trace(curves[[17]], x = ~curves[[17]]$linemz, y = (curves[[17]]$lineccs + curves[[17]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 193, 78, 0.2)", 
+            line = list(color = "#FFC14E", width = 3, dash = 'dash'), legendgroup = "h", showlegend = F) %>%
+  add_trace(curves[[17]], x = ~curves[[17]]$linemz, y = (curves[[17]]$lineccs - curves[[17]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 193, 78, 0.2)", 
+            line = list(color = "#FFC14E", width = 3, dash = 'dash'), legendgroup = "h", showlegend = F)%>%
+  add_trace(curves[[17]], x = ~curves[[17]]$linemz, y = (curves[[17]]$lineccs + curves[[17]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFA600", width = 3, dash = 'dash'), legendgroup = "h", showlegend = F) %>%
+  add_trace(curves[[17]], x = ~curves[[17]]$linemz, y = (curves[[17]]$lineccs - curves[[17]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFA600", width = 3, dash = 'dash'), legendgroup = "g", showlegend = F)%>%
+    layout(title = "<b>Glycerophospholipids</b>",
+      xaxis = list(title = "<b>m/z</b>", ticks = "outside", showgrid = FALSE),
+         yaxis = list(title = "<b>CCS/z</b>", ticks = "outside", showgrid = FALSE))
+
+
+```
+
+Sphingolipids
+```{r}
+sphingoplot <- plot_ly(curves[[11]], x= ~curves[[11]]$linemz, y= ~curves[[11]]$lineccs,
+            name = "Glycosphingolipids", type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF63D7", width = 3), legendgroup = "f", showlegend = T) %>%
+  add_trace(curves[[11]], x = ~curves[[11]]$linemz, y = (curves[[11]]$lineccs + curves[[11]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 159, 230, 0.2)", 
+            line = list(color = "#FF9FE6", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F) %>%
+  add_trace(curves[[11]], x = ~curves[[11]]$linemz, y = (curves[[11]]$lineccs - curves[[11]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 159, 230, 0.2)", 
+            line = list(color = "#FF9FE6", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F)%>%
+  add_trace(curves[[11]], x = ~curves[[11]]$linemz, y = (curves[[11]]$lineccs + curves[[11]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF63D7", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F) %>%
+  add_trace(curves[[11]], x = ~curves[[11]]$linemz, y = (curves[[11]]$lineccs - curves[[11]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF63D7", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F)%>%
+#phos-light blue
+  add_trace(curves[[15]], x= ~curves[[15]]$linemz, y= ~curves[[15]]$lineccs,
+            name = "Phosphosphingolipids", type = 'scatter', mode = 'lines', 
+            line = list(color = "#4CBBFF", width = 3), legendgroup = "g", showlegend = T) %>%
+  add_trace(curves[[15]], x = ~curves[[15]]$linemz, y = (curves[[15]]$lineccs + curves[[15]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(156, 217, 255, 0.2)", 
+            line = list(color = "#9CD9FF", width = 3, dash = 'dash'), legendgroup = "g", showlegend = F) %>%
+  add_trace(curves[[15]], x = ~curves[[15]]$linemz, y = (curves[[15]]$lineccs - curves[[15]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(156, 217, 255, 0.2)", 
+            line = list(color = "#9CD9FF", width = 3, dash = 'dash'), legendgroup = "g", showlegend = F)%>%
+  add_trace(curves[[15]], x = ~curves[[15]]$linemz, y = (curves[[15]]$lineccs + curves[[15]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#4CBBFF", width = 3, dash = 'dash'), legendgroup = "g", showlegend = F) %>%
+  add_trace(curves[[15]], x = ~curves[[15]]$linemz, y = (curves[[15]]$lineccs - curves[[15]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#4CBBFF", width = 3, dash = 'dash'), legendgroup = "g", showlegend = F)%>%
+  #cer-orange
+  add_trace(curves[[9]], x= ~curves[[9]]$linemz, y= ~curves[[9]]$lineccs,
+            name = "Ceramides", type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFA600", width = 3), legendgroup = "h", showlegend = T) %>%
+  add_trace(curves[[9]], x = ~curves[[9]]$linemz, y = (curves[[9]]$lineccs + curves[[9]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 193, 78, 0.2)", 
+            line = list(color = "#FFC14E", width = 3, dash = 'dash'), legendgroup = "h", showlegend = F) %>%
+  add_trace(curves[[9]], x = ~curves[[9]]$linemz, y = (curves[[9]]$lineccs - curves[[9]]$pi), 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 193, 78, 0.2)", 
+            line = list(color = "#FFC14E", width = 3, dash = 'dash'), legendgroup = "h", showlegend = F)%>%
+  add_trace(curves[[9]], x = ~curves[[9]]$linemz, y = (curves[[9]]$lineccs + curves[[9]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFA600", width = 3, dash = 'dash'), legendgroup = "h", showlegend = F) %>%
+  add_trace(curves[[9]], x = ~curves[[9]]$linemz, y = (curves[[9]]$lineccs - curves[[9]]$ci), 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFA600", width = 3, dash = 'dash'), legendgroup = "g", showlegend = F)%>%
+    layout(title = "<b>Sphingolipids</b>",
+      xaxis = list(title = "<b>m/z</b>", ticks = "outside", showgrid = FALSE),
+         yaxis = list(title = "<b>CCS/z</b>", ticks = "outside", showgrid = FALSE))
+
+```

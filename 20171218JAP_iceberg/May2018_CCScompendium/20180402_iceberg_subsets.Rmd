@@ -1,0 +1,236 @@
+---
+title: "20180402_iceberg_subset"
+author: "JA Picache & BS Rose"
+date: "4/02/2018"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+setwd("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output")
+setwd("~/Box Sync/20171218JAP_iceberg/R-output")
+library(tidyverse)
+library(ploltly)
+library(data.table)
+library(plyr)
+
+```
+
+#superclass-to-class
+```{r}
+
+#pos
+
+curMASTERpos <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/CuratedMaster_pos.csv", header = TRUE, stringsAsFactors = FALSE)
+curMASTERpos <- read.csv("~/Box Sync/20171218JAP_iceberg/R-output/CuratedMaster_pos.csv", header = TRUE, stringsAsFactors = FALSE)
+
+alk.p <- subset(curMASTERpos, curMASTERpos$Super.Class == "Alkaloids and derivatives") #5
+benz.p <- subset(curMASTERpos, curMASTERpos$Super.Class == "Benzenoids") #131
+write.csv(benz.p, file = "benz_p.csv")
+diaz <- subset(curMASTERpos, curMASTERpos$Super.Class == "Diazines") #only 1
+metal.p <- subset(curMASTERpos, curMASTERpos$Super.Class == "Homogeneous metal compounds") #62
+write.csv(metal.p, file = "metal_p.csv")
+nonmetal <- subset(curMASTERpos, curMASTERpos$Super.Class == "Homogeneous non-metal compounds") #only 1
+lipids.p <- subset(curMASTERpos, curMASTERpos$Super.Class == "Lipids and lipid-like molecules")
+write.csv(lipids.p, file = "lipids_p.csv")
+nuc.p <- subset(curMASTERpos, curMASTERpos$Super.Class == "Nucleosides, nucleotides, and analogues") #222
+write.csv(nuc.p, file = "nuc_p.csv")
+oacids.p <- subset(curMASTERpos, curMASTERpos$Super.Class == "Organic acids and derivatives") 
+write.csv(oacids.p, file = "oacids_p.csv")
+on.p <- subset(curMASTERpos, curMASTERpos$Super.Class == "Organic nitrogen compounds") #95
+write.csv(on.p, file = "onit_p.csv")
+oo.p <- subset(curMASTERpos, curMASTERpos$Super.Class == "Organic oxygen compounds" | curMASTERpos$Super.Class == "Organooxygen compounds") #218
+write.csv(oo.p, file = "ooxy_p.csv")
+opoly.p <- subset(curMASTERpos, curMASTERpos$Super.Class == "Organic polymers") #181
+write.csv(opoly.p, file = "opoly_p.csv")
+ohalo.p <- subset(curMASTERpos, curMASTERpos$Super.Class == "Organohalogen compounds") #57
+write.csv(ohalo.p, file = "ohalo_p.csv")
+ohc.p <- subset(curMASTERpos, curMASTERpos$Super.Class == "Organoheterocyclic compounds") #229
+write.csv(ohc.p, file = "ohetero_p.csv")
+phen.p <- subset(curMASTERpos, curMASTERpos$Super.Class == "Phenylpropanoids and polyketides") #72
+write.csv(phen.p, file = "phenyl_p.csv")
+poly <- subset(curMASTERpos, curMASTERpos$Super.Class == "Polyhedralcarbon molecule") #only 2
+
+#neg
+
+curMASTERneg <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/CuratedMaster_neg.csv", header = TRUE, stringsAsFactors = FALSE)
+
+lipids.n <- subset(curMASTERneg, curMASTERneg$Super.Class == "Lipids and lipid-like molecules")
+nuc.n <- subset(curMASTERneg, curMASTERneg$Super.Class == "Nucleosides, nucleotides, and analogues")
+oacids.n <- subset(curMASTERneg, curMASTERneg$Super.Class == "Organic acids and derivatives")
+on.n <- subset(curMASTERneg, curMASTERneg$Super.Class == "Organic nitrogen compounds")
+oo.n <- subset(curMASTERneg, curMASTERneg$Super.Class == "Organic oxygen compounds" | curMASTERneg$Super.Class == "Organooxygen compounds")
+opoly.n <- subset(curMASTERneg, curMASTERneg$Super.Class == "Organic Polymers")
+ohalo.n <- subset(curMASTERneg, curMASTERneg$Super.Class == "Organohalogen compounds")
+ohc.n <- subset(curMASTERneg, curMASTERneg$Super.Class == "Organoheterocyclic compounds")
+phen.n <- subset(curMASTERneg, curMASTERneg$Super.Class == "Phenylpropanoids and polyketides")
+
+#benz.p.gg <- ggplot(data = benz.p, mapping = aes(x = mz, y = CCS.z)) + geom_point(mapping = aes(color = Subclass)) + facet_wrap(~Class, ncol=2)
+#benz.p.gg <- ggplotly(benz.p.gg)
+#benz.p.gg
+
+
+#all
+allMASTER <- read.csv("~/Box Sync/20171218JAP_iceberg/R-output/allMASTER.csv", header = TRUE, stringsAsFactors = FALSE)
+
+alk.a <- subset(allMASTER, allMASTER$Super.Class == "Alkaloids and derivatives") #5
+benz.a <- subset(allMASTER, allMASTER$Super.Class == "Benzenoids") #131
+write.csv(benz.a, file = "benz_a.csv")
+diaz <- subset(allMASTER, allMASTER$Super.Class == "Diazines") #only 1
+metal.a <- subset(allMASTER, allMASTER$Super.Class == "Homogeneous metal compounds") #62
+write.csv(metal.a, file = "metal_a.csv")
+nonmetal <- subset(allMASTER, allMASTER$Super.Class == "Homogeneous non-metal compounds") #only 1
+lipids.a <- subset(allMASTER, allMASTER$Super.Class == "Lipids and lipid-like molecules")
+write.csv(lipids.a, file = "lipids_a.csv")
+nuc.a <- subset(allMASTER, allMASTER$Super.Class == "Nucleosides, nucleotides, and analogues") #222
+write.csv(nuc.a, file = "nuc_a.csv")
+oacids.a <- subset(allMASTER, allMASTER$Super.Class == "Organic acids and derivatives") 
+write.csv(oacids.a, file = "oacids_a.csv")
+on.a <- subset(allMASTER, allMASTER$Super.Class == "Organic nitrogen compounds") #95
+write.csv(on.a, file = "onit_a.csv")
+oo.a <- subset(allMASTER, allMASTER$Super.Class == "Organic oxygen compounds" | allMASTER$Super.Class == "Organooxygen compounds") #218
+write.csv(oo.a, file = "ooxy_a.csv")
+opoly.a <- subset(allMASTER, allMASTER$Super.Class == "Organic polymers") #181
+write.csv(opoly.a, file = "opoly_a.csv")
+ohalo.a <- subset(allMASTER, allMASTER$Super.Class == "Organohalogen compounds") #57
+write.csv(ohalo.a, file = "ohalo_a.csv")
+ohc.a <- subset(allMASTER, allMASTER$Super.Class == "Organoheterocyclic compounds") #229
+write.csv(ohc.a, file = "ohetero_a.csv")
+phen.a <- subset(allMASTER, allMASTER$Super.Class == "Phenylpropanoids and polyketides") #72
+write.csv(phen.a, file = "phenyl_a.csv")
+poly <- subset(allMASTER, allMASTER$Super.Class == "Polyhedralcarbon molecule") #only 2
+
+```
+
+ggplots_pos
+```{r}
+pos.gg <- ggplot(data = curMASTERpos, mapping = aes(x = mz, y = CCS.z)) + geom_point(mapping = aes(color = Class)) + facet_wrap(~Super.Class, ncol=4)
+pos.gg <- ggplotly(pos.gg)
+pos.gg
+
+#col <- c("#F42813", "#DF7F12", "#E3CD10", "#1C9E30", "#10C890", "#23D1E3", "#3B9DE0", "#072DC8", "#6B33EC", "#BAA2F0", "#D12196")
+col <- c("#F0391D", "#ECB431", "#313FEC", "#8031EC", "#E471EC", "#5CDBF7")
+
+#oad
+oad <- subset.data.frame(curMASTERpos, curMASTERpos$Super.Class == "Organic acids and derivatives")
+row.names(oad) <- 1:nrow(oad)
+write.csv(oad, file = "~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/SuperClass-oad_pos.csv")
+
+oadPCI <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/PrismAnalyses/class-trypticpeptides_pa.csv", header = TRUE, stringsAsFactors = FALSE)
+
+oadplot <- plot_ly(oad, x= ~oad$mz, y= ~oad$CCS.z, type = "scatter", mode = "markers", colors = ~col, showlegend = FALSE) %>%
+  add_trace(oadPCI, x = ~oadPCI$mz, y = ~oadPCI$CCS, name = "eq <br>R^2 = 0.978", type = 'scatter', mode = 'lines', line = list(color = "#000000", width = 3), showlegend = TRUE) %>%
+  add_trace(oadPCI, x = ~oadPCI$mz, y = ~(oadPCI$CCS + oadPCI$PI), name = "Upper 99% PI", type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(129, 250, 93, 0.3)", line = list(color = "#39DD29", width = 3, dash = 'dash'), showlegend = TRUE) %>%
+  add_trace(oadPCI, x = ~oadPCI$mz, y = ~(oadPCI$CCS - oadPCI$PI), name = "Lower 99% PI", type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(129, 250, 93, 0.3)", line = list(color = "#39DD29", width = 3, dash = 'dash'), showlegend = TRUE) %>%
+  add_trace(oadPCI, x = ~oadPCI$mz, y = ~(oadPCI$CCS + oadPCI$CI), name = "Upper 99% CI", type = 'scatter', mode = 'lines', line = list(color = "#000000", width = 3, dash = 'dash'), showlegend = TRUE) %>%
+  add_trace(oadPCI, x = ~oadPCI$mz, y = ~(oadPCI$CCS - oadPCI$CI), name = "Lower 99% CI", type = 'scatter', mode = 'lines', line = list(color = "#000000", width = 3, dash = 'dash'), showlegend = TRUE) %>%
+  add_trace(oad, x= ~mz, y= ~CCS.z, type = "scatter", mode = "markers", showlegend = TRUE, color = ~Class, marker = (list(size = 8)), text = ~paste("Name: ", Compound, "<br>Formula: ", Formula, "<br>CAS: ", CAS, "<br>m/z:", oad$mz, "<br>Adduct: ", Adduct,"+", "<br>CCS:",CCS,"+/-", RSD, "<br>Subclass: ", Subclass, "<br>Source: ", Source, "<br>DOI: ", DOI), hoverlabel = list(font = list(family = "Times New Roman", size = 20))) %>%
+  layout(title = "<b>Organic Acids and Derivatives<br>Tryptic Peptides (cations, N=)</b>", titlefont = list(size = 40), autosize = TRUE,
+         xaxis = list(title = "<b>m/z</b>", titlefont = list(size = 30, color = "#000000"), zeroline = FALSE, showline = TRUE, linewidth = 10, ticks = "outside", ticklen = 10, tickwidth = 10, tickfont = list(size = 26, color = "#000000"), showgrid = FALSE),
+         yaxis = list(title = "<b>CCS/z</b>", titlefont = list(size = 30, color = "#000000"), zeroline = FALSE, showline = TRUE, linewidth = 10, ticks = "outside", ticklen = 10, tickwidth = 10, tickfont = list(size = 26, color = "#000000"), showgrid = FALSE),
+         margin = list(t = 100, l = 100, b = 100, r = 50))
+oadplot
+
+Sys.setenv("plotly_username"="jpicache")
+Sys.setenv("plotly_api_key"="aWljyzCLa4hmvZfCaoR9")
+api_create(oadplot, filename = "McLeanLab_Database_pos_oad-tryptpep")
+
+
+#lipids
+lipids <- subset.data.frame(curMASTERpos, curMASTERpos$Super.Class == "Lipids and lipid-like molecules")
+row.names(lipids) <- 1:nrow(lipids)
+write.csv(lipids, file = "~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/SuperClass-lipids_pos.csv")
+
+gplPCI <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/PrismAnalyses/class-gpl_pa.csv", header = TRUE, stringsAsFactors = FALSE)
+faPCI <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/PrismAnalyses/class-FA_4P.csv", header = TRUE, stringsAsFactors = FALSE)
+sphingoPCI <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/PrismAnalyses/class-sphingo_5P.csv", header = TRUE, stringsAsFactors = FALSE)
+
+lipidsplot <- plot_ly(lipids, x= ~lipids$mz, y= ~lipids$CCS.z, type = "scatter", mode = "markers", colors = ~col) %>%
+#  add_trace(faPCI, x = ~faPCI$mz, y = ~faPCI$CCS, name = "eq", type = 'scatter', mode = 'lines', line = list(color = "#39DD29", width = 3), showlegend = TRUE) %>%
+#  add_trace(faPCI, x = ~faPCI$mz, y = ~(faPCI$CCS + faPCI$PI), name = "Upper 99% PI", type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(129, 250, 93, 0.25)", line = list(color = "#39DD29", width = 3, dash = 'dash'), showlegend = TRUE) %>%
+#  add_trace(faPCI, x = ~faPCI$mz, y = ~(faPCI$CCS - faPCI$PI), name = "Lower 99% PI", type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(129, 250, 93, 0.25)", line = list(color = "#39DD29", width = 3, dash = 'dash'), showlegend = TRUE) %>%
+#  add_trace(faPCI, x = ~faPCI$mz, y = ~(faPCI$CCS + faPCI$CI), name = "Upper 99% CI", type = 'scatter', mode = 'lines', line = list(color = "#39DD29", width = 3, dash = 'solid'), showlegend = TRUE) %>%
+#  add_trace(faPCI, x = ~faPCI$mz, y = ~(faPCI$CCS - faPCI$CI), name = "Lower 99% CI", type = 'scatter', mode = 'lines', line = list(color = "#39DD29", width = 3, dash = 'solid'), showlegend = TRUE) %>%
+#  add_trace(gplPCI, x = ~gplPCI$mz, y = ~gplPCI$CCS, name = "eq", type = 'scatter', mode = 'lines', line = list(color = "#39DD29", width = 3), showlegend = TRUE) %>%
+#  add_trace(gplPCI, x = ~gplPCI$mz, y = ~(gplPCI$CCS + gplPCI$PI), name = "Upper 99% PI", type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(129, 250, 93, 0.25)", line = list(color = "#39DD29", width = 3, dash = 'dash'), showlegend = TRUE) %>%
+#  add_trace(gplPCI, x = ~gplPCI$mz, y = ~(gplPCI$CCS - gplPCI$PI), name = "Lower 99% PI", type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(129, 250, 93, 0.25)", line = list(color = "#39DD29", width = 3, dash = 'dash'), showlegend = TRUE) %>%
+#  add_trace(gplPCI, x = ~gplPCI$mz, y = ~(gplPCI$CCS + gplPCI$CI), name = "Upper 99% CI", type = 'scatter', mode = 'lines', line = list(color = "#39DD29", width = 3, dash = 'solid'), showlegend = TRUE) %>%
+#  add_trace(gplPCI, x = ~gplPCI$mz, y = ~(gplPCI$CCS - gplPCI$CI), name = "Lower 99% CI", type = 'scatter', mode = 'lines', line = list(color = "#39DD29", width = 3, dash = 'solid'), showlegend = TRUE) %>%
+  add_trace(sphingoPCI, x = ~mz, y = ~$CCS, name = "eq", type = 'scatter', mode = 'lines', line = list(color = "#39DD29", width = 3), showlegend = TRUE) %>%
+  add_trace(sphingoPCI, x = ~sphingoPCI$mz, y = ~(sphingoPCI$CCS + sphingoPCI$PI), name = "Upper 99% PI", type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(129, 250, 93, 0.25)", line = list(color = "#39DD29", width = 3, dash = 'dash'), showlegend = TRUE) %>%
+  add_trace(sphingoPCI, x = ~sphingoPCI$mz, y = ~(sphingoPCI$CCS - sphingoPCI$PI), name = "Lower 99% PI", type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(129, 250, 93, 0.25)", line = list(color = "#39DD29", width = 3, dash = 'dash'), showlegend = TRUE) %>%
+  add_trace(sphingoPCI, x = ~sphingoPCI$mz, y = ~(sphingoPCI$CCS + sphingoPCI$CI), name = "Upper 99% CI", type = 'scatter', mode = 'lines', line = list(color = "#39DD29", width = 3, dash = 'solid'), showlegend = TRUE) %>%
+  add_trace(sphingoPCI, x = ~sphingoPCI$mz, y = ~(sphingoPCI$CCS - sphingoPCI$CI), name = "Lower 99% CI", type = 'scatter', mode = 'lines', line = list(color = "#39DD29", width = 3, dash = 'solid'), showlegend = TRUE) %>%
+   add_trace(lipids, x= ~mz, y= ~CCS.z, type = "scatter", mode = "markers", showlegend = TRUE, color = ~Class, marker = (list(size = 10)), text = ~paste("Name: ", Compound, "<br>Formula: ", Formula, "<br>CAS: ", CAS, "<br>m/z:", lipids$mz, "<br>Adduct: ", Adduct,"+", "<br>CCS:",CCS,"+/-", RSD, "<br>Subclass: ", Subclass, "<br>Source: ", Source, "<br>DOI: ", DOI), hoverlabel = list(font = list(family = "Times New Roman", size = 20))) %>%
+  layout(xaxis = list(title = "<b>m/z</b>", titlefont = list(size = 30, color = "#000000"), zeroline = FALSE, showline = TRUE, linewidth = 10, ticks = "outside", ticklen = 10, tickwidth = 10, tickfont = list(size = 22, color = "#000000"), tick0 = 0, dtick = 100, showgrid = FALSE),
+         yaxis = list(title = "<b>CCS/z</b>", titlefont = list(size = 30, color = "#000000"), zeroline = FALSE, showline = TRUE, linewidth = 10, ticks = "outside", ticklen = 10, tickwidth = 10, tickfont = list(size = 22, color = "#000000"), tick0 = 0, dtick = 50, showgrid = FALSE),
+         margin = list(t = 100, l = 100, b = 100, r = 50))
+lipidsplot
+
+```
+
+```{r}
+rsd.p <- as.data.frame(cbind(curMASTERpos$Compound, curMASTERpos$mz, curMASTERpos$CCS, curMASTERpos$CCS.z, curMASTERpos$RSD))
+colnames(rsd.p) <- c("Compound", "mz", "CCS", "CCS.z", "RSD")
+
+#RSD binning by CCS: 100-438
+rangeP <- seq(0, 340, by = 10)
+rsd.p$CCSround <- as.numeric(as.character(rsd.p$CCS.z))
+rsd.p$RSD <- as.numeric(as.character(rsd.p$RSD))
+rsd.p$CCSround <- ifelse(rsd.p$CCSround <= 100, 100, rsd.p$CCSround)
+for (i in rangeP) {
+  rsd.p$CCSround <- ifelse(rsd.p$CCSround > 100 + i & rsd.p$CCSround <= 110 + i, 110 + i, rsd.p$CCSround)
+}
+
+ccsrsd.p.his <- plot_ly(x = ~rsd.p$RSD, y = ~rsd.p$CCSround, histfunc = "avg", type = "histogram", ybins = list(start=100, end=450, size=10), color = I("#AFAFAF"), marker = list(line = list(width = 8, color = "#000000"))) %>%
+  layout(xaxis = list(title = "<b>% RSD</b>", titlefont = list(size = 22, color = "#000000"), zeroline = FALSE, showline = FALSE, tick0 = 0, dtick = 0.1, showgrid = FALSE, tickfont = list(size = 14, color = "#000000")),
+         yaxis = list(title = "<b>CCS/z</b>", titlefont = list(size = 22, color = "#000000"), zeroline = FALSE, showline = FALSE, showgrid = FALSE, tickfont = list(size = 14, color = "#000000")))
+ccsrsd.p.his
+
+Sys.setenv("plotly_username"="jpicache")
+Sys.setenv("plotly_api_key"="aWljyzCLa4hmvZfCaoR9")
+api_create(rsd.p.his, filename = "McLeanLab_Database_pos_ccsrsd-h")
+
+#RSD binning by mz: 74-3301
+rangeP <- seq(0, 3250, by = 100)
+rsd.p$mzround <- as.numeric(as.character(rsd.p$mz))
+rsd.p$RSD <- as.numeric(as.character(rsd.p$RSD))
+rsd.p$mzround <- ifelse(rsd.p$mzround <= 100, 100, rsd.p$mzround)
+for (i in rangeP) {
+  rsd.p$mzround <- ifelse(rsd.p$mzround > 100 + i & rsd.p$mzround <= 200 + i, 100 + i, rsd.p$mzround)
+}
+
+mzrsd.p.his <- plot_ly(x = ~rsd.p$mzround, y = ~rsd.p$RSD, histfunc = "avg", type = "bar", ybins = list(start=75, end=3325), color = I("#FFFFFF"), marker = list(line = list(width = 5, color = "#000000"))) %>%
+  layout(yaxis = list(title = "<b>% RSD</b>", size = 12, zeroline = FALSE, showline = FALSE),
+         xaxis = list(title = "<b>m/z</b>", size = 12, zeroline = FALSE, showline = FALSE))
+mzrsd.p.his
+
+#counts per mz: 74-3301
+rangeP <- seq(0, 3250, by = 50)
+curMASTERpos$mzround <- as.numeric(as.character(curMASTERpos$mz))
+curMASTERpos$mzround <- ifelse(curMASTERpos$mzround <= 100, 100, curMASTERpos$mzround)
+for (i in rangeP) {
+  curMASTERpos$mzround <- ifelse(curMASTERpos$mzround > 100 + i & curMASTERpos$mzround <= 150 + i, 150 + i, curMASTERpos$mzround)
+}
+
+mz.his <- plot_ly(x = ~curMASTERpos$mzround, type = "histogram", histfunc = "count", color = I("#AFAFAF"), marker = list(line = list(width = 6, color = "#000000"))) %>%
+  layout(xaxis = list(title = "<b>m/z</b>", titlefont = list(size = 30, color = "#000000"), zeroline = FALSE, showline = TRUE, linewidth = 3, tickfont = list(size = 22, color = "#000000"), showgrid = FALSE),
+         yaxis = list(title = "<b>Count</b>", titlefont = list(size = 30, color = "#000000"), zeroline = FALSE, showline = TRUE, linewidth = 3, tickfont = list(size = 22, color = "#000000"), showgrid = FALSE),
+         margin = list(t = 100, l = 100, b = 100, r = 50))
+mz.his
+
+```
+
+#mz discernment
+```{r}
+lmp <- subset.data.frame(curMASTERpos, curMASTERpos$mz >= 301 & curMASTERpos$mz < 302)
+hmp <- subset.data.frame(curMASTERpos, curMASTERpos$mz >= 806 & curMASTERpos$mz < 807)
+lmn <- subset.data.frame(curMASTERneg, curMASTERneg$mz >= 255 & curMASTERneg$mz < 256)
+hmn <- subset.data.frame(curMASTERneg, curMASTERneg$mz >= 744 & curMASTERneg$mz < 745)
+mp <- subset.data.frame(curMASTERpos, curMASTERpos$Class == "Benzene and substituted derivatives" | curMASTERpos$Subclass == "Benzopyrenes" | curMASTERpos$Subclass == "Estrane steroids" | curMASTERpos$Subclass == "Lineolic acids and derivatives" | curMASTERpos$Subclass == "Glycerophosphoserines" | curMASTERpos$Subclass == "Glycerophosphoethanolamines" | curMASTERpos$Subclass == "Glycerophosphocholines" | curMASTERpos$Subclass == "Glycosphingolipids")
+mn <- subset.data.frame(curMASTERneg, curMASTERneg$Subclass == "Chalcones and dihydrochalcone" | curMASTERneg$Subclass == "Fatty acids and conjugates" | curMASTERneg$Subclass == "Glycerophosphoethanolamines" | curMASTERneg$Class == "(5'->5')-dinucleotides")
+
+write.csv(mn, "~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS-Comm_IcebergDB/mn.csv")
+
+```
