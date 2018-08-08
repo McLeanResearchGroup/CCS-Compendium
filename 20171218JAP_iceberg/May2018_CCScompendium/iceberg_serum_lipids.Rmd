@@ -14,13 +14,13 @@ library(plotly)
 library(data.table)
 library(plyr)
 
-ID <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS_Database_June2018/Progenesis/20180427JAP_IDs.csv",
+ID <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/201806_Database_AnalChem/Progenesis/20180427JAP_IDs.csv",
                header = TRUE, stringsAsFactors = FALSE)
 all <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/allMASTER.csv",
                 header = TRUE, stringsAsFactors = FALSE)
-serum <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS_Database_June2018/Progenesis/20180515JAP_progenesis-DT_out.csv",
+serum <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/201806_Database_AnalChem/Progenesis/20180515JAP_progenesis-DT_out.csv",
                   header = TRUE, stringsAsFactors = FALSE)
-classfits <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS_Database_June2018/ClassFits.csv",
+classfits <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/201806_Database_AnalChem/ClassFits.csv",
                       header = TRUE, stringsAsFactors = FALSE)
 
 ```
@@ -509,7 +509,7 @@ test <- apply(IDserum$mz.p, MARGIN = 1, sample.class(IDserum$mz.p, class[1, "mz.
 #s.l <- subset(s.l, s.l$ccsz >= 115 & s.l$ccsz < 328)
 #s.l <- s.l[order(s.l$mzp, s.l$ccsz),]
 #write.csv(s.l, "~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS_Database_June2018/serum_lipids.csv")
-sl.full <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS_Database_June2018/serum_lipids.csv", header = TRUE, stringsAsFactors = FALSE)
+sl.full <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/201806_Database_AnalChem/serum_lipids.csv", header = TRUE, stringsAsFactors = FALSE)
 s.l <- sl.full[order(sl.full$RTm, sl.full$mzp, sl.full$rsd),]
 
 counts2 <- ddply(s.l, .(s.l$Class, s.l$Subclass), nrow)

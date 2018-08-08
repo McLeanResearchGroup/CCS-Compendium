@@ -1,0 +1,528 @@
+---
+title: "Class Trend Plots"
+output: html_notebook
+---
+
+Proteins and related compounds- 4 classes - updated Aug 1
+```{r}
+protplot <- plot_ly(fitteddata[["Proteins"]], x= fitteddata[["Proteins"]][,5], y = fitteddata[["Proteins"]][,6],
+        name = "Proteins", type = 'scatter', mode = 'lines', 
+        line = list(color = "#4CBBFF", width = 3), legendgroup = "b", showlegend = T) %>%
+      add_trace(fitteddata[["Proteins"]], x = ~fitteddata[["Proteins"]][,5], y = fitteddata[["Proteins"]][,9], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(156, 217, 255, 0.2)", 
+            line = list(color = "#9CD9FF", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+     add_trace(fitteddata[["Proteins"]], x = ~fitteddata[["Proteins"]][,5], y =  fitteddata[["Proteins"]][,10], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(156, 217, 255, 0.2)", 
+            line = list(color = "#9CD9FF", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F)%>%
+     add_trace(fitteddata[["Proteins"]], x = ~fitteddata[["Proteins"]][,5], y = fitteddata[["Proteins"]][,7], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#4CBBFF", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+     add_trace(fitteddata[["Proteins"]], x = ~fitteddata[["Proteins"]][,5], y = fitteddata[["Proteins"]][,8],
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#4CBBFF", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  #tryptic peptides- orange
+        add_trace(fitteddata[["Tryptic peptides"]], x= ~fitteddata[["Tryptic peptides"]][,5], 
+                  y= ~fitteddata[["Tryptic peptides"]][,6],
+                  name = "Tryptic peptides", type = 'scatter', mode = 'lines', 
+                  line = list(color = "#FFA600", width = 3),  legendgroup = "a", showlegend = T) %>%
+        add_trace(fitteddata[["Tryptic peptides"]], x = ~fitteddata[["Tryptic peptides"]][,5], 
+                  y = fitteddata[["Tryptic peptides"]][,9], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 193, 78, 0.2)", 
+            line = list(color = "#FFC14E", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+        add_trace(fitteddata[["Tryptic peptides"]], x = ~fitteddata[["Tryptic peptides"]][,5], 
+                  y = fitteddata[["Tryptic peptides"]][,10], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 193, 78, 0.2)", 
+            line = list(color = "#FFC14E", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F)%>%
+       add_trace(fitteddata[["Tryptic peptides"]], x = ~fitteddata[["Tryptic peptides"]][,5], 
+                 y = fitteddata[["Tryptic peptides"]][,7], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFA600", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+        add_trace(fitteddata[["Tryptic peptides"]], x = ~fitteddata[["Tryptic peptides"]][,5], 
+                  y = fitteddata[["Tryptic peptides"]][,8], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFA600", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+  #Peptidomimetics- green
+          add_trace(fitteddata[["Peptidomimetics"]], x= ~fitteddata[["Peptidomimetics"]][,5], 
+                  y= ~fitteddata[["Peptidomimetics"]][,6],
+                  name = "Peptidomimetics", type = 'scatter', mode = 'lines', 
+                  line = list(color = "#029900", width = 3),  legendgroup = "c", showlegend = T) %>%
+        add_trace(fitteddata[["Peptidomimetics"]], x = ~fitteddata[["Peptidomimetics"]][,5], 
+                  y = fitteddata[["Peptidomimetics"]][,9], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(85, 214, 85, 0.2)", 
+            line = list(color = "#33D633", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+        add_trace(fitteddata[["Peptidomimetics"]], x = ~fitteddata[["Peptidomimetics"]][,5], 
+                  y = fitteddata[["Peptidomimetics"]][,10], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(85, 214, 85, 0.2)", 
+            line = list(color = "#33D633", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F)%>%
+       add_trace(fitteddata[["Peptidomimetics"]], x = ~fitteddata[["Peptidomimetics"]][,5], 
+                 y = fitteddata[["Peptidomimetics"]][,7], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#029900", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+        add_trace(fitteddata[["Peptidomimetics"]], x = ~fitteddata[["Peptidomimetics"]][,5], 
+                  y = fitteddata[["Peptidomimetics"]][,8], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#029900", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+  
+  #Carboxylic acids- purple
+        add_trace(fitteddata[["Carboxylic acids and derivatives"]], 
+                x= ~fitteddata[["Carboxylic acids and derivatives"]][,5], y= ~fitteddata[["Carboxylic acids and derivatives"]][,6], 
+                 name = "Carboxylic acids and derivatives", type = 'scatter', mode = 'lines', 
+                 line = list(color = "#A65CFF", width = 3), legendgroup = "d", showlegend = T) %>%
+            add_trace(fitteddata[["Carboxylic acids and derivatives"]], 
+                x = ~fitteddata[["Carboxylic acids and derivatives"]][,5], y = fitteddata[["Carboxylic acids and derivatives"]][,9], 
+                 type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203, 161, 254, 0.2)", 
+                 line = list(color = "#CBA1FE", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F) %>%
+            add_trace(fitteddata[["Carboxylic acids and derivatives"]], 
+                x = ~fitteddata[["Carboxylic acids and derivatives"]][,5], y = fitteddata[["Carboxylic acids and derivatives"]][,10],
+                 type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203, 161, 254, 0.2)", 
+                 line = list(color = "#CBA1FE", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F)%>%
+            add_trace(fitteddata[["Carboxylic acids and derivatives"]], 
+                x = ~fitteddata[["Carboxylic acids and derivatives"]][,5], y = fitteddata[["Carboxylic acids and derivatives"]][,7], 
+                 type = 'scatter', mode = 'lines', 
+                 line = list(color = "#A65CFF", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F) %>%
+            add_trace(fitteddata[["Carboxylic acids and derivatives"]], 
+                x = ~fitteddata[["Carboxylic acids and derivatives"]][,5], y = fitteddata[["Carboxylic acids and derivatives"]][,8],
+                 type = 'scatter', mode = 'lines', 
+                 line = list(color = "#A65CFF", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F) %>%
+    layout(title = "<b>Proteins and related species</b>",
+        xaxis = list(title = "<b>m/z</b>", ticks = "outside", showgrid = FALSE),
+         yaxis = list(title = "<b>CCS/z</b>", ticks = "outside", showgrid = FALSE))
+  
+
+
+protplot
+
+```
+
+Nucleotides and nucleosides- 2 classes- updated July 26
+```{r}
+nucplot <- plot_ly(fitteddata[["Purine nucleotides"]], x= ~fitteddata[["Purine nucleotides"]][,5], 
+                   y= ~fitteddata[["Purine nucleotides"]][,6],
+                   name = "Purine nucleotides", type = 'scatter', mode = 'lines', 
+                   line = list(color = "#0049FF", width = 3), legendgroup = "e", showlegend = T) %>%
+  add_trace(fitteddata[["Purine nucleotides"]], x = ~fitteddata[["Purine nucleotides"]][,5], 
+            y = fitteddata[["Purine nucleotides"]][,10], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(111, 152, 255, 0.2)", 
+            line = list(color = "#6F98FF", width = 3, dash = 'dash'), legendgroup = "e", showlegend = F) %>%
+  add_trace(fitteddata[["Purine nucleotides"]], x = ~fitteddata[["Purine nucleotides"]][,5], 
+            y = fitteddata[["Purine nucleotides"]][,9], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(111, 152, 255, 0.2)", 
+            line = list(color = "#6F98FF", width = 3, dash = 'dash'), legendgroup = "e", showlegend = F)%>%
+  add_trace(fitteddata[["Purine nucleotides"]], x = ~fitteddata[["Purine nucleotides"]][,5], 
+            y = fitteddata[["Purine nucleotides"]][,7], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#0049FF", width = 3, dash = 'dash'), legendgroup = "e", showlegend = F) %>%
+  add_trace(fitteddata[["Purine nucleotides"]], x = ~fitteddata[["Purine nucleotides"]][,5], 
+            y = fitteddata[["Purine nucleotides"]][,8], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#0049FF", width = 3, dash = 'dash'), legendgroup = "e", showlegend = F) %>%
+  #pyr tides- purple
+  add_trace(fitteddata[["Pyrimidine nucleotides"]], x= ~fitteddata[["Pyrimidine nucleotides"]][,5], 
+            y= ~fitteddata[["Pyrimidine nucleotides"]][,6],
+            name = "Pyrimidine nucleotides", type = 'scatter', mode = 'lines',
+            line = list(color = "#A65CFF", width = 3), legendgroup = "f", showlegend = T) %>%
+  add_trace(fitteddata[["Pyrimidine nucleotides"]], x = ~fitteddata[["Pyrimidine nucleotides"]][,5], 
+            y = fitteddata[["Pyrimidine nucleotides"]][,9],
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203, 161, 254, 0.23)",
+            line = list(color = "#CBA1FE", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F) %>%
+  add_trace(fitteddata[["Pyrimidine nucleotides"]], x = ~fitteddata[["Pyrimidine nucleotides"]][,5], 
+            y = fitteddata[["Pyrimidine nucleotides"]][,10],
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203, 161, 254, 0.23)",
+            line = list(color = "#CBA1FE", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F)%>%
+  add_trace(fitteddata[["Pyrimidine nucleotides"]], x = ~fitteddata[["Pyrimidine nucleotides"]][,5], 
+            y = fitteddata[["Pyrimidine nucleotides"]][,7],
+            type = 'scatter', mode = 'lines',
+            line = list(color = "#A65CFF", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F) %>%
+  add_trace(fitteddata[["Pyrimidine nucleotides"]], x = ~fitteddata[["Pyrimidine nucleotides"]][,5], 
+            y = fitteddata[["Pyrimidine nucleotides"]][,8],
+            type = 'scatter', mode = 'lines',
+            line = list(color = "#A65CFF", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F) %>%
+
+    layout(title = "<b>Nucleosides, nucleotides, and analogues</b>",
+      xaxis = list(title = "<b>m/z</b>", ticks = "outside", showgrid = FALSE),
+         yaxis = list(title = "<b>CCS/z</b>", ticks = "outside", showgrid = FALSE))
+
+nucplot
+```
+
+Lipids and propanoids- 3 classes- updated Aug 1
+```{r}
+lipidplot <- plot_ly(fitteddata[["Fatty acyls"]], x= ~fitteddata[["Fatty acyls"]][,5], y= ~fitteddata[["Fatty acyls"]][,6],
+            name = "Fatty acyls", type = 'scatter', mode = 'lines', 
+            line = list(color = "#0049FF", width = 3), legendgroup = "a", showlegend = T) %>%
+  add_trace(fitteddata[["Fatty acyls"]], x = ~fitteddata[["Fatty acyls"]][,5], y = fitteddata[["Fatty acyls"]][,9], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(111, 152, 255, 0.2)", 
+            line = list(color = "#6F98FF", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+  add_trace(fitteddata[["Fatty acyls"]], x = ~fitteddata[["Fatty acyls"]][,5], y = fitteddata[["Fatty acyls"]][,10], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(111, 152, 255, 0.2)", 
+            line = list(color = "#6F98FF", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F)%>%
+  add_trace(fitteddata[["Fatty acyls"]], x = ~fitteddata[["Fatty acyls"]][,5], y = fitteddata[["Fatty acyls"]][,7], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#0049FF", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+  add_trace(fitteddata[["Fatty acyls"]], x = ~fitteddata[["Fatty acyls"]][,5], y = fitteddata[["Fatty acyls"]][,8], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#0049FF", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+  #gpl- green
+  add_trace(fitteddata[["Glycerophospholipids"]], x= ~fitteddata[["Glycerophospholipids"]][,5], 
+            y= ~fitteddata[["Glycerophospholipids"]][,6],
+            name = "Glycerophospholipids", type = 'scatter', mode = 'lines', 
+            line = list(color = "#029900", width = 3), legendgroup = "b", showlegend = T) %>%
+  add_trace(fitteddata[["Glycerophospholipids"]], x = ~fitteddata[["Glycerophospholipids"]][,5], 
+            y = fitteddata[["Glycerophospholipids"]][,9], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(85, 214, 83, 0.2)", 
+            line = list(color = "#55D653", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  add_trace(fitteddata[["Glycerophospholipids"]], x = ~fitteddata[["Glycerophospholipids"]][,5], 
+            y = fitteddata[["Glycerophospholipids"]][,10], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(85, 214, 83, 0.2)", 
+            line = list(color = "#55D653", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F)%>%
+  add_trace(fitteddata[["Glycerophospholipids"]], x = ~fitteddata[["Glycerophospholipids"]][,5], 
+            y = fitteddata[["Glycerophospholipids"]][,7], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#029900", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  add_trace(fitteddata[["Glycerophospholipids"]], x = ~fitteddata[["Glycerophospholipids"]][,5], 
+            y = fitteddata[["Glycerophospholipids"]][,8], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#029900", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  #prenols-pink
+  add_trace(fitteddata[["Prenol lipids"]], x= ~fitteddata[["Prenol lipids"]][,5], y= ~fitteddata[["Prenol lipids"]][,6],
+            name = "Prenol lipids", type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF63D7", width = 3), legendgroup = "f", showlegend = T) %>%
+  add_trace(fitteddata[["Prenol lipids"]], x = ~fitteddata[["Prenol lipids"]][,5], y = fitteddata[["Prenol lipids"]][,9], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 159, 230, 0.2)", 
+            line = list(color = "#FF9FE6", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F) %>%
+  add_trace(fitteddata[["Prenol lipids"]], x = ~fitteddata[["Prenol lipids"]][,5], y = fitteddata[["Prenol lipids"]][,10], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 159, 230, 0.2)", 
+            line = list(color = "#FF9FE6", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F)%>%
+  add_trace(fitteddata[["Prenol lipids"]], x = ~fitteddata[["Prenol lipids"]][,5], y = fitteddata[["Prenol lipids"]][,7], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF63D7", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F) %>%
+  add_trace(fitteddata[["Prenol lipids"]], x = ~fitteddata[["Prenol lipids"]][,5], y = fitteddata[["Prenol lipids"]][,8], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF63D7", width = 3, dash = 'dash'), legendgroup = "f", showlegend = F) %>%
+
+    layout(title = "<b> Lipids and phenylpropanoids</b>",
+      xaxis = list(title = "<b>m/z</b>", ticks = "outside", showgrid = FALSE),
+         yaxis = list(title = "<b>CCS/z</b>", ticks = "outside", showgrid = FALSE))
+
+lipidplot
+
+```
+
+Benzenoids- 2 classes- updated July 26
+```{r}
+benzplot <- plot_ly(fitteddata[["Benzene and substituted derivatives"]], x= ~fitteddata[["Benzene and substituted derivatives"]][,5],            y= ~fitteddata[["Benzene and substituted derivatives"]][,6],
+          name = "Benzene and substituted derivatives", type = 'scatter', mode = 'lines', 
+          line = list(color = "#0049FF", width = 3), legendgroup = "b", showlegend = T) %>%
+  add_trace(fitteddata[["Benzene and substituted derivatives"]], x = ~fitteddata[["Benzene and substituted derivatives"]][,5], 
+            y = fitteddata[["Benzene and substituted derivatives"]][,9], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(111, 152, 255, 0.2)", 
+            line = list(color = "#6F98FF", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  add_trace(fitteddata[["Benzene and substituted derivatives"]], x = ~fitteddata[["Benzene and substituted derivatives"]][,5], 
+            y = fitteddata[["Benzene and substituted derivatives"]][,10], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(111, 152, 255, 0.2)", 
+            line = list(color = "#6F98FF", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F)%>%
+  add_trace(fitteddata[["Benzene and substituted derivatives"]], x = ~fitteddata[["Benzene and substituted derivatives"]][,5], 
+            y = fitteddata[["Benzene and substituted derivatives"]][,7], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#0049FF", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  add_trace(fitteddata[["Benzene and substituted derivatives"]], x = ~fitteddata[["Benzene and substituted derivatives"]][,5], 
+            y = fitteddata[["Benzene and substituted derivatives"]][,8], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#0049FF", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  
+#pyrenes- red
+  add_trace(fitteddata[["Pyrenes"]], x= ~fitteddata[["Pyrenes"]][,5], y= ~fitteddata[["Pyrenes"]][,6],
+          name = "Pyrenes", type = 'scatter', mode = 'lines', 
+          line = list(color = "#FF0404", width = 3), legendgroup = "c", showlegend = T) %>%
+  add_trace(fitteddata[["Pyrenes"]], x = ~fitteddata[["Pyrenes"]][,5], y = fitteddata[["Pyrenes"]][,9], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 90,90, 0.2)", 
+            line = list(color = "#FF5A5A", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+  add_trace(fitteddata[["Pyrenes"]], x = ~fitteddata[["Pyrenes"]][,5], y = fitteddata[["Pyrenes"]][,10], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 90,90, 0.2)", 
+            line = list(color = "#FF5A5A", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F)%>%
+  add_trace(fitteddata[["Pyrenes"]], x = ~fitteddata[["Pyrenes"]][,5], y = fitteddata[["Pyrenes"]][,7], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF0404", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+  add_trace(fitteddata[["Pyrenes"]], x = ~fitteddata[["Pyrenes"]][,5], y = fitteddata[["Pyrenes"]][,8], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF0404", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+
+    layout(title = "<b>Benzenoids</b>",
+      xaxis = list(title = "<b>m/z</b>", ticks = "outside", showgrid = FALSE),
+         yaxis = list(title = "<b>CCS/z</b>", ticks = "outside", showgrid = FALSE))
+
+benzplot
+
+
+```
+
+Heterocyclic- 6 classes - updated Aug 1 
+```{r}
+heteroplot <- plot_ly(fitteddata[["Diazines"]], x= ~fitteddata[["Diazines"]][,5], y= ~fitteddata[["Diazines"]][,6],
+            name = "Diazines", type = 'scatter', mode = 'lines', 
+            line = list(color = "#9E9E9E", width = 3), legendgroup = "c", showlegend = T) %>%
+  add_trace(fitteddata[["Diazines"]], x = ~fitteddata[["Diazines"]][,5], y = fitteddata[["Diazines"]][,9], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203, 203, 203, 0.2)", 
+            line = list(color = "#CBCBCB", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+  add_trace(fitteddata[["Diazines"]], x = ~fitteddata[["Diazines"]][,5], y = fitteddata[["Diazines"]][,10], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203, 203, 203, 0.2)", 
+            line = list(color = "#CBCBCB", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F)%>%
+  add_trace(fitteddata[["Diazines"]], x = ~fitteddata[["Diazines"]][,5], y = fitteddata[["Diazines"]][,7], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#9E9E9E", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+  add_trace(fitteddata[["Diazines"]], x = ~fitteddata[["Diazines"]][,5], y = fitteddata[["Diazines"]][,8], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#9E9E9E", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+  #pteridines- purple
+  add_trace(fitteddata[["Pteridines and derivatives"]], x= ~fitteddata[["Pteridines and derivatives"]][,5], 
+            y= ~fitteddata[["Pteridines and derivatives"]][,6],
+          name = "Pteridines and derivatives", type = 'scatter', mode = 'lines', 
+          line = list(color = "#A65CFF", wifth = 3), legendgroup = "j", showlegend = T) %>%
+  add_trace(fitteddata[["Pteridines and derivatives"]], x = ~fitteddata[["Pteridines and derivatives"]][,5], 
+            y = fitteddata[["Pteridines and derivatives"]][,9], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203, 161, 254, 0.2)", 
+            line = list(color = "#CBA1FE", width = 3, dash = 'dash'), legendgroup = "j", showlegend = F) %>%
+  add_trace(fitteddata[["Pteridines and derivatives"]], x = ~fitteddata[["Pteridines and derivatives"]][,5],
+            y = fitteddata[["Pteridines and derivatives"]][,10], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203, 161, 254, 0.2)", 
+            line = list(color = "#CBA1FE", width = 3, dash = 'dash'), legendgroup = "j", showlegend = F)%>%
+  add_trace(fitteddata[["Pteridines and derivatives"]], x = ~fitteddata[["Pteridines and derivatives"]][,5], 
+            y = fitteddata[["Pteridines and derivatives"]][,7], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#A65CFF", width = 3, dash = 'dash'), legendgroup = "j", showlegend = F) %>%
+  add_trace(fitteddata[["Pteridines and derivatives"]], x = ~fitteddata[["Pteridines and derivatives"]][,5], 
+            y = fitteddata[["Pteridines and derivatives"]][,8], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#A65CFF", width = 3, dash = 'dash'), legendgroup = "j", showlegend = F) %>%
+  
+#quinolines- light blue
+    add_trace(fitteddata[["Quinolines and derivatives"]], x= ~fitteddata[["Quinolines and derivatives"]][,5], 
+            y= ~fitteddata[["Quinolines and derivatives"]][,6],
+          name = "Quinolines and derivatives", type = 'scatter', mode = 'lines', 
+          line = list(color = "#4CBBFF", wifth = 3), legendgroup = "a", showlegend = T) %>%
+  add_trace(fitteddata[["Quinolines and derivatives"]], x = ~fitteddata[["Quinolines and derivatives"]][,5], 
+            y = fitteddata[["Quinolines and derivatives"]][,9], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(156, 217, 255, 0.2)", 
+            line = list(color = "#9CD9FF", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+  add_trace(fitteddata[["Quinolines and derivatives"]], x = ~fitteddata[["Quinolines and derivatives"]][,5], 
+            y = fitteddata[["Quinolines and derivatives"]][,10], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(156, 217, 255, 0.2)", 
+            line = list(color = "#9CD9FF", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F)%>%
+  add_trace(fitteddata[["Quinolines and derivatives"]], x = ~fitteddata[["Quinolines and derivatives"]][,5], 
+            y = fitteddata[["Quinolines and derivatives"]][,7], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#4CBBFF", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+  add_trace(fitteddata[["Quinolines and derivatives"]], x = ~fitteddata[["Quinolines and derivatives"]][,5], 
+            y = fitteddata[["Quinolines and derivatives"]][,8], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#4CBBFF", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+  
+#pyridines - orange
+  add_trace(fitteddata[["Pyridines and derivatives"]], x= ~fitteddata[["Pyridines and derivatives"]][,5], 
+            y= ~fitteddata[["Pyridines and derivatives"]][,6],
+          name = "Pyridines and derivatives", type = 'scatter', mode = 'lines', 
+          line = list(color = "#FF911C", wifth = 3), legendgroup = "i", showlegend = T) %>%
+  add_trace(fitteddata[["Pyridines and derivatives"]], x = ~fitteddata[["Pyridines and derivatives"]][,5], 
+            y = fitteddata[["Pyridines and derivatives"]][,9], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 163, 64, 0.2)", 
+            line = list(color = "#FFA340", width = 3, dash = 'dash'), legendgroup = "i", showlegend = F) %>%
+  add_trace(fitteddata[["Pyridines and derivatives"]], x = ~fitteddata[["Pyridines and derivatives"]][,5], 
+            y = fitteddata[["Pyridines and derivatives"]][,10], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 163, 64, 0.2)", 
+            line = list(color = "#FFA340", width = 3, dash = 'dash'), legendgroup = "i", showlegend = F)%>%
+  add_trace(fitteddata[["Pyridines and derivatives"]], x = ~fitteddata[["Pyridines and derivatives"]][,5], 
+            y = fitteddata[["Pyridines and derivatives"]][,7], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF911C", width = 3, dash = 'dash'), legendgroup = "i", showlegend = F) %>%
+  add_trace(fitteddata[["Pyridines and derivatives"]], x = ~fitteddata[["Pyridines and derivatives"]][,5], 
+            y = fitteddata[["Pyridines and derivatives"]][,8], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF911C", width = 3, dash = 'dash'), legendgroup = "i", showlegend = F) %>%
+  #imidazo- pink
+  add_trace(fitteddata[["Imidazopyrimidines"]], x= ~fitteddata[["Imidazopyrimidines"]][,5], 
+            y= ~fitteddata[["Imidazopyrimidines"]][,6],
+          name = "Imidazopyrimidines", type = 'scatter', mode = 'lines', 
+          line = list(color = "#FF63D7", wifth = 3), legendgroup = "b", showlegend = T) %>%
+  add_trace(fitteddata[["Imidazopyrimidines"]], x = ~fitteddata[["Imidazopyrimidines"]][,5], 
+            y = fitteddata[["Imidazopyrimidines"]][,9], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 159, 230, 0.2)", 
+            line = list(color = "#FF9FE6", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  add_trace(fitteddata[["Imidazopyrimidines"]], x = ~fitteddata[["Imidazopyrimidines"]][,5], 
+            y = fitteddata[["Imidazopyrimidines"]][,10], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 159, 230, 0.2)", 
+            line = list(color = "#FF9FE6", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F)%>%
+  add_trace(fitteddata[["Imidazopyrimidines"]], x = ~fitteddata[["Imidazopyrimidines"]][,5], 
+            y = fitteddata[["Imidazopyrimidines"]][,7], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF63D7", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  add_trace(fitteddata[["Imidazopyrimidines"]], x = ~fitteddata[["Imidazopyrimidines"]][,5], 
+            y = fitteddata[["Imidazopyrimidines"]][,8], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF63D7", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  #naphthofurans- yellow
+  add_trace(fitteddata[["Naphthofurans"]], x= ~fitteddata[["Naphthofurans"]][,5], 
+            y= ~fitteddata[["Naphthofurans"]][,6],
+          name = "Naphthofurans", type = 'scatter', mode = 'lines', 
+          line = list(color = "#FFEE20", wifth = 3), legendgroup = "k", showlegend = T) %>%
+  add_trace(fitteddata[["Naphthofurans"]], x = ~fitteddata[["Naphthofurans"]][,5], 
+            y = fitteddata[["Naphthofurans"]][,9], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 242, 89, 0.2)", 
+            line = list(color = "#FFF259", width = 3, dash = 'dash'), legendgroup = "k", showlegend = F) %>%
+  add_trace(fitteddata[["Naphthofurans"]], x = ~fitteddata[["Naphthofurans"]][,5], 
+            y = fitteddata[["Naphthofurans"]][,10], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 242, 89, 0.2)", 
+            line = list(color = "#FFF259", width = 3, dash = 'dash'), legendgroup = "k", showlegend = F)%>%
+  add_trace(fitteddata[["Naphthofurans"]], x = ~fitteddata[["Naphthofurans"]][,5], 
+            y = fitteddata[["Naphthofurans"]][,7], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFEE20", width = 3, dash = 'dash'), legendgroup = "k", showlegend = F) %>%
+  add_trace(fitteddata[["Naphthofurans"]], x = ~fitteddata[["Naphthofurans"]][,5], 
+            y = fitteddata[["Naphthofurans"]][,8], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FFEE20", width = 3, dash = 'dash'), legendgroup = "k", showlegend = F) %>%
+
+      layout(title = "<b>Organoheterocyclic compounds</b>",
+      xaxis = list(title = "<b>m/z</b>", ticks = "outside", showgrid = FALSE),
+         yaxis = list(title = "<b>CCS/z</b>", ticks = "outside", showgrid = FALSE))
+
+heteroplot
+
+
+```
+
+Phenylpropanoids- 2 classes - updated Aug 1
+```{r}
+propplot <- plot_ly(fitteddata[["Isoflavonoids"]], x= ~fitteddata[["Isoflavonoids"]][,5], y= ~fitteddata[["Isoflavonoids"]][,6],
+          name = "Isoflavonoids", type = 'scatter', mode = 'lines', 
+          line = list(color = "#0049FF", width = 3), legendgroup = "b", showlegend = T) %>%
+  add_trace(fitteddata[["Isoflavonoids"]], x = ~fitteddata[["Isoflavonoids"]][,5], 
+            y = fitteddata[["Isoflavonoids"]][,9], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(111, 152, 255, 0.2)", 
+            line = list(color = "#6F98FF", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  add_trace(fitteddata[["Isoflavonoids"]], x = ~fitteddata[["Isoflavonoids"]][,5], 
+            y = fitteddata[["Isoflavonoids"]][,10], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(111, 152, 255, 0.2)", 
+            line = list(color = "#6F98FF", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F)%>%
+  add_trace(fitteddata[["Isoflavonoids"]], x = ~fitteddata[["Isoflavonoids"]][,5], 
+            y = fitteddata[["Isoflavonoids"]][,7], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#0049FF", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  add_trace(fitteddata[["Isoflavonoids"]], x = ~fitteddata[["Isoflavonoids"]][,5], 
+            y = fitteddata[["Isoflavonoids"]][,8], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#0049FF", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  
+#Macrolides- red
+  add_trace(fitteddata[["Macrolides and analogues"]], x= ~fitteddata[["Macrolides and analogues"]][,5], y= ~fitteddata[["Macrolides and analogues"]][,6],
+          name = "Macrolides and analogues", type = 'scatter', mode = 'lines', 
+          line = list(color = "#FF0404", width = 3), legendgroup = "c", showlegend = T) %>%
+  add_trace(fitteddata[["Macrolides and analogues"]], x = ~fitteddata[["Macrolides and analogues"]][,5], y = fitteddata[["Macrolides and analogues"]][,9], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 90,90, 0.2)", 
+            line = list(color = "#FF5A5A", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+  add_trace(fitteddata[["Macrolides and analogues"]], x = ~fitteddata[["Macrolides and analogues"]][,5], y = fitteddata[["Macrolides and analogues"]][,10], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 90,90, 0.2)", 
+            line = list(color = "#FF5A5A", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F)%>%
+  add_trace(fitteddata[["Macrolides and analogues"]], x = ~fitteddata[["Macrolides and analogues"]][,5], y = fitteddata[["Macrolides and analogues"]][,7], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF0404", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+  add_trace(fitteddata[["Macrolides and analogues"]], x = ~fitteddata[["Macrolides and analogues"]][,5], y = fitteddata[["Macrolides and analogues"]][,8], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#FF0404", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+
+    layout(title = "<b>Phenylpropanoids and Polyketides</b>",
+      xaxis = list(title = "<b>m/z</b>", ticks = "outside", showgrid = FALSE),
+         yaxis = list(title = "<b>CCS/z</b>", ticks = "outside", showgrid = FALSE))
+
+propplot
+
+```
+
+Misc- 4 classes- Updated July 27
+```{r}
+miscplot <- plot_ly(fitteddata[["Organonitrogen compounds"]], x= ~fitteddata[["Organonitrogen compounds"]][,5], 
+                    y= ~fitteddata[["Organonitrogen compounds"]][,6], 
+                       name = "Organonitrogen compounds", type = 'scatter', mode = 'lines', 
+                     line = list(color = "#A65CFF", width = 3), legendgroup = "a", showlegend = T) %>%
+  add_trace(fitteddata[["Organonitrogen compounds"]], x = ~fitteddata[["Organonitrogen compounds"]][,5], 
+            y = fitteddata[["Organonitrogen compounds"]][,10], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203, 161, 254, 0.2)", 
+            line = list(color = "#CBA1FE", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+  add_trace(fitteddata[["Organonitrogen compounds"]], x = ~fitteddata[["Organonitrogen compounds"]][,5], 
+            y = fitteddata[["Organonitrogen compounds"]][,9], 
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(203 161, 254, 0.2)", 
+            line = list(color = "#CBA1FE", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+  add_trace(fitteddata[["Organonitrogen compounds"]], x = ~fitteddata[["Organonitrogen compounds"]][,5], 
+            y = fitteddata[["Organonitrogen compounds"]][,7], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#A65CFF", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+  add_trace(fitteddata[["Organonitrogen compounds"]], x = ~fitteddata[["Organonitrogen compounds"]][,5], 
+            y = fitteddata[["Organonitrogen compounds"]][,8], 
+            type = 'scatter', mode = 'lines', 
+            line = list(color = "#A65CFF", width = 3, dash = 'dash'), legendgroup = "a", showlegend = F) %>%
+#organooxygens- green
+  add_trace(fitteddata[["Organooxygen compounds"]], x= ~fitteddata[["Organooxygen compounds"]][,5],
+            y= ~fitteddata[["Organooxygen compounds"]][,6],
+            name = "Organooxygen compounds", type = 'scatter', mode = 'lines',
+          line = list(color = "#029900", width = 3),  legendgroup = "b", showlegend = T) %>%
+  add_trace(fitteddata[["Organooxygen compounds"]], x = ~fitteddata[["Organooxygen compounds"]][,5],
+            y = fitteddata[["Organooxygen compounds"]][,9],
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(85, 214, 83, 0.2)",
+            line = list(color = "#55D653", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  add_trace(fitteddata[["Organooxygen compounds"]], x = ~fitteddata[["Organooxygen compounds"]][,5],
+            y = fitteddata[["Organooxygen compounds"]][,10],
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(85, 214, 83, 0.2)",
+            line = list(color = "#55D653", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  add_trace(fitteddata[["Organooxygen compounds"]], x = ~fitteddata[["Organooxygen compounds"]][,5],
+            y = fitteddata[["Organooxygen compounds"]][,7],
+            type = 'scatter', mode = 'lines',
+            line = list(color = "#029900", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  add_trace(fitteddata[["Organooxygen compounds"]], x = ~fitteddata[["Organooxygen compounds"]][,5],
+            y = fitteddata[["Organooxygen compounds"]][,8],
+            type = 'scatter', mode = 'lines',
+            line = list(color = "#029900", width = 3, dash = 'dash'), legendgroup = "b", showlegend = F) %>%
+  #organofluorides- orange
+  add_trace(fitteddata[["Organofluorides"]], x= ~fitteddata[["Organofluorides"]][,5], y= ~fitteddata[["Organofluorides"]][,6],
+            name = "Organofluorides", type = 'scatter', mode = 'lines',
+            line = list(color = "#FFA600", width = 3), legendgroup = "d", showlegend = T) %>%
+  add_trace(fitteddata[["Organofluorides"]], x = ~fitteddata[["Organofluorides"]][,5], y = fitteddata[["Organofluorides"]][,9],
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 193, 78, 0.2)",
+            line = list(color = "#FFC14E", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F) %>%
+  add_trace(fitteddata[["Organofluorides"]], x = ~fitteddata[["Organofluorides"]][,5], y = fitteddata[["Organofluorides"]][,10],
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(255, 193, 78, 0.2)",
+            line = list(color = "#FFC14E", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F)%>%
+  add_trace(fitteddata[["Organofluorides"]], x = ~fitteddata[["Organofluorides"]][,5], y = fitteddata[["Organofluorides"]][,7],
+            type = 'scatter', mode = 'lines',
+            line = list(color = "#FFA600", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F) %>%
+  add_trace(fitteddata[["Organofluorides"]], x = ~fitteddata[["Organofluorides"]][,5], y = fitteddata[["Organofluorides"]][,8],
+            type = 'scatter', mode = 'lines',
+            line = list(color = "#FFA600", width = 3, dash = 'dash'), legendgroup = "d", showlegend = F) %>%
+    #metals
+  add_trace(fitteddata[["Homogeneous transition metal compounds"]], x= ~fitteddata[["Homogeneous transition metal compounds"]][,5],
+            y= ~fitteddata[["Homogeneous transition metal compounds"]][,6],
+            name = "Homogeneous transition metal compounds", type = 'scatter', mode = 'lines',
+            line = list(color = "#4CBBFF", width = 3), legendgroup = "c", showlegend = T) %>%
+  add_trace(fitteddata[["Homogeneous transition metal compounds"]], x = ~fitteddata[["Homogeneous transition metal compounds"]][,5],
+            y = fitteddata[["Homogeneous transition metal compounds"]][,9],
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(156, 217, 255, 0.2)",
+            line = list(color = "#9CD9FF", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+  add_trace(fitteddata[["Homogeneous transition metal compounds"]], x = ~fitteddata[["Homogeneous transition metal compounds"]][,5],
+            y = fitteddata[["Homogeneous transition metal compounds"]][,10],
+            type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = "rgba(156, 217, 255, 0.2)",
+            line = list(color = "#9CD9FF", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F)%>%
+  add_trace(fitteddata[["Homogeneous transition metal compounds"]], x = ~fitteddata[["Homogeneous transition metal compounds"]][,5],
+            y = fitteddata[["Homogeneous transition metal compounds"]][,7],
+            type = 'scatter', mode = 'lines',
+            line = list(color = "#4CBBFF", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+  add_trace(fitteddata[["Homogeneous transition metal compounds"]], x = ~fitteddata[["Homogeneous transition metal compounds"]][,5],
+            y = fitteddata[["Homogeneous transition metal compounds"]][,8],
+            type = 'scatter', mode = 'lines',
+            line = list(color = "#4CBBFF", width = 3, dash = 'dash'), legendgroup = "c", showlegend = F) %>%
+  layout(title = "<b>Miscellaneous</b>",
+    xaxis = list(title = "<b>m/z</b>",  showgrid = FALSE),
+         yaxis = list(title = "<b>CCS/z</b>", showgrid = FALSE))
+
+miscplot
+
+```
+
+
