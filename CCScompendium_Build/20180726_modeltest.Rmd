@@ -14,12 +14,13 @@ library(basicTrendline)
 
 setwd("~/Box Sync/20171218JAP_iceberg/R-output")
 all <- read.csv("~/Box Sync/20171218JAP_iceberg/R-output/allMASTER.csv")
+#all <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/allMASTER.csv")
 
-classes <- levels(all$Subclass)
+classes <- levels(all$Class)
 fulldata = list()
 for(i in seq_along(classes)) {
-  subclass <- classes[i]
-  dat <- as.data.frame(subset(all, Subclass == subclass))
+  class <- classes[i]
+  dat <- as.data.frame(subset(all, Class == class))
   fulldata[[i]] <- dat
 }
 names(fulldata) <- classes
@@ -117,12 +118,13 @@ for(i in seq_along(data)){
       startvals <- .initPars(x, y, 4) 
       start <- startvals[1:4]
       names(start) <- c("b", "top", "xmid", "scal")
-      fit <- nls(y ~ b+(top-b)/(1+10^((xmid-x)*scal)), 
+      fit <- nls(y ~ b+(top-b)/(1+10^((xmid-x)*scal)), data = xy, 
           start = start)
       sig.4P.nls[[name]] <- fit 
   }, error = function(e){cat("Error: ", names(data)[[i]], conditionMessage(e), "\n")})
 }
-#      fit <- nls(y ~ b+(top-b)/(1+(x/xmid)^scal), data = xy,
+
+#      fit <- nls(y ~ b+(top-b)/(1+10^((xmid-x)*scal)), 
 
 sig.5P.nls <- list()
 for(i in seq_along(data)){
@@ -134,13 +136,11 @@ for(i in seq_along(data)){
       startvals <- .initPars(x, y, 5) 
       start <- startvals[1:5]
       names(start) <- c("b", "top", "xmid", "scal", "s")
-      fit <- nls(y ~ b+(top-b)/(1+10^((xmid-x)*scal))^s, data = xy,
+      fit <- nls(y ~ b+(top-b)/(1+10^((xmid-x)*scal))^s, data = xy, 
           start = start)
       sig.5P.nls[[name]] <- fit 
   }, error = function(e){cat("Error: ", names(data)[[i]], conditionMessage(e), "\n")})
 }
-#      fit <- nls(y ~ b+(top-b)/(1+10^(((xmid+(1/scal)*log(2^(1/s)-1))-x)*scal))^s, data = xy,
-#      fit <- nls(y ~ b+(top-b)/(1+(x/xmid)^H)^s, data = xy,
 
 ```
 
@@ -190,7 +190,7 @@ for(i in seq_along(AICs[, 1])){
 
 ```
 
-Build dataframes with confidence intervals
+Build dataframes with equations and confidence intervals
 ```{r}
 fitteddata <- list()
 for(i in seq_along(data)){
@@ -201,7 +201,34 @@ for(i in seq_along(data)){
   } else{}
 }
 
-rm(data, fulldata)
+rm(data, fulldata, all)
+
+#Generate tables of parameters
+powertable <- data.frame()
+fourtable <- data.frame()
+fivetable <- data.frame()
+for(i in seq_along(fitteddata)){
+  name <- names(fitteddata)[[i]]
+  fit <- AICs[which(AICs[, 1] == name), 5]
+  if(fit == 'p'){
+    pars <- coef(pf[[name]])
+    row <- as.data.frame(t(c(name, pars)))
+    powertable <- rbind(powertable, row)
+  }
+  if(fit == 'r'){
+    pars <- coef(sig.4P.nls[[name]])
+    row <- as.data.frame(t(c(name, pars)))
+    fourtable <- rbind(fourtable, row)
+  }
+  if(fit == 'v'){
+    pars <- coef(sig.5P.nls[[name]])
+    row <- as.data.frame(t(c(name, pars)))
+    fivetable <- rbind(fivetable, row)
+  }
+}
+colnames(powertable) <- c('class', 'a', 'k', 'y0')
+colnames(fourtable) <- c('class', 'y0', 'ymax', 'y50', 'H')
+colnames(fivetable) <- c('class', 'y0', 'ymax', 'y50', 'H', 's')
 
 #Generate curves
 for(i in seq_along(fitteddata)){
@@ -242,49 +269,20 @@ for(i in seq_along(fitteddata)){
                                  'CI lo', 'CI hi', 'PI lo', 'PI hi', 'std error')
 }
 
-#model parameters
-powertable <- data.frame()
-fourtable <- data.frame()
-fivetable <- data.frame()
-for(i in seq_along(fitteddata)){
-  name <- names(fitteddata)[[i]]
-  fit <- AICs[which(AICs[, 1] == name), 5]
-  if(fit == 'p'){
-    pars <- coef(pf[[name]])
-    row <- as.data.frame(t(c(name, pars)))
-    powertable <- rbind(powertable, row)
-  }
-  if(fit == 'r'){
-    pars <- coef(sig.4P.nls[[name]])
-    row <- as.data.frame(t(c(name, pars)))
-    fourtable <- rbind(fourtable, row)
-  }
-  if(fit == 'v'){
-    pars <- coef(sig.5P.nls[[name]])
-    row <- as.data.frame(t(c(name, pars)))
-    fivetable <- rbind(fivetable, row)
-  }
-}
-
-colnames(powertable) <- c('class', 'a', 'k', 'y0')
-colnames(fourtable) <- c('class', 'y0', 'ymax', 'y50', 'H')
-colnames(fivetable) <- c('class', 'y0', 'ymax', 'y50', 'H', 's')
-
 
 ```
 
 Export data
 ```{r}
 for(i in names(fitteddata)){
-  write.csv(fitteddata[[i]], paste0("~/Box Sync/20171218JAP_iceberg/R-output/SubClassTrends_R/", i,".csv"))
+  write.csv(fitteddata[[i]], paste0("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/ClassTrends_R/", i,".csv"))
 }
-#  write.csv(fitteddata[[i]], paste0("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/SubClassTrends_R/", i,".csv"))
+#  write.csv(fitteddata[[i]], paste0("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/ClassTrends_R/", i,".csv"))
 
-write.csv(powertable, "~/Box Sync/20171218JAP_iceberg/R-output/subclass_Powerfit_equations.csv")
-write.csv(fourtable, "~/Box Sync/20171218JAP_iceberg/R-output/subclass_4Psigfit_equations.csv")
-write.csv(fivetable, "~/Box Sync/20171218JAP_iceberg/R-output/subclass_5Psigfit_equations.csv")
+write.csv(powertable, "~/Box Sync/20171218JAP_iceberg/R-output/class_Powerfit_equations.csv")
+write.csv(fourtable, "~/Box Sync/20171218JAP_iceberg/R-output/class_4Psigfit_equations.csv")
+write.csv(fivetable, "~/Box Sync/20171218JAP_iceberg/R-output/class_5Psigfit_equations.csv")
 #R_Scripts&Data/
-
 
 ```
 
