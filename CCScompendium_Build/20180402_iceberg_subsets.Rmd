@@ -249,110 +249,114 @@ write.csv(mn, "~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS-Comm_IcebergDB/mn.
 
 ```
 
-
 #organoheterocyclics
 ```{r}
+all <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/allMASTER.csv", header = TRUE, stringsAsFactors = FALSE)
 ohc <- subset(all, all$Super.Class == "Organoheterocyclic compounds")
 diaz <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/heterocyclic_curves/Diazines.csv", header = TRUE, stringsAsFactors = FALSE)
 imid <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/heterocyclic_curves/Imidazopyrimidines.csv", header = TRUE, stringsAsFactors = FALSE)
 pter <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/heterocyclic_curves/Pteridinesandderivatives.csv", header = TRUE, stringsAsFactors = FALSE)
+quin <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/heterocyclic_curves/Quinolinesandderivatives.csv", header = TRUE, stringsAsFactors = FALSE)
 
 ohc.p <- plot_ly(ohc, x= ~ohc$mz, x0 = 0, y= ~ohc$CCS.z, y0 = 0,
                    type = "scatter", mode = "markers", showlegend = TRUE) %>%
   
-  add_trace(diaz, x = ~diaz$X.curve , y = ~diaz$Y.curve,
-            name = "Diazines", type = 'scatter', mode = 'lines',
-            line = list(color = "#BAA2F0", width = 3),
-            legendgroup = "d", showlegend = TRUE) %>%
-  add_trace(diaz, x = ~diaz$X.curve, y = ~(diaz$PI.hi),
-            name = "Upper 99% PI - d", type = 'scatter', mode = 'lines',
+  add_trace(diaz, x = ~quin$X.curve , y = ~quin$Y.curve,
+            name = "quin", type = 'scatter', mode = 'lines',
+            line = list(color = "#310E80", width = 7),
+            legendgroup = "q", showlegend = TRUE) %>%
+  add_trace(diaz, x = ~quin$X.curve, y = ~(quin$PI.hi),
+            name = "Upper 99% PI - q", type = 'scatter', mode = 'lines',
             fill = "tonexty", fillcolor = "rgba(186, 162, 240, 0.25)",
-            line = list(color = "#BAA2F0", width = 3, dash = 'dash'),
-            legendgroup = "d", showlegend = FALSE) %>%
-  add_trace(diaz, x = ~diaz$X.curve, y = ~(diaz$PI.lo),
-            name = "Lower 99% PI - d", type = 'scatter', mode = 'lines',
+            line = list(color = "#310E80", width = 7, dash = 'dash'),
+            legendgroup = "q", showlegend = FALSE) %>%
+  add_trace(diaz, x = ~quin$X.curve, y = ~(quin$PI.lo),
+            name = "Lower 99% PI - q", type = 'scatter', mode = 'lines',
             fill = "tonexty", fillcolor = "rgba(186, 162, 240, 0.25)",
-            line = list(color = "#BAA2F0", width = 3, dash = 'dash'),
-            legendgroup = "d", showlegend = FALSE) %>%
-  add_trace(diaz, x = ~diaz$X.curve, y = ~(diaz$CI.hi),
-            name = "Upper 99% CI - d", type = 'scatter', mode = 'lines',
-            line = list(color = "#BAA2F0", width = 3, dash = 'solid'),
-            legendgroup = "d", showlegend = FALSE) %>%
-  add_trace(diaz, x = ~diaz$X.curve, y = ~(diaz$CI.lo),
-            name = "Lower 99% CI - d", type = 'scatter', mode = 'lines',
-            line = list(color = "#BAA2F0", width = 3, dash = 'solid'),
-            legendgroup = "d", showlegend = FALSE) %>%
-  add_trace(diaz, x= ~diaz$m.z, y= ~diaz$CCS.z,
-            type = "scatter", mode = "markers", showlegend = TRUE,
-            marker = list(size = 18, symbol = "circle", color = "rgba(0, 0, 0, 0.8)"),
-            legendgroup = "d", showlegend = FALSE) %>%
+            line = list(color = "#310E80", width = 7, dash = 'dash'),
+            legendgroup = "q", showlegend = FALSE) %>%
+  add_trace(diaz, x = ~quin$X.curve, y = ~(quin$CI.hi),
+            name = "Upper 99% CI - q", type = 'scatter', mode = 'lines',
+            line = list(color = "#310E80", width = 7, dash = 'solid'),
+            legendgroup = "q", showlegend = FALSE) %>%
+  add_trace(diaz, x = ~quin$X.curve, y = ~(quin$CI.lo),
+            name = "Lower 99% CI - q", type = 'scatter', mode = 'lines',
+            line = list(color = "#310E80", width = 7, dash = 'solid'),
+            legendgroup = "q", showlegend = FALSE) %>%
+  add_trace(diaz, x= ~quin$m.z, y= ~quin$CCS.z,
+            name = "data - q", type = "scatter", mode = "markers", showlegend = TRUE,
+            marker = list(size = 16, symbol = "circle", color = "rgba(0, 0, 0, 0.8)"),
+            legendgroup = "q", showlegend = FALSE) %>%
   
   add_trace(imid, x = ~imid$X.curve , y = ~imid$Y.curve,
           name = "imid", type = 'scatter', mode = 'lines',
-          line = list(color = "#BAA2F0", width = 3),
+          line = list(color = "#310E80", width = 7),
           legendgroup = "i", showlegend = TRUE) %>%
   add_trace(imid, x = ~imid$X.curve, y = ~(imid$PI.hi),
-            name = "Upper 99% PI - d", type = 'scatter', mode = 'lines',
+            name = "Upper 99% PI - i", type = 'scatter', mode = 'lines',
             fill = "tonexty", fillcolor = "rgba(186, 162, 240, 0.25)",
-            line = list(color = "#BAA2F0", width = 3, dash = 'dash'),
+            line = list(color = "#310E80", width = 7, dash = 'dash'),
             legendgroup = "i", showlegend = FALSE) %>%
   add_trace(imid, x = ~imid$X.curve, y = ~(imid$PI.lo),
-            name = "Lower 99% PI - d", type = 'scatter', mode = 'lines',
+            name = "Lower 99% PI - i", type = 'scatter', mode = 'lines',
             fill = "tonexty", fillcolor = "rgba(186, 162, 240, 0.25)",
-            line = list(color = "#BAA2F0", width = 3, dash = 'dash'),
+            line = list(color = "#310E80", width = 7, dash = 'dash'),
             legendgroup = "i", showlegend = FALSE) %>%
   add_trace(imid, x = ~imid$X.curve, y = ~(imid$CI.hi),
-            name = "Upper 99% CI - d", type = 'scatter', mode = 'lines',
-            line = list(color = "#BAA2F0", width = 3, dash = 'solid'),
+            name = "Upper 99% CI - i", type = 'scatter', mode = 'lines',
+            line = list(color = "#310E80", width = 7, dash = 'solid'),
             legendgroup = "i", showlegend = FALSE) %>%
   add_trace(imid, x = ~imid$X.curve, y = ~(imid$CI.lo),
-            name = "Lower 99% CI - d", type = 'scatter', mode = 'lines',
-            line = list(color = "#BAA2F0", width = 3, dash = 'solid'),
+            name = "Lower 99% CI - i", type = 'scatter', mode = 'lines',
+            line = list(color = "#310E80", width = 7, dash = 'solid'),
             legendgroup = "i", showlegend = FALSE) %>%
   add_trace(imid, x= ~imid$m.z, y= ~imid$CCS.z,
-            type = "scatter", mode = "markers", showlegend = TRUE,
-            marker = list(size = 18, symbol = "circle", color = "rgba(0, 0, 0, 0.8)"),
+            name = "data - i", type = "scatter", mode = "markers", showlegend = TRUE,
+            marker = list(size = 16, symbol = "circle", color = "rgba(0, 0, 0, 0.8)"),
             legendgroup = "i", showlegend = FALSE) %>%
 
   add_trace(pter, x = ~pter$X.curve , y = ~pter$Y.curve,
           name = "pter", type = 'scatter', mode = 'lines',
-          line = list(color = "#BAA2F0", width = 3),
+          line = list(color = "#310E80", width = 7),
           legendgroup = "p", showlegend = TRUE) %>%
   add_trace(pter, x = ~pter$X.curve, y = ~(pter$PI.hi),
-            name = "Upper 99% PI - d", type = 'scatter', mode = 'lines',
+            name = "Upper 99% PI - p", type = 'scatter', mode = 'lines',
             fill = "tonexty", fillcolor = "rgba(186, 162, 240, 0.25)",
-            line = list(color = "#BAA2F0", width = 3, dash = 'dash'),
+            line = list(color = "#310E80", width = 7, dash = 'dash'),
             legendgroup = "p", showlegend = FALSE) %>%
   add_trace(pter, x = ~pter$X.curve, y = ~(pter$PI.lo),
-            name = "Lower 99% PI - d", type = 'scatter', mode = 'lines',
+            name = "Lower 99% PI - p", type = 'scatter', mode = 'lines',
             fill = "tonexty", fillcolor = "rgba(186, 162, 240, 0.25)",
-            line = list(color = "#BAA2F0", width = 3, dash = 'dash'),
+            line = list(color = "#310E80", width = 7, dash = 'dash'),
             legendgroup = "p", showlegend = FALSE) %>%
   add_trace(pter, x = ~pter$X.curve, y = ~(pter$CI.hi),
-            name = "Upper 99% CI - d", type = 'scatter', mode = 'lines',
-            line = list(color = "#BAA2F0", width = 3, dash = 'solid'),
+            name = "Upper 99% CI - p", type = 'scatter', mode = 'lines',
+            line = list(color = "#310E80", width = 7, dash = 'solid'),
             legendgroup = "p", showlegend = FALSE) %>%
   add_trace(pter, x = ~pter$X.curve, y = ~(pter$CI.lo),
-            name = "Lower 99% CI - d", type = 'scatter', mode = 'lines',
-            line = list(color = "#BAA2F0", width = 3, dash = 'solid'),
+            name = "Lower 99% CI - p", type = 'scatter', mode = 'lines',
+            line = list(color = "#310E80", width = 7, dash = 'solid'),
             legendgroup = "p", showlegend = FALSE) %>%
   add_trace(pter, x= ~pter$m.z, y= ~pter$CCS.z,
-            type = "scatter", mode = "markers", showlegend = TRUE,
-            marker = list(size = 18, symbol = "circle", color = "rgba(0, 0, 0, 0.8)"),
+            name = "data - p", type = "scatter", mode = "markers", showlegend = TRUE,
+            marker = list(size = 16, symbol = "circle", color = "rgba(0, 0, 0, 0.8)"),
             legendgroup = "p", showlegend = FALSE) %>%
   
   add_trace(ohc, x= ~ohc$mz, x0 = 0, y= ~ohc$CCS.z, y0 = 0,
             type = "scatter", name = "all", mode = "markers", showlegend = TRUE,
-            marker = list(size = 18, symbol = "circle", color = "rgba(50, 50, 50, 0.85)")) %>%
+            marker = list(size = 16, symbol = "circle", color = "rgba(50, 50, 50, 0.85)")) %>%
+  
   layout(xaxis = list(title = "<b>m/z</b>",
                       titlefont = list(family = "Arial", size = 30, color = "#000000"),
                       zeroline = FALSE, showline = TRUE, linewidth = 10,
+                      range = c(0, 800), dtick = 100,
                       ticks = "outside", ticklen = 10, tickwidth = 10,
                       tickfont = list(family = "Arial", size = 26, color = "#000000"),
                       showgrid = FALSE),
          yaxis = list(title = "<b>CCS/z</b>",
                       titlefont = list(family = "Arial", size = 30, color = "#000000"),
                       zeroline = FALSE, showline = TRUE, linewidth = 10,
+                      range = c(0,300), dtick = 50,
                       ticks = "outside", ticklen = 10, tickwidth = 10,
                       tickfont = list(family = "Arial", tick0 = 0, size = 26, color = "#000000"),
                       showgrid = FALSE, autosize = TRUE),
