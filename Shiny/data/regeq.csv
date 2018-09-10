@@ -1,0 +1,46 @@
+﻿class,subclass,ft,aicc,se
+Azoles,,PF,83.7,5.48
+Benzene and substituted derivatives,,PF,1167.11,9.32
+Carboxylic acids and derivatives,,PF,5306.46,17.03
+Fatty acyls,,PF,1730.43,11.56
+Glycerophospholipids,,PF,1952.4,4.46
+Homogeneous transition metal compounds,,PF,505.25,13.52
+Naphthofurans,,PF,148.18,35.83
+Organofluorides,,PF,416.59,5.41
+Organooxygen compounds,,PF,2867.68,16.27
+Peptidomimetics,,PF,263.12,63.12
+Proteins,,PF,1259.83,21.99
+Pteridines and derivatives,,PF,163.82,3.99
+Pyridines and derivatives,,PF,324.71,5.16
+Tryptic peptides,,PF,2302.07,22.21
+Diazines,,4P,207.26,12.74
+Imidazopyrimidines,,4P,372.14,5.01
+Isoflavonoids,,4P,103.26,4.48
+Macrolides and analogues,,4P,103.34,5.43
+Organonitrogen compounds,,4P,625.95,5.15
+Prenol lipids,,4P,170.69,11.29
+Purine nucleotides,,4P,808.14,5.94
+Pyrenes,,4P,113.12,2.57
+Pyrimidine nucleotides,,4P,776.93,5.37
+Quinolines and derivatives,,4P,116.02,5.52
+Organooxygen compounds,Alcohols and polyols,PF,148.23,8.18
+Carboxylic acids and derivatives,"Amino acids, peptides, and analogues",PF,5054.75,17.33
+Flavonoids,Flavonoid glycosides,PF,140.03,26.79
+Glycerophospholipids,Glycerophosphates,PF,133.77,2.77
+Organofluorides,Phosphazene and phosphazene derivatives,PF,416.59,5.41
+Pyrimidine nucleotides,Pyrimidine ribonucleotides,PF,388.23,6.51
+5'-deoxyribonucleosides,5'-deoxy-5'-thionucleosides,4P,73.4,3.28
+Organonitrogen compounds,Amines,4P,122.34,2.56
+Benzene and substituted derivatives,Benzenesulfonamides,4P,89.49,4.1
+Steroids and steroid derivatives,"Bile acids, alcohols and derivatives",4P,183.6,2.94
+Benzene and substituted derivatives,Biphenyls and derivatives,4P,215.47,1.92
+Organooxygen compounds,Carbohydrates and carbohydrate conjugates,4P,2589.09,16.19
+Organooxygen compounds,Carbonyl compounds,4P,14.64,0.28
+Glycerophospholipids,Glycerophosphoserines,4P,369.12,3.43
+Indoles and derivatives,Indoles,4P,40.08,0.9
+Indoles and derivatives,Indolyl carboxylic acids and derivatives,4P,154.27,3.57
+Sphingolipids,Phosphosphingolipids,4P,250.67,3.36
+Purine nucleotides,Purine deoxyribonucleotides,4P,158.19,4.78
+Imidazopyrimidines,Purines and purine derivatives,4P,372.14,5.01
+Diazines,Pyrimidines and pyrimidine derivatives,4P,207.26,12.74
+Organonitrogen compounds,Quaternary ammonium salts,4P,479.3,5.36

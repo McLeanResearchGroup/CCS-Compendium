@@ -1,0 +1,12 @@
+name: CCS-Compendium
+title: CCS-Compendium
+username:
+account: mcleanresearchgroup
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 399282
+bundleId: 1556881
+url: https://mcleanresearchgroup.shinyapps.io/CCS-Compendium/
+when: 1535406808.95364
+asMultiple: FALSE
+asStatic: FALSE
