@@ -85,7 +85,15 @@ eq <- c('<img src = "http://quicklatex.com/cache3/06/ql_ae458daad4ef14cd4ff0c171
 
 #server
 server <- function(input, output, session) {
-  
+
+#home  
+  output$homefig <- renderImage({
+    
+    list(src = "data/abstractfig.png",
+         width = "160", height = "350", align = "center")
+    
+  }, deleteFile = FALSE)
+    
 #compendium  
   sourceType <- reactive({
     input$variable
@@ -94,7 +102,6 @@ server <- function(input, output, session) {
   output$caption <- renderText({
     sourceType()
   })
-  
   
   output$allPlot <- renderPlotly({
     c <- plot_ly() %>% 
@@ -105,13 +112,13 @@ server <- function(input, output, session) {
         xaxis = list(title = "<b>m/z</b>",
                      titlefont = list(family = "Arial", size = 20, color = "#000000"),
                      range = c(0, 3350), zeroline = FALSE, showline = TRUE, linewidth = 10,
-                     ticks = "outside", ticklen = 10, tickwidth = 10, dtick = 500,
+                     ticks = "outside", ticklen = 10, tickwidth = 10,
                      tickfont = list(family = "Arial", size = 20, color = "#000000"),
                      showgrid = FALSE),
         yaxis = list(title = "<b>CCS/z</b>",
                      titlefont = list(family = "Arial", size = 20, color = "#000000"),
                      range = c(50, 500), zeroline = FALSE, showline = TRUE, linewidth = 10,
-                     ticks = "outside", ticklen = 10, tickwidth = 10, dtick = 50,
+                     ticks = "outside", ticklen = 10, tickwidth = 10,
                      tickfont = list(family = "Arial", tick0 = 0, size = 20, color = "#000000"),
                      showgrid = FALSE),
         margin = list(t = 100, l = 100, b = 100))
@@ -176,10 +183,10 @@ server <- function(input, output, session) {
   output$trendPlot <- renderPlotly({
     #baseplot
     p <- plot_ly() %>%
-      layout(xaxis = list(title = "<b>m/z</b>", ticks = "outside", tickwidth = 6, dtick = 500,
+      layout(xaxis = list(title = "<b>m/z</b>", ticks = "outside", tickwidth = 6,
                           range = c(0, 3350), linewidth = 6, showline = TRUE, showgrid = FALSE, 
                           zeroline = FALSE),
-             yaxis = list(title = "<b>CCS/z</b>", ticks = "outside", tickwidth = 6, dtick = 50,
+             yaxis = list(title = "<b>CCS/z</b>", ticks = "outside", tickwidth = 6,
                           range = c(50, 500), linewidth = 6, showline = TRUE, showgrid = FALSE, 
                           zeroline  = FALSE))
     #layer trendlines
@@ -218,9 +225,9 @@ server <- function(input, output, session) {
 
 #eq
   output$fitTable <- DT::renderDataTable({
-    datatable(data.frame(ft[, 1:3], eq = eq, ft[, 4:5]),
-              colnames = c("Class", "Sublcass", "Fit Type", "Regression Equation", "AICc", "Standard Error"),
-              options = list(pageLength = 25, autowidth = TRUE, columnDefs = list(list(className = 'dt-center', targets = 2:5))),
+    datatable(data.frame(ft[, 1:3], eq = eq, ft[, 5]),
+              colnames = c("Class", "Sublcass", "Fit Type", "Regression Equation", "Standard Error"),
+              options = list(pageLength = 10, autowidth = FALSE, columnDefs = list(list(className = 'dt-center', targets = 2:5))),
               escape = FALSE)
   })  
   

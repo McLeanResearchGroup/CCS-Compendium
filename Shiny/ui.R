@@ -2,6 +2,7 @@ library(shiny)
 library(shinythemes)
 library(plotly)
 library(DT)
+library(shinyjs)
 
 #setwd("/Users/JAPicache/Box Sync/R_Scripts&Data/20171218JAP_iceberg/Shiny/CCScompendium")
 
@@ -93,29 +94,32 @@ eq <- c('<img src = "http://quicklatex.com/cache3/06/ql_ae458daad4ef14cd4ff0c171
 #ui
 ui <- fluidPage(theme = shinytheme("simplex"),
                 titlePanel("United CCS Compendium"),
-                # sidebarPanel(width = 2,
-                             # helpText(h4(strong(HTML("Welcome to the United CCS Compendium.</br>")))),
-                             # helpText(h5(em(HTML("<br><br>Use the tabs to navigate this interactive tool."))))
-                #              ),
                 
                 mainPanel(
-                  navlistPanel(
+                  navlistPanel(widths = c(2, 10),
                     tabPanel("Home",
-                             helpText(h3(strong(HTML("Welcome to the United CCS Compendium.</br>")))),
-                             helpText(h4(em(HTML("<br><br>Use the menu on the left to navigate this interactive tool."))))
+                             helpText(h3(strong(HTML("Welcome to the Unified CCS Compendium.</br><br>")))),
+                             div(imageOutput("homefig"), align = "center"),
+                             helpText(h4(HTML("<p align = 'justify'><span style = 'margin-left: 3em'>The Compendium is a repository of > 3800 experimentally acquired CCS values obtained from traceable molecular standards and measured with drift tube-mass spectrometers.
+                                                  Represented in the Compendium are 14 structurally-based chemical super classes, consisting of a total of 80 classes and 157 subclasses.
+                                                  Using this large data set, regression fitting and predictive statistics have been performed to describe mass-CCS correlations specific to each chemical ontology.
+                                                  These structural trends provide a rapid and effective filtering method in the traditional untargeted workflow for identification of unknown biochemical species.
+                                                  The predictive abilities of this Compendium will improve in specificity and expand across more chemical classes as data from the IM-MS community is contributed.</span></p>"))),
+                             # Inclusion criteria and instructions for data submission to the Compendium are provided.
+                             helpText(div(h4(HTML("<br>Use the menu on the left to navigate this interactive tool."), style = "color:red")))
                     ),
-
+                    
                     tabPanel("Interactive Compendium", 
                              helpText(h4(strong("Use the options below to navigate the interactive compendium."))),
                              br(),
                              fluidRow(
-                               column(width = 3,
-                                      helpText(div(h5(HTML("<b>Legend: Charge State</b></br>
-                                                          <br><span style = 'margin-left:2.5em'> &#9711; &#177;1 </span></br>
-                                                          <br><span style = 'margin-left:2.5em'> &#9634; &#177;2 </span></br>
-                                                          <br><span style = 'margin-left:2.5em'> &#9674; &#177;3 </span></br>
-                                                          <br><span style = 'margin-left:2.5em'> &#43; +4 </span></br>
-                                                          <br><span style = 'margin-left:2.5em'> &#9651; >+4 </span></br>"))))),
+                               # column(width = 3,
+                               #        helpText(div(h5(HTML("<font color = 'red'><b>Legend: Charge State</b></br>
+                               #                            <br><span style = 'margin-left:2.5em'> &#9711; &#177;1 </span></br>
+                               #                            <br><span style = 'margin-left:2.5em'> &#9634; &#177;2 </span></br>
+                               #                            <br><span style = 'margin-left:2.5em'> &#9674; &#177;3 </span></br>
+                               #                            <br><span style = 'margin-left:2.5em'> &#43; +4 </span></br>
+                               #                            <br><span style = 'margin-left:2.5em'> &#9651; >+4 </span></br></font>"))))),
                                column(width = 3, offset = 0,
                                       selectInput("pol", "Polarity:",
                                                   c("Both" = ".",
@@ -129,22 +133,31 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                ),
                                column(width = 3, offset = 0,
                                       selectInput('source', 'Source:', c(All = '.', sources))
-                               )
+                               ),
+                               column(width = 3,
+                                      helpText(div(h5(HTML("<font color = 'red'><b>Legend: Charge State</b></br>
+                                                           <br><span style = 'margin-left: 3.7em'> &#9711; &#177;1 </span></br>
+                                                           <br><span style = 'margin-left: 3.7em'> &#9634; &#177;2 </span></br>
+                                                           <br><span style = 'margin-left: 3.7em'> &#9674; &#177;3 </span></br>
+                                                           <br><span style = 'margin-left: 3.7em'> &#43; +4 </span></br>
+                                                           <br><span style = 'margin-left: 3.7em'> &#9651; >+4 </span></br></font>")))))
                             ),
                              hr(),
-                             plotlyOutput("allPlot", width = "1250px", height = "825px")
+                             plotlyOutput('allPlot', width = "1250px", height = "825px")
                     ),
                     
-                    tabPanel("Compound Table", DT::dataTableOutput("table")),
+                    tabPanel("Compound Table", DT::dataTableOutput("table"), width = 8),
                     
                     tabPanel("Class Specific Regression Trends",
                              helpText(div(h4(strong("To visualize the trends, choose up to 10 classes blow and click Show Plot."))), style = "color:black"),
-                             helpText(div(h5(em("Each class plot includes a fitted nonlinear regression curve (solid center line),
-                                                as well as 99% confidence and predictive intervals (inner and outer dashed lines, respectively)."), style = "color:black"))),
+                             helpText(div(h5(em(HTML("Each class plot includes a fitted nonlinear regression curve (solid center line),
+                                                as well as 99% confidence and predictive intervals (inner and outer dashed lines, respectively).
+                                                <br><br>
+                                                To remove an individual plot, click on the class name and press delete. Click Show Plot to refresh.")), style = "color:black"))),
                              selectizeInput('trendclass', 'Classes:', choice, multiple = TRUE, options = list(maxItems = 12)),
-                             actionButton("action", "Show Plot"),
+                             actionButton('action', "Show Plot"),
                              hr(),
-                             plotlyOutput("trendPlot", width = "1250px", height = "825px")
+                             plotlyOutput('trendPlot', width = "1250px", height = "825px")
                     ),
                     
                     tabPanel("Class and Subclass Regression Equations",
