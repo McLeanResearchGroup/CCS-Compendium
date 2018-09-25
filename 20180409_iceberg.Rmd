@@ -564,7 +564,7 @@ all.plot <- plot_ly(all, x= ~all$mz, x0 = 0, y= ~all$CCS.z, y0 = 0,
                                   "<br>CAS: ", CAS,
                                   "<br>m/z:", mz,
                                   "<br>Charge Species: ", Adduct,
-                                  "<br>CCS/z:", CCS.z,"+/-",RSD,"%",
+                                  "<br>CCS/z:", CCS.z,"+/-",X.RSD,"%",
                                   "<br>Class/Subclass: ", Class,"/",Subclass,
                                   "<br>Source: ", Source,
                                   "<br>DOI: ", DOI),
@@ -576,16 +576,17 @@ all.plot <- plot_ly(all, x= ~all$mz, x0 = 0, y= ~all$CCS.z, y0 = 0,
          xaxis = list(title = "<b>m/z</b>",
                       titlefont = list(family = "Arial", size = 30, color = "#000000"),
                       zeroline = FALSE, showline = TRUE, linewidth = 10,
+                      # range = c(660, 760), dtick = 20,
                       ticks = "outside", ticklen = 10, tickwidth = 10,
                       tickfont = list(family = "Arial", size = 24, color = "#000000"),
                       showgrid = FALSE),
          yaxis = list(title = "<b>CCS/z</b>",
                       titlefont = list(family = "Arial", size = 30, color = "#000000"),
                       zeroline = FALSE, showline = TRUE, linewidth = 10,
+                      # range = c(200,220), dtick = 5,
                       ticks = "outside", ticklen = 10, tickwidth = 10,
                       tickfont = list(family = "Arial", tick0 = 0, size = 24, color = "#000000"),
-                      showgrid = FALSE),
-         margin = list(t = 0, l = 100, b = 100))
+                      showgrid = FALSE))
 all.plot
 
 Sys.setenv("plotly_username"="jpicache")

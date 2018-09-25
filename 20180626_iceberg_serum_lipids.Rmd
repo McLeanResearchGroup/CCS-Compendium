@@ -14,14 +14,16 @@ library(plotly)
 library(data.table)
 library(plyr)
 
-ID <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/201806_Database_AnalChem/Progenesis/20180427JAP_IDs.csv",
+ID <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/201808_Databae_ChemSci/Progenesis/20180427JAP_IDs.csv",
                header = TRUE, stringsAsFactors = FALSE)
 all <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/allMASTER.csv",
                 header = TRUE, stringsAsFactors = FALSE)
-serum <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/201806_Database_AnalChem/Progenesis/20180515JAP_progenesis-DT_out.csv",
+serum <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/201808_Databae_ChemSci/Progenesis/20180515JAP_progenesis-DT_out.csv",
                   header = TRUE, stringsAsFactors = FALSE)
 classfits <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/201806_Database_AnalChem/ClassFits.csv",
                       header = TRUE, stringsAsFactors = FALSE)
+
+
 
 ```
 
@@ -378,35 +380,27 @@ serum.p
 
 #all-serum
 a.s.l <- plot_ly(all, x= ~all$mz, x0 = 0, y= ~all$CCS.z, y0 = 0,
-                    type = "scatter", mode = "markers", showlegend = TRUE) %>%
-  add_trace(serum, x= ~serum$mz.p, x0 = 0, y= ~serum$ccsz, y0 = 0,
-            type = "scatter", mode = "markers", showlegend = TRUE,
-            marker = list(size = 8, symbol = "x-thin-open", color = "rgba(50, 50, 50, 0.85)")) %>%
+                type = "scatter", mode = "markers", showlegend = TRUE,
+                marker = list(size = 1, color = "rgba(50, 50, 50, 0.1)")) %>%
   add_trace(all, x= ~all$mz, x0 = 0, y= ~all$CCS.z, y0 = 0,
-                    type = "scatter", mode = "markers", showlegend = TRUE,
-                    marker = list(size = 15, color = "rgba(50, 50, 50, 0.5)", symbol = "circle-open")) %>%
-  add_trace(tmp, x= ~tmp$mz.p, x0 = 0, y= ~tmp$ccsz, y0 = 0,
-            type = "scatter", mode = "markers", showlegend = FALSE,
-            marker = list(size = 15, symbol = "x-thin-open", color = "#1430FA")) %>%
-  layout(
-#    title = "<b>United CCS Compendium (N>3700)</b>",
-#         titlefont = list(family = "Arial", size = 40, color = "#000000"),
-         autosize = TRUE,
-         xaxis = list(
-#           title = "<b>m/z</b>",
-#                      titlefont = list(family = "Arial", size = 30, color = "#000000"),
-                      zeroline = FALSE, showline = TRUE, linewidth = 10,
-                      ticks = "outside", ticklen = 10, tickwidth = 10,
+            name = "all", type = "scatter", mode = "markers", showlegend = TRUE,
+            marker = list(size = 15, color = "rgba(50, 50, 50, 0.6)", symbol = "circle")) %>%
+  add_trace(serum, x= ~serum$mz.p, x0 = 0, y= ~serum$ccsz, y0 = 0,
+            name = "serum", type = "scatter", mode = "markers", showlegend = TRUE,
+            marker = list(size = 15, color = "rgba(251, 186, 13, 0.6)", symbol = "circle")) %>%
+  # add_trace(tmp, x= ~tmp$mz.p, x0 = 0, y= ~tmp$ccsz, y0 = 0,
+  #           type = "scatter", mode = "markers", showlegend = FALSE,
+  #           marker = list(size = 15, symbol = "x-thin-open", color = "#1430FA")) %>%
+  layout(xaxis = list(zeroline = FALSE, showline = TRUE, linewidth = 10,
+                      ticks = "outside", ticklen = 10, tickwidth = 10, dtick = 500,
                       tickfont = list(family = "Arial", size = 26, color = "#000000"),
                       showgrid = FALSE),
-         yaxis = list(
-#           title = "<b>CCS/z</b>",
-#                      titlefont = list(family = "Arial", size = 30, color = "#000000"),
-                      zeroline = FALSE, showline = TRUE, linewidth = 10,
-                      ticks = "outside", ticklen = 10, tickwidth = 10,
+         yaxis = list(zeroline = FALSE, showline = TRUE, linewidth = 10,
+                      ticks = "outside", ticklen = 10, tickwidth = 10, dtick = 50,
                       tickfont = list(family = "Arial", tick0 = 0, size = 26, color = "#000000"),
-                      showgrid = FALSE),
-         margin = list(t = 100, l = 100, b = 100))
+                      showgrid = FALSE)
+         )
+
 a.s.l
 
 
