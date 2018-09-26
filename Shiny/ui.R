@@ -2,9 +2,9 @@ library(shiny)
 library(shinythemes)
 library(plotly)
 library(DT)
-library(shinyjs)
+library(pdftools)
 
-#setwd("/Users/JAPicache/Box Sync/R_Scripts&Data/20171218JAP_iceberg/Shiny/CCScompendium")
+#setwd("/Users/JAPicache/Box Sync/R_Scripts&Data/20171218JAP_iceberg/Shiny/CCScompendium_Shiny")
 
 #plotlyInput
 all <- read.csv("data/allMASTER.csv", header = TRUE)
@@ -70,6 +70,8 @@ eq <- c('<img src = "http://quicklatex.com/cache3/06/ql_ae458daad4ef14cd4ff0c171
         '<img src = "http://quicklatex.com/cache3/2d/ql_1ba41308a8d95fb2766e7978beb56f2d_l3.png"></img>', #Carboxylic acids and derivatives/ Amino acids, peptides, and analogues
         '<img src = "http://quicklatex.com/cache3/5c/ql_cb5a131363a36001d8c3b3af85f7a95c_l3.png"></img>', #Flavonoids/ Flavonoid glycosides
         '<img src = "http://quicklatex.com/cache3/ec/ql_9ec2bce4ee9b97ea76336d3fa6b494ec_l3.png"></img>', #Glycerophospholipids/ Glycerophosphates
+        '<img src = "http://quicklatex.com/cache3/80/ql_c0023a5815a3765c501ed24937c85680_l3.png"></img>', #Glycerophospholipids/ Glycerophosphocholines
+        '<img src = "http://quicklatex.com/cache3/b5/ql_2a312fdcd53027ecf62a9ecd7c352db5_l3.png"></img>', #Glycerophospholipids/ Glycerophosphoethanolamines
         '<img src = "http://quicklatex.com/cache3/81/ql_ca1fd309c6ee6f37b111ddcf2fa2ad81_l3.png"></img>', #Organofluorides/ Phosphazene and phosphazene derivatives
         '<img src = "http://quicklatex.com/cache3/7b/ql_7cc47fe226ff0d1331569d7f18be267b_l3.png"></img>', #Pyrimidine nucleotides/ Pyrimidine ribonucleotides
         '<img src = "http://quicklatex.com/cache3/b0/ql_4f4745f1a579c17c479b7d1d3c6eefb0_l3.png"></img>', #5'-deoxyribonucleosides/ 5'-deoxy-5'-thionucleosides
@@ -104,8 +106,8 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                   Represented in the Compendium are 14 structurally-based chemical super classes, consisting of a total of 80 classes and 157 subclasses.
                                                   Using this large data set, regression fitting and predictive statistics have been performed to describe mass-CCS correlations specific to each chemical ontology.
                                                   These structural trends provide a rapid and effective filtering method in the traditional untargeted workflow for identification of unknown biochemical species.
-                                                  The predictive abilities of this Compendium will improve in specificity and expand across more chemical classes as data from the IM-MS community is contributed.</span></p>"))),
-                             # Inclusion criteria and instructions for data submission to the Compendium are provided.
+                                                  The predictive abilities of this Compendium will improve in specificity and expand across more chemical classes as data from the IM-MS community is contributed.
+                                                  Inclusion criteria and instructions for data submission to the Compendium can be found in the 'Data Submission Guidelines and Tools' page on the menu to the left.</span></p>"))),
                              helpText(div(h4(HTML("<br>Use the menu on the left to navigate this interactive tool."), style = "color:red")))
                     ),
                     
@@ -113,27 +115,20 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                              helpText(h4(strong("Use the options below to navigate the interactive compendium."))),
                              br(),
                              fluidRow(
-                               # column(width = 3,
-                               #        helpText(div(h5(HTML("<font color = 'red'><b>Legend: Charge State</b></br>
-                               #                            <br><span style = 'margin-left:2.5em'> &#9711; &#177;1 </span></br>
-                               #                            <br><span style = 'margin-left:2.5em'> &#9634; &#177;2 </span></br>
-                               #                            <br><span style = 'margin-left:2.5em'> &#9674; &#177;3 </span></br>
-                               #                            <br><span style = 'margin-left:2.5em'> &#43; +4 </span></br>
-                               #                            <br><span style = 'margin-left:2.5em'> &#9651; >+4 </span></br></font>"))))),
                                column(width = 3, offset = 0,
                                       selectInput("pol", "Polarity:",
                                                   c("Both" = ".",
                                                     "Positive" = "pos",
                                                     "Negative" = "neg")),
                                       selectInput('supclass', 'Super Class:', c(All = '.', supclasses))
-                               ),
+                                      ),
                                column(width = 3, offset = 0,
                                       selectInput('adduct', 'Adduct:', c(All = '.', adducts)),
                                       selectInput('class', 'Class:', c(All = '.', classes))
-                               ),
+                                      ),
                                column(width = 3, offset = 0,
                                       selectInput('source', 'Source:', c(All = '.', sources))
-                               ),
+                                      ),
                                column(width = 3,
                                       helpText(div(h5(HTML("<font color = 'red'><b>Legend: Charge State</b></br>
                                                            <br><span style = 'margin-left: 3.7em'> &#9711; &#177;1 </span></br>
@@ -141,12 +136,15 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                            <br><span style = 'margin-left: 3.7em'> &#9674; &#177;3 </span></br>
                                                            <br><span style = 'margin-left: 3.7em'> &#43; +4 </span></br>
                                                            <br><span style = 'margin-left: 3.7em'> &#9651; >+4 </span></br></font>")))))
-                            ),
+                               ),
                              hr(),
                              plotlyOutput('allPlot', width = "1250px", height = "825px")
                     ),
                     
-                    tabPanel("Compound Table", DT::dataTableOutput("table"), width = 8),
+                    tabPanel("Compound Table",
+                             helpText(div(h5(strong("To download a copy of the full Compendium data set, click the link: "))), style = "color:black"), downloadLink('alldata', "Download the Data Set"),
+                             hr(),
+                             DT::dataTableOutput("table"), width = 8),
                     
                     tabPanel("Class Specific Regression Trends",
                              helpText(div(h4(strong("To visualize the trends, choose up to 10 classes blow and click Show Plot."))), style = "color:black"),
@@ -162,6 +160,26 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                     
                     tabPanel("Class and Subclass Regression Equations",
                              DT::dataTableOutput("fitTable")
+                    ),
+                   
+                    tabPanel("Data Submission Guidelines and Tools",
+                             HTML("<div style='height: 140px;'>"), div(imageOutput("subfig"), align = "center"), HTML("</div>"),
+                             br(),
+                             helpText(h4(HTML("<p align = 'justify'><span style = 'margin-left: 3em'>The unified CCS Compendium is anticipated to be a collaborative effort of the IM-MS community;
+                                      and the authors would like to invite contributions to this open-access repository for quality-controlled CCS measurements.
+                                      Contributions towards the unified CCS Compendium will improve informatics tools within the Compendium to aid in IM-MS based multi-omic analyte identification workflows.
+                                      <br><br>For consistency, please follow the guidelines below. These guidelines are aimed at standardizing the data submission process and will expedite data quality assessment.</span></p>"))),
+                             hr(),
+                             column(width = 5,
+                                    helpText(div(h4(HTML("<u>Single Field Tools:</u>"))), style = "color:black"),
+                                    downloadLink('singleguide', "Single Field Guidelines"), br(),
+                                    downloadLink('singledata', "SI_SingleField_DataFormat.xlsx")
+                                    ),
+                             column(width = 5,
+                                    helpText(div(h4(HTML("<u>Stepped Field Tools:</u>"))), style = "color:black"),
+                                    downloadLink('steppedguide', "Stepped Field Guidelines"), br(),
+                                    downloadLink('steppeddata', "SI_SteppedField_ScaleAndDataFormat.xlsx")
+                                    )
                     )
                     
                   )

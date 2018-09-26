@@ -2,8 +2,9 @@ library(shiny)
 library(shinythemes)
 library(plotly)
 library(DT)
+library(pdftools)
 
-#setwd("/Users/JAPicache/Box Sync/R_Scripts&Data/20171218JAP_iceberg/Shiny/CCScompendium")
+#setwd("/Users/JAPicache/Box Sync/R_Scripts&Data/20171218JAP_iceberg/Shiny/CCScompendium_Shiny")
 
 #plotlyInput
 all <- read.csv("data/allMASTER.csv", header = TRUE)
@@ -62,6 +63,8 @@ eq <- c('<img src = "http://quicklatex.com/cache3/06/ql_ae458daad4ef14cd4ff0c171
         '<img src = "http://quicklatex.com/cache3/2d/ql_1ba41308a8d95fb2766e7978beb56f2d_l3.png"></img>', #Carboxylic acids and derivatives/ Amino acids, peptides, and analogues
         '<img src = "http://quicklatex.com/cache3/5c/ql_cb5a131363a36001d8c3b3af85f7a95c_l3.png"></img>', #Flavonoids/ Flavonoid glycosides
         '<img src = "http://quicklatex.com/cache3/ec/ql_9ec2bce4ee9b97ea76336d3fa6b494ec_l3.png"></img>', #Glycerophospholipids/ Glycerophosphates
+        '<img src = "http://quicklatex.com/cache3/80/ql_c0023a5815a3765c501ed24937c85680_l3.png"></img>', #Glycerophospholipids/ Glycerophosphocholines
+        '<img src = "http://quicklatex.com/cache3/b5/ql_2a312fdcd53027ecf62a9ecd7c352db5_l3.png"></img>', #Glycerophospholipids/ Glycerophosphoethanolamines
         '<img src = "http://quicklatex.com/cache3/81/ql_ca1fd309c6ee6f37b111ddcf2fa2ad81_l3.png"></img>', #Organofluorides/ Phosphazene and phosphazene derivatives
         '<img src = "http://quicklatex.com/cache3/7b/ql_7cc47fe226ff0d1331569d7f18be267b_l3.png"></img>', #Pyrimidine nucleotides/ Pyrimidine ribonucleotides
         '<img src = "http://quicklatex.com/cache3/b0/ql_4f4745f1a579c17c479b7d1d3c6eefb0_l3.png"></img>', #5'-deoxyribonucleosides/ 5'-deoxy-5'-thionucleosides
@@ -167,7 +170,16 @@ server <- function(input, output, session) {
       return(c)
   })
   
-#table  
+#table
+  output$alldata <- downloadHandler(
+    filename = function() {
+      paste0("UnifiedCCSCompendium_FullDataSet_",Sys.Date(),".csv")
+    },
+    content = function(file) {
+      file.copy("data/allMASTER.csv", file)
+    }
+  )
+  
   output$table <- DT::renderDataTable({
     datatable(all[,c(1:7, 9, 8, 10:15)],
               colnames = c("Compound", "Formula", "CAS", "m/z", "Adduct", "Charge State", "CCS", "CCS/z", "RSD", "Kingdom", "Super Class", "Class", "Subclass", "Source", "DOI"),
@@ -229,8 +241,53 @@ server <- function(input, output, session) {
               colnames = c("Class", "Sublcass", "Fit Type", "Regression Equation", "Standard Error"),
               options = list(pageLength = 10, autowidth = FALSE, columnDefs = list(list(className = 'dt-center', targets = 2:5))),
               escape = FALSE)
-  })  
+  })
   
+#guidelines
+
+  output$subfig <- renderImage({
+
+    list(src = "data/submissionfig.png",
+         width = "600", height = "150", align = "center")
+
+  }, deleteFile = FALSE)
+
+  output$singleguide <- downloadHandler(
+    filename = function() {
+      paste0("SingleFieldGuidelines_",Sys.Date(),".pdf")
+    },
+    content = function(file) {
+      file.copy("data/SingleFieldGuidelines.pdf", file)
+    }
+  )
+
+  output$singledata <- downloadHandler(
+    filename = function() {
+      paste0("SI_SingleField_DataFormat_",Sys.Date(),".xlsx")
+    },
+    content = function(file) {
+      file.copy("data/SI_SingleField_DataFormat.xlsx", file)
+    }
+  )
+
+  output$steppedguide <- downloadHandler(
+    filename = function() {
+      paste0("SteppedFieldGuidelines_",Sys.Date(),".pdf")
+    },
+    content = function(file) {
+      file.copy("data/SteppedFieldGuidelines.pdf", file)
+    }
+  )
+
+  output$steppeddata <- downloadHandler(
+    filename = function() {
+      paste0("SI_SteppedField_ScaleAndDataFormat_",Sys.Date(),".xlsx")
+    },
+    content = function(file) {
+      file.copy("data/SI_SteppedField_ScaleAndDataFormat.xlsx", file)
+    }
+  )
+
 }
 
 
