@@ -1,48 +1,49 @@
 ﻿class,subclass,ft,aicc,se
-Azoles,,Power Fit,83.7,5.48
-Benzene and substituted derivatives,,Power Fit,1167.11,9.32
-Carboxylic acids and derivatives,,Power Fit,5306.46,17.03
-Fatty acyls,,Power Fit,1730.43,11.56
-Glycerophospholipids,,Power Fit,1952.4,4.46
+Azoles,,Power Fit,83.22,5.37
+Benzene and substituted derivatives,,Power Fit,1167.8,9.34
+Carboxylic acids and derivatives,,Power Fit,5307.17,17.04
+Diazines,,Power Fit,212.22,14.65
+Fatty acyls,,Power Fit,1667.46,10.03
+Glycerophospholipids,,Power Fit,2165.32,6.13
 Homogeneous transition metal compounds,,Power Fit,505.25,13.52
-Naphthofurans,,Power Fit,148.18,35.83
+Naphthofurans,,Power Fit,147.94,35.53
 Organofluorides,,Power Fit,416.59,5.41
-Organooxygen compounds,,Power Fit,2867.68,16.27
+Organooxygen compounds,,Power Fit,2867.99,16.28
 Peptidomimetics,,Power Fit,263.12,63.12
 Proteins,,Power Fit,1259.83,21.99
-Pteridines and derivatives,,Power Fit,163.82,3.99
-Pyridines and derivatives,,Power Fit,324.71,5.16
+Pteridines and derivatives,,Power Fit,172.01,4.61
+Pyridines and derivatives,,Power Fit,334.21,5.65
 Tryptic peptides,,Power Fit,2302.07,22.21
-Diazines,,Four-Parameter Sigmoidal,207.26,12.74
-Imidazopyrimidines,,Four-Parameter Sigmoidal,372.14,5.01
-Isoflavonoids,,Four-Parameter Sigmoidal,103.26,4.48
-Macrolides and analogues,,Four-Parameter Sigmoidal,103.34,5.43
-Organonitrogen compounds,,Four-Parameter Sigmoidal,625.95,5.15
-Prenol lipids,,Four-Parameter Sigmoidal,170.69,11.29
-Purine nucleotides,,Four-Parameter Sigmoidal,808.14,5.94
-Pyrenes,,Four-Parameter Sigmoidal,113.12,2.57
-Pyrimidine nucleotides,,Four-Parameter Sigmoidal,776.93,5.37
-Quinolines and derivatives,,Four-Parameter Sigmoidal,116.02,5.52
-Organooxygen compounds,Alcohols and polyols,Power Fit,148.23,8.18
-Carboxylic acids and derivatives,"Amino acids, peptides, and analogues",Power Fit,5054.75,17.33
-Flavonoids,Flavonoid glycosides,Power Fit,140.03,26.79
-Glycerophospholipids,Glycerophosphates,Power Fit,133.77,2.77
-Glycerophospholipids,Glycerophosphocholines,Power Fit,,2.69
+Imidazopyrimidines,,4-Parameter Sigmoidal,372.14,5.01
+Isoflavonoids,,4-Parameter Sigmoidal,116.24,6.72
+Macrolides and analogues,,4-Parameter Sigmoidal,103.34,5.43
+Organonitrogen compounds,,4-Parameter Sigmoidal,625.94,5.15
+Prenol lipids,,4-Parameter Sigmoidal,171.2,11.42
+Purine nucleotides,,4-Parameter Sigmoidal,808.97,5.95
+Pyrenes,,4-Parameter Sigmoidal,117.19,2.81
+Pyrimidine nucleotides,,4-Parameter Sigmoidal,775.7,5.34
+Quinolines and derivatives,,4-Parameter Sigmoidal,116.07,5.52
+Organooxygen compounds,Alcohols and polyols,Power Fit,148.94,8.33
+Carboxylic acids and derivatives,"Amino acids, peptides, and analogues",Power Fit,5055.56,17.34
+Flavonoids,Flavonoid glycosides,Power Fit,139.65,26.42
+Glycerophospholipids,Glycerophosphates,Power Fit,133.72,2.77
+Glycerophospholipids,Glycerophosphocholines,Power Fit,727.32,5.72
 Glycerophospholipids,Glycerophosphoethanolamines,Power Fit,,1.65
 Organofluorides,Phosphazene and phosphazene derivatives,Power Fit,416.59,5.41
-Pyrimidine nucleotides,Pyrimidine ribonucleotides,Power Fit,388.23,6.51
-5'-deoxyribonucleosides,5'-deoxy-5'-thionucleosides,Four-Parameter Sigmoidal,73.4,3.28
-Organonitrogen compounds,Amines,Four-Parameter Sigmoidal,122.34,2.56
-Benzene and substituted derivatives,Benzenesulfonamides,Four-Parameter Sigmoidal,89.49,4.1
-Steroids and steroid derivatives,"Bile acids, alcohols and derivatives",Four-Parameter Sigmoidal,183.6,2.94
-Benzene and substituted derivatives,Biphenyls and derivatives,Four-Parameter Sigmoidal,215.47,1.92
-Organooxygen compounds,Carbohydrates and carbohydrate conjugates,Four-Parameter Sigmoidal,2589.09,16.19
-Organooxygen compounds,Carbonyl compounds,Four-Parameter Sigmoidal,14.64,0.28
-Glycerophospholipids,Glycerophosphoserines,Four-Parameter Sigmoidal,369.12,3.43
-Indoles and derivatives,Indoles,Four-Parameter Sigmoidal,40.08,0.9
-Indoles and derivatives,Indolyl carboxylic acids and derivatives,Four-Parameter Sigmoidal,154.27,3.57
-Sphingolipids,Phosphosphingolipids,Four-Parameter Sigmoidal,250.67,3.36
-Purine nucleotides,Purine deoxyribonucleotides,Four-Parameter Sigmoidal,158.19,4.78
-Imidazopyrimidines,Purines and purine derivatives,Four-Parameter Sigmoidal,372.14,5.01
-Diazines,Pyrimidines and pyrimidine derivatives,Four-Parameter Sigmoidal,207.26,12.74
-Organonitrogen compounds,Quaternary ammonium salts,Four-Parameter Sigmoidal,479.3,5.36
+Pyrimidine nucleotides,Pyrimidine ribonucleotides,Power Fit,387.77,6.48
+Diazines,Pyrimidines and pyrimidine derivatives,Power Fit,212.22,14.65
+Organonitrogen compounds,Quaternary ammonium salts,Power Fit,533.63,7.77
+5'-deoxyribonucleosides,5'-deoxy-5'-thionucleosides,4-Parameter Sigmoidal,73.4,3.28
+Organonitrogen compounds,Amines,4-Parameter Sigmoidal,120.81,2.48
+Benzene and substituted derivatives,Benzenesulfonamides,4-Parameter Sigmoidal,87.59,3.83
+Steroids and steroid derivatives,"Bile acids, alcohols and derivatives",4-Parameter Sigmoidal,183.6,2.94
+Benzene and substituted derivatives,Biphenyls and derivatives,4-Parameter Sigmoidal,215.47,1.92
+Organooxygen compounds,Carbohydrates and carbohydrate conjugates,4-Parameter Sigmoidal,2588.92,16.19
+Organooxygen compounds,Carbonyl compounds,4-Parameter Sigmoidal,-0.12,0.15
+Glycerophospholipids,Glycerophosphoserines,4-Parameter Sigmoidal,369.12,3.43
+Indoles and derivatives,Indoles,4-Parameter Sigmoidal,40.08,0.9
+Indoles and derivatives,Indolyl carboxylic acids and derivatives,4-Parameter Sigmoidal,154.19,3.56
+Sphingolipids,Phosphosphingolipids,4-Parameter Sigmoidal,250.67,3.36
+Purine nucleotides,Purine deoxyribonucleotides,4-Parameter Sigmoidal,158.35,4.79
+Purine nucleotides,Purine nucleotide sugars,4-Parameter Sigmoidal,84.97,3.49
+Imidazopyrimidines,Purines and purine derivatives,4-Parameter Sigmoidal,372.14,5.01
