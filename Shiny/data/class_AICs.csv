@@ -1,0 +1,43 @@
+"","names.data.","PF","Sig4","Sig5","V5"
+"1","(5'->5')-dinucleotides",NA,NA,NA,NA
+"2","5'-deoxyribonucleosides",NA,NA,NA,NA
+"3","Azoles",83.2181524876375,NA,NA,"p"
+"4","Benzene and substituted derivatives",1167.79555781487,NA,NA,"p"
+"5","Carboxylic acids and derivatives",5307.17235880003,NA,NA,"p"
+"6","Cyclic Peptide",NA,NA,NA,NA
+"7","Diazines",212.222641033315,213.925066526461,NA,"p"
+"8","Fatty acyls",1667.45787262145,NA,NA,"p"
+"9","Flavonoids",NA,NA,NA,NA
+"10","Glycerophospholipids",2165.31518394491,NA,NA,"p"
+"11","Homogeneous transition metal compounds",505.251647047759,NA,NA,"p"
+"12","Hydroxy acids and derivatives",NA,NA,NA,NA
+"13","Imidazopyrimidines",NA,NA,NA,NA
+"14","Indoles and derivatives",NA,NA,NA,NA
+"15","Isoflavonoids",NA,116.240396555246,NA,"r"
+"16","Keto acids and derivatives",NA,NA,NA,NA
+"17","Lactams",NA,68.6453341597264,NA,"r"
+"18","Macrolides and analogues",NA,103.340950127581,NA,"r"
+"19","Naphthalenes",NA,NA,NA,NA
+"20","Naphthofurans",147.939500111201,NA,NA,"p"
+"21","Organic phosphonic acids and derivatives",NA,NA,NA,NA
+"22","Organofluorides",416.591396539115,NA,NA,"p"
+"23","Organonitrogen compounds",703.562287916106,625.936290213384,NA,"r"
+"24","Organooxygen compounds",2867.99295295231,NA,NA,"p"
+"25","Peptidomimetics",263.117254972631,NA,NA,"p"
+"26","Phenanthrenes and derivatives",NA,NA,NA,NA
+"27","Phenols",NA,NA,NA,NA
+"28","Phenylpropanoic acids",NA,NA,NA,NA
+"29","Polypeptides",NA,NA,NA,NA
+"30","Prenol lipids",171.876381836058,171.20250057837,NA,"r"
+"31","Proteins",1259.8328217967,NA,NA,"p"
+"32","Pteridines and derivatives",172.010239984912,NA,NA,"p"
+"33","Purine nucleosides",NA,NA,NA,NA
+"34","Purine nucleotides",NA,808.968402644362,NA,"r"
+"35","Pyrenes",NA,117.187903854996,NA,"r"
+"36","Pyridines and derivatives",334.20977319046,NA,NA,"p"
+"37","Pyrimidine nucleosides",NA,NA,NA,NA
+"38","Pyrimidine nucleotides",NA,775.699262669587,777.526684803482,"r"
+"39","Quinolines and derivatives",NA,116.07203892347,NA,"r"
+"40","Sphingolipids",NA,NA,NA,NA
+"41","Steroids and steroid derivatives",NA,NA,NA,NA
+"42","Tryptic peptides",2302.07497148069,NA,NA,"p"
