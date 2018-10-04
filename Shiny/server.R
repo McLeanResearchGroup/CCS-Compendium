@@ -162,7 +162,7 @@ server <- function(input, output, session) {
                                 "<br>CAS: ", data$CAS,
                                 "<br>m/z:", data$mz,
                                 "<br>Charge Species: ", data$Adduct,
-                                "<br>CCS/z:",data$CCS,"+/-", data$RSD,"%",
+                                "<br>CCS/z:",data$CCS.z,"+/-", data$RSD/data$CCS,
                                 "<br>Class/Subclass: ", data$Class,"/",data$Subclass,
                                 "<br>Source: ", data$Source,
                                 "<br>DOI: ", data$DOI),
