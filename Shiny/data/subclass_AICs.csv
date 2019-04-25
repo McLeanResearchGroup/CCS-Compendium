@@ -1,51 +1,51 @@
 "","names.data.","PF","Sig4","Sig5","V5"
-"1","5'-deoxy-5'-thionucleosides",NA,NA,NA,NA
-"2","Alcohols and polyols",148.944910618692,NA,NA,"p"
-"3","Amines",NA,120.808237310405,NA,"r"
-"4","Amino acids, peptides, and analogues",5055.55805849945,NA,NA,"p"
-"5","Benzenediols",NA,NA,NA,NA
-"6","Benzenesulfonamides",NA,87.5865572114886,NA,"r"
-"7","Benzoic acids and derivatives",NA,NA,NA,NA
-"8","Benzopyrenes",NA,NA,NA,NA
-"9","Beta lactams",NA,68.6453341597264,NA,"r"
-"10","Bile acids, alcohols and derivatives",NA,183.596494252864,NA,"r"
-"11","Biphenyls and derivatives",NA,215.471173350857,NA,"r"
-"12","Carbohydrates and carbohydrate conjugates",2605.72745218087,2588.91726011924,NA,"r"
-"13","Carbonyl compounds",NA,-0.124888580819025,NA,"r"
+"1","Alcohols and polyols",100.698351568709,NA,NA,"p"
+"2","Alkali metal iodides",422.433149572968,NA,NA,"p"
+"3","Amines",NA,109.309414122044,NA,"r"
+"4","Amino acids, peptides, and analogues",4152.71993316101,4122.94130860624,4124.90565786654,"r"
+"5","Anilides",108.482951276195,108.037012237591,NA,"r"
+"6","Benzenediols",NA,76.0759916448065,NA,"r"
+"7","Benzenesulfonamides",NA,91.6497964831478,NA,"r"
+"8","Benzoic acids and derivatives",NA,NA,NA,NA
+"9","Benzopyrenes",NA,NA,NA,NA
+"10","Bile acids, alcohols and derivatives",NA,NA,NA,NA
+"11","Biphenyls and derivatives",NA,166.081333639891,167.674450234949,"r"
+"12","Carbohydrates and carbohydrate conjugates",1934.09858005809,1924.13823370199,NA,"r"
+"13","Carbonyl compounds",NA,73.416123284653,NA,"r"
 "14","Ceramides",NA,NA,NA,NA
 "15","Cyclic purine nucleotides",NA,NA,NA,NA
-"16","Depsipeptides",NA,NA,NA,NA
-"17","Dicarboxylic acids and derivatives",NA,NA,NA,NA
-"18","Diphenylethers",NA,NA,NA,NA
-"19","Eicosanoids",NA,NA,NA,NA
-"20","Fatty acid esters",NA,NA,NA,NA
-"21","Fatty acids and conjugates",NA,NA,NA,NA
-"22","Flavonoid glycosides",139.646856688674,NA,NA,"p"
-"23","Glycerophosphates",133.716596748092,NA,NA,"p"
-"24","Glycerophosphocholines",727.317320547542,NA,NA,"p"
-"25","Glycerophosphoethanolamines",NA,NA,NA,NA
-"26","Glycerophosphoserines",NA,369.123719256267,NA,"r"
-"27","Glycosphingolipids",NA,NA,NA,NA
-"28","Hydroxysteroids",NA,NA,NA,NA
-"29","Indoles",NA,40.0782828546034,NA,"r"
+"16","Depsipeptides",NA,365.62330533094,NA,"r"
+"17","Diphenylethers",NA,116.291817619678,NA,"r"
+"18","Eicosanoids",NA,NA,NA,NA
+"19","Fatty acid esters",NA,NA,NA,NA
+"20","Fatty acids and conjugates",766.487497844794,764.280857028468,NA,"r"
+"21","Glycerophosphates",NA,NA,NA,NA
+"22","Glycerophosphocholines",NA,NA,NA,NA
+"23","Glycerophosphoethanolamines",NA,894.687933882121,NA,"r"
+"24","Glycerophosphoserines",NA,NA,NA,NA
+"25","Glycosphingolipids",NA,627.7094926748,NA,"r"
+"26","Hybrid peptides",NA,NA,NA,NA
+"27","Hydroxysteroids",NA,NA,NA,NA
+"28","Imidazoles",NA,84.1146754157322,NA,"r"
+"29","Indoles",NA,38.5383492054459,NA,"r"
 "30","Indolyl carboxylic acids and derivatives",NA,NA,NA,NA
 "31","Lineolic acids and derivatives",NA,NA,NA,NA
 "32","O-methylated flavonoids",NA,NA,NA,NA
-"33","Phosphazene and phosphazene derivatives",416.591396539115,NA,NA,"p"
-"34","Phosphosphingolipids",NA,250.668923771083,NA,"r"
-"35","Pterins and derivatives",NA,NA,NA,NA
-"36","Purine deoxyribonucleotides",NA,158.350431654248,NA,"r"
-"37","Purine nucleotide sugars",NA,84.9713929453831,NA,"r"
-"38","Purine ribonucleotides",NA,NA,NA,NA
-"39","Purines and purine derivatives",NA,NA,NA,NA
-"40","Pyridine carboxaldehydes",NA,NA,NA,NA
-"41","Pyridinecarboxylic acids and derivatives",NA,NA,NA,NA
-"42","Pyrimidine 2'-deoxyribonucleosides",NA,NA,NA,NA
+"33","Phosphazene and phosphazene derivatives",383.256971408906,NA,NA,"p"
+"34","Phosphosphingolipids",NA,394.671131371698,396.665391852754,"r"
+"35","Pregnane steroids",NA,NA,NA,NA
+"36","Pterins and derivatives",NA,NA,NA,NA
+"37","Purine deoxyribonucleotides",NA,124.619057592816,NA,"r"
+"38","Purine nucleotide sugars",NA,NA,NA,NA
+"39","Purine ribonucleotides",NA,NA,NA,NA
+"40","Purines and purine derivatives",NA,NA,NA,NA
+"41","Pyridine carboxaldehydes",NA,NA,NA,NA
+"42","Pyridinecarboxylic acids and derivatives",101.602216372586,NA,NA,"p"
 "43","Pyrimidine deoxyribonucleotides",NA,NA,NA,NA
-"44","Pyrimidine nucleotide sugars",NA,NA,NA,NA
-"45","Pyrimidine ribonucleotides",387.770537451247,NA,NA,"p"
-"46","Pyrimidines and pyrimidine derivatives",212.222641033315,213.925066526461,NA,"p"
-"47","Quaternary ammonium salts",533.634380985117,NA,NA,"p"
-"48","Quinoline carboxylic acids",NA,NA,NA,NA
+"44","Pyrimidine nucleotide sugars",NA,152.391081967167,NA,"r"
+"45","Pyrimidine ribonucleotides",NA,NA,NA,NA
+"46","Pyrimidines and pyrimidine derivatives",184.82799997789,NA,NA,"p"
+"47","Quaternary ammonium salts",187.995303672335,156.936126455592,NA,"r"
+"48","Quinoline carboxylic acids",NA,95.4880945745626,NA,"r"
 "49","Tricarboxylic acids and derivatives",NA,NA,NA,NA
-"50","Tryptamines and derivatives",NA,NA,NA,NA
+"50","Tryptamines and derivatives",77.3946449163736,NA,NA,"p"

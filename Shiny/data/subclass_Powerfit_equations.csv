@@ -1,0 +1,7 @@
+,class,y = ,a, \bullet x^{,k,} + ,y0,,y = a \bullet x^{k} + y0
+1,Alcohols and polyols,y = ,0.181567545, \bullet x^{,0.954370369,} + ,113.9170626,,y = 0.1816 \bullet x^{0.954} + 113.92
+2,Alkali metal iodides,y = ,0.608835648, \bullet x^{,0.738679019,} + ,96.14977362,,y = 0.6088 \bullet x^{0.739} + 96.15
+3,Phosphazene and phosphazene derivatives,y = ,3.823360756, \bullet x^{,0.588486512,} + ,29.72121523,,y = 3.8234 \bullet x^{0.588} + 29.72
+4,Pyridinecarboxylic acids and derivatives,y = ,4.211029455, \bullet x^{,0.522038156,} + ,72.62509355,,y = 4.2110 \bullet x^{0.522} + 72.63
+5,Pyrimidines and pyrimidine derivatives,y = ,-1217.885279, \bullet x^{,-0.450262548,} + ,262.0646912,,y = -1217.8853 \bullet x^{-0.450} + 262.06
+6,Tryptamines and derivatives,y = ,-2.93E+47, \bullet x^{,-20.89263751,} + ,150.2433764,,y = -2.9323E+47 \bullet x^{-20.893} + 150.24
