@@ -14,11 +14,11 @@ library(plotly)
 library(data.table)
 library(plyr)
 
-ID <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/201808_Databae_ChemSci/Progenesis/20180427JAP_IDs.csv",
+ID <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/201808_Databae_ChemSci/Data/Progenesis/20180427JAP_IDs.csv",
                header = TRUE, stringsAsFactors = FALSE)
 all <- read.csv("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/allMASTER.csv",
                 header = TRUE, stringsAsFactors = FALSE)
-serum <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/201808_Databae_ChemSci/Progenesis/20180515JAP_progenesis-DT_out.csv",
+serum <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/201808_Databae_ChemSci/Data/Progenesis/20180515JAP_progenesis-DT_out.csv",
                   header = TRUE, stringsAsFactors = FALSE)
 classfits <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/201806_Database_AnalChem/ClassFits.csv",
                       header = TRUE, stringsAsFactors = FALSE)
@@ -89,7 +89,7 @@ class[class$class == "Phosphosphingolipids", "ccsz.max"] <- 309.76
 #pymatch
 ```{r}
 #ID <- read.csv("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS_Database_June2018/Progenesis/20180430_ls-dedup.csv")
-ID <- ID[!duplicated(ID[,"Compound"]),] #should be 955 rows
+c #should be 955 rows
 ID <- ID[,c("RTm", "mz.p", "Adducts", "Charge", "Formula", "Isotope.Similarity", "Theoretical.Isotope.Distribution")]
 #write.csv(ID, "~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS_Database_June2018/Progenesis/20180430_ls-dedup.csv")
 ID <- ID[order(ID$RTm, ID$mz),]
@@ -97,7 +97,7 @@ ID$mz.r <- round(ID$mz, digits = 2)
 ID$RT.r <- round(ID$RTm, digits = 1)
 rownames(ID) <- 1:nrow(ID)
 
-res1 <- read.delim("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS_Database_June2018/Progenesis/20180425JAP_IMS_pos_rep1_12.txt")
+res1 <- read.delim("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/201808_Databae_ChemSci/Progenesis/20180425JAP_IMS_pos_rep1_12.txt")
 res2 <- read.delim("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS_Database_June2018/Progenesis/20180425JAP_IMS_pos_rep2_13.txt")
 res3 <- read.delim("~/Box Sync/JAP_VU/McLean Lab/Manuscripts/JASMS_Database_June2018/Progenesis/20180425JAP_IMS_pos_rep3_14.txt")
 res <- list(res1, res2, res3)

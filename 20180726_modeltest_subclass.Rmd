@@ -143,6 +143,7 @@ for(i in seq_along(data)){
 
 Choose a model
 ```{r}
+
 AICs <- data.frame(names(data))
 AICs$PF <- NA
 for(i in seq_along(pf)){
@@ -189,12 +190,13 @@ for(i in seq_along(AICs[, 1])){
 
 Build dataframes with confidence intervals
 ```{r}
+
 fitteddata <- list()
 for(i in seq_along(data)){
   if(!is.na(AICs[i, 5])) {
     name = names(data)[[i]]
     fitteddata[[name]] <- data[[i]]
-    fitteddata[[name]] <- fitteddata[[name]][, c(1, 4, 10, 9)]
+    fitteddata[[name]] <- fitteddata[[name]][, c(1, 6, 12, 11)] #compound, mz, ccs/z, rsd
   } else{}
 }
 
@@ -275,12 +277,11 @@ Export data
 for(i in names(fitteddata)){
   write.csv(fitteddata[[i]], paste0("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/SubClassTrends_R/", i,".csv"))
 }
-#  write.csv(fitteddata[[i]], paste0("~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/SubClassTrends_R/", i,".csv"))
 
 write.csv(AICs, "~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/subclass_AICs.csv")
 write.csv(powertable, "~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/subclass_Powerfit_equations.csv")
 write.csv(fourtable, "~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/subclass_4Psigfit_equations.csv")
-write.csv(fivetable, "~/Box Sync/20171218JAP_iceberg/R-output/subclass_5Psigfit_equations.csv")
+write.csv(fivetable, "~/Box Sync/R_Scripts&Data/20171218JAP_iceberg/R-output/subclass_5Psigfit_equations.csv")
 #R_Scripts&Data/
 
 
