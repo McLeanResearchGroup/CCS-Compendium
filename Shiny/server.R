@@ -7,6 +7,8 @@ library(DT)
 
 #plotlyInput
 all <- read.csv("data/allMASTER.csv", header = TRUE)
+allclean <- all[,c(1:7, 9:21)]
+
 classtree <- read.csv("data/classlist.csv", header = TRUE)
 super.col <- c("#A5142A", "#F42813", "#DF7F12", "#C9A544", "#E3CD10", 
                "#5DE310", "#1C9E30", "#10C890", "#23D1E3", "#3B9DE0", 
@@ -15,7 +17,7 @@ sym <- c("circle", "square", "diamond", "cross", "triangle-up")
 sources <- as.character(levels(all$Source))
 supclasses <- as.character(levels(all$Super.Class))
 classes <- as.character(levels(all$Class))
-adducts <- as.character(levels(all$Adduct))
+adducts <- as.character(levels(all$Ion.Species))
 
 #trendsInput
 trends <- list.files(path = "data/ClassTrends_R", 
@@ -34,57 +36,68 @@ names(choice) <- names(curves)
 #fitTable
 ft <- read.csv("data/regeq.csv", header = TRUE)
 
-eq <- c('<img src = "http://quicklatex.com/cache3/22/ql_81062506f2cd83637777e4c562ec6722_l3.png"></img>', #Azoles
-        '<img src = "http://quicklatex.com/cache3/37/ql_fcb4318d5a05c209d237d5a7124ff237_l3.png"></img>', #Benzene and substituted derivatives
-        '<img src = "http://quicklatex.com/cache3/b3/ql_c0b831211948b883465cb5656af8fbb3_l3.png"></img>', #Carboxylic acids and derivatives
-        '<img src = "http://quicklatex.com/cache3/6b/ql_5eb3ac234c6fa316159dc24e217e1d6b_l3.png"></img>', #Diazines
-        '<img src = "http://quicklatex.com/cache3/43/ql_de636283c521608892da5a602c6ca143_l3.png"></img>', #Fatty acyls
-        '<img src = "http://quicklatex.com/cache3/37/ql_42b3d40039f262212131cc5af9ec4637_l3.png"></img>', #Glycerophospholipids
-        '<img src = "http://quicklatex.com/cache3/c6/ql_f27501280413c0ec44ff7075885731c6_l3.png"></img>', #Homogeneous transition metal compounds
-        '<img src = "http://quicklatex.com/cache3/39/ql_9b01162a5977bd7c91ec7d2738aa8739_l3.png"></img>', #Naphthofurans
-        '<img src = "http://quicklatex.com/cache3/81/ql_ca1fd309c6ee6f37b111ddcf2fa2ad81_l3.png"></img>', #Organofluorides
-        '<img src = "http://quicklatex.com/cache3/9c/ql_7d3fdd43c6a05167ebce991e8181ea9c_l3.png"></img>', #Organooxygen compounds
-        '<img src = "http://quicklatex.com/cache3/51/ql_26698cc691418e860e8526eb4e70b851_l3.png"></img>', #Peptidomimetics
-        '<img src = "http://quicklatex.com/cache3/6f/ql_da8a8bb86e9e45a7a6ea126db562c36f_l3.png"></img>', #Proteins
-        '<img src = "http://quicklatex.com/cache3/f1/ql_484eac97c5b549b9e6b0df776977baf1_l3.png"></img>', #Pteridines and derivatives
-        '<img src = "http://quicklatex.com/cache3/4b/ql_9930ab424cd16b64d59e9bd7a4a57e4b_l3.png"></img>', #Pyridines and derivatives
-        '<img src = "http://quicklatex.com/cache3/f2/ql_f1103e288c90ec6e9cc1494380b22af2_l3.png"></img>', #Tryptic peptides
-        '<img src = "http://quicklatex.com/cache3/ff/ql_878fcb94810be61b8493842684af5aff_l3.png"></img>', #Imidazopyrimidines
-        '<img src = "http://quicklatex.com/cache3/98/ql_249b6ce3c8df0bde309168b98b16be98_l3.png"></img>', #Isoflavonoids
-        '<img src = "http://quicklatex.com/cache3/0b/ql_6c3cf8371782c261bbbb4de42203720b_l3.png"></img>', #Macrolides and analogues
-        '<img src = "http://quicklatex.com/cache3/13/ql_1053025ca38b3b63e82d666b28b8be13_l3.png"></img>', #Organonitrogen compounds
-        '<img src = "http://quicklatex.com/cache3/b3/ql_d4e098c88ac33915be3bd549758587b3_l3.png"></img>', #Prenol lipids
-        '<img src = "http://quicklatex.com/cache3/6b/ql_ddfc8e2336e1116f60853ed04c64d46b_l3.png"></img>', #Purine nucleotides
-        '<img src = "http://quicklatex.com/cache3/30/ql_3a53ee6a48add984274e43ea01940230_l3.png"></img>', #Pyrenes
-        '<img src = "http://quicklatex.com/cache3/f1/ql_06b741df5fe59b89b3afa8c9d74beff1_l3.png"></img>', #Pyrimidine nucleotides
-        '<img src = "http://quicklatex.com/cache3/0b/ql_6146fa5cfbb480da4acdea71a3c1330b_l3.png"></img>', #Quinolines and derivatives
-        '<img src = "http://quicklatex.com/cache3/56/ql_863780f56e78d2947fa07822cf4f2456_l3.png"></img>', #Organooxygen compounds/ Alcohols and polyols
-        '<img src = "http://quicklatex.com/cache3/fd/ql_98659bfd3be0ef1c62ebcfc0274ca3fd_l3.png"></img>', #Carboxylic acids and derivatives/ Amino acids, peptides, and analogues
-        '<img src = "http://quicklatex.com/cache3/db/ql_ad046820f9c32bd21b3239b720348fdb_l3.png"></img>', #Flavonoids/ Flavonoid glycosides
-        '<img src = "http://quicklatex.com/cache3/d6/ql_dbd57ee06fae7b76143c78f9b30277d6_l3.png"></img>', #Glycerophospholipids/ Glycerophosphates
-        '<img src = "http://quicklatex.com/cache3/d0/ql_2770c5b8ba43afb82674d5aaec083dd0_l3.png"></img>', #Glycerophospholipids/ Glycerophosphocholines
-        '<img src = "http://quicklatex.com/cache3/ff/ql_3cbfad5ded9c420c10ad9a8ab7c4baff_l3.png"></img>', #Glycerophospholipids/ Glycerophosphoethanolamines
-        '<img src = "http://quicklatex.com/cache3/b5/ql_2a312fdcd53027ecf62a9ecd7c352db5_l3.png"></img>', #Organofluorides/ Phosphazene and phosphazene derivatives
-        '<img src = "http://quicklatex.com/cache3/81/ql_ca1fd309c6ee6f37b111ddcf2fa2ad81_l3.png"></img>', #Pyrimidine nucleotides/ Pyrimidine ribonucleotides
-        '<img src = "http://quicklatex.com/cache3/95/ql_e4455f650618a88c51ee56f152497a95_l3.png"></img>', #Diazines/ Pyrimidines and pyrimidine derivatives
-        '<img src = "http://quicklatex.com/cache3/6b/ql_5eb3ac234c6fa316159dc24e217e1d6b_l3.png"></img>', #Organonitrogen compounds/ Quaternary ammonium salts
-        '<img src = "http://quicklatex.com/cache3/a3/ql_15062458967a66323e405c8b649e42a3_l3.png"></img>', #5'-deoxyribonucleosides/ 5'-deoxy-5'-thionucleosides
-        '<img src = "http://quicklatex.com/cache3/b0/ql_4f4745f1a579c17c479b7d1d3c6eefb0_l3.png"></img>', #Organonitrogen compounds/ Amines
-        '<img src = "http://quicklatex.com/cache3/82/ql_7332d9b3e8babe45607cb2f025497b82_l3.png"></img>', #Benzene and substituted derivatives/ Benzenesulfonamides
-        '<img src = "http://quicklatex.com/cache3/31/ql_aafcb441036d66bf5643de5f944f9c31_l3.png"></img>', #Steroids and steroid derivatives/ Bile acids, alcohols and derivatives
-        '<img src = "http://quicklatex.com/cache3/0b/ql_6c3cf8371782c261bbbb4de42203720b_l3.png"></img>', #Benzene and substituted derivatives/ Biphenyls and derivatives
-        '<img src = "http://quicklatex.com/cache3/63/ql_236a3c66142a2a90e0786fdb3e6ad363_l3.png"></img>', #Organooxygen compounds/ Carbohydrates and carbohydrate conjugates
-        '<img src = "http://quicklatex.com/cache3/1b/ql_18d9906ca21282f4932147ff43d2751b_l3.png"></img>', #Organooxygen compounds/ Carbonyl compounds
-        '<img src = "http://quicklatex.com/cache3/81/ql_df932fd3ddf6201ac42ee44698125681_l3.png"></img>', #Glycerophospholipids/ Glycerophosphoserines
-        '<img src = "http://quicklatex.com/cache3/f4/ql_56d54dda8d73218d71c92766e5a292f4_l3.png"></img>', #Indoles and derivatives/ Indoles
-        '<img src = "http://quicklatex.com/cache3/e4/ql_030af2eaf774679f81201f0322b4e9e4_l3.png"></img>', #Indoles and derivatives/ Indolyl carboxylic acids and derivatives
-        '<img src = "http://quicklatex.com/cache3/79/ql_064747b4d9ff328aaa833bf28f4d3679_l3.png"></img>', #Sphingolipids/ Phosphosphingolipids
-        '<img src = "http://quicklatex.com/cache3/47/ql_9d8629bd27a1c8f30aecbd4506f61847_l3.png"></img>', #Purine nucleotides/ Purine deoxyribonucleotides
-        '<img src = "http://quicklatex.com/cache3/d6/ql_4f1d3c384d52b6ccd8b8b5c62f2cf3d6_l3.png"></img>', #Purine nucleotides/ Purine nucleotide sugars
-        '<img src = "http://quicklatex.com/cache3/84/ql_577fb705b93d2ba71a93f452380d2e84_l3.png"></img>', #Imidazopyrimidines/ Purines and purine derivatives
-        '<img src = "http://quicklatex.com/cache3/2f/ql_25ab82ca2bc7df336a4180e1ecdfdf2f_l3.png"></img>', #Imidazopyrimidines/ Purines and purine derivatives
-        '<img src = "http://quicklatex.com/cache3/ff/ql_878fcb94810be61b8493842684af5aff_l3.png"></img>' #Imidazopyrimidines/ Purines and purine derivatives
-        )
+eq <- c(#classes
+  '<img src = "https://quicklatex.com/cache3/29/ql_64be5fb2660901784aec26e398620829_l3.png"></img>', #(5'->5')-dinucleotides
+  '<img src = "https://quicklatex.com/cache3/09/ql_5f273559d3da063d1afad977ce9ee809_l3.png"></img>', #Alkali metal salts
+  '<img src = "https://quicklatex.com/cache3/0d/ql_c5b92f1c6dbb1cb628e68f29c1f8290d_l3.png"></img>', #Azoles
+  '<img src = "https://quicklatex.com/cache3/fe/ql_c2ec4507569d190ff3da6eccde24befe_l3.png"></img>', #Benzene and substituted derivatives
+  '<img src = "https://quicklatex.com/cache3/92/ql_499b90815e2731bf1024ac50429f0a92_l3.png"></img>', #Carboxylic acids and derivatives
+  '<img src = "https://quicklatex.com/cache3/a5/ql_b1a6bd2d21e67ba1e94a46d09a778aa5_l3.png"></img>', #Diazines
+  '<img src = "https://quicklatex.com/cache3/fc/ql_4981a4dac8277e8466c039a946545ffc_l3.png"></img>', #Fatty acyls
+  '<img src = "https://quicklatex.com/cache3/d9/ql_4eeab06750e4dae6dcd97c28420172d9_l3.png"></img>', #Flavonoids
+  '<img src = "https://quicklatex.com/cache3/cd/ql_8db9e7981fe6f69e327fd06ede56e2cd_l3.png"></img>', #Glycerophospholipids
+  '<img src = "https://quicklatex.com/cache3/1d/ql_a0acdfc360cc19ed1744f3bad78acc1d_l3.png"></img>', #Imidazopyrimidines
+  '<img src = "https://quicklatex.com/cache3/f6/ql_1a7b22564cc45df4787c66e17c9debf6_l3.png"></img>', #Isoflavonoids
+  '<img src = "https://quicklatex.com/cache3/13/ql_f4b36d53c7b09e749371de91fd3cad13_l3.png"></img>', #Naphthalenes
+  '<img src = "https://quicklatex.com/cache3/f8/ql_95041fdbf3f6ea9f8fb47ce04a5ac5f8_l3.png"></img>', #Organofluorides
+  '<img src = "https://quicklatex.com/cache3/62/ql_c1be82faeb03f6f3eb1bb2ff23064262_l3.png"></img>', #Organonitrogen compounds
+  '<img src = "https://quicklatex.com/cache3/2b/ql_c6b8c5a0d04ed10d95e9621ad37a722b_l3.png"></img>', #Organooxygen compounds
+  '<img src = "https://quicklatex.com/cache3/d0/ql_732ef7344945fa1b9da5bb162d9279d0_l3.png"></img>', #Peptidomimetics
+  '<img src = "https://quicklatex.com/cache3/c2/ql_71dc7b1a1c8f7ccb1f9392ddabdeefc2_l3.png"></img>', #Polypeptides
+  '<img src = "https://quicklatex.com/cache3/7b/ql_abf8a575e7c7543ee726260a1218be7b_l3.png"></img>', #Prenol lipids
+  '<img src = "https://quicklatex.com/cache3/95/ql_5d098ce7d7585168800ebf2d76636895_l3.png"></img>', #Proteins
+  '<img src = "https://quicklatex.com/cache3/f8/ql_c0899e2494468e8dc5e62e3fc71409f8_l3.png"></img>', #Pteridines and derivatives
+  '<img src = "https://quicklatex.com/cache3/70/ql_e421db66e142c34b420c6b19bfc13970_l3.png"></img>', #Purine nucleotides
+  '<img src = "https://quicklatex.com/cache3/3f/ql_1b44df96a11a620342ad8a3cbe9f9e3f_l3.png"></img>', #Pyrenes
+  '<img src = "https://quicklatex.com/cache3/37/ql_9b8e7212b22f48828e10b34c2154fc37_l3.png"></img>', #Pyridines and derivatives
+  '<img src = "https://quicklatex.com/cache3/88/ql_c036df89ae63fd5ec0557c7d1b516c88_l3.png"></img>', #Pyrimidine nucleotides
+  '<img src = "https://quicklatex.com/cache3/87/ql_f9f344fa542dd565a0eab0ea1b89fb87_l3.png"></img>', #Quinolines and derivatives
+  #subclasses
+  '<img src = "https://quicklatex.com/cache3/48/ql_4037988c5929ee001b751342f54ebc48_l3.png"></img>', #Organooxygen compounds/ Alcohols and polyols
+  '<img src = "https://quicklatex.com/cache3/09/ql_5f273559d3da063d1afad977ce9ee809_l3.png"></img>', #Alkali metal salts/ Alkali metal iodides
+  '<img src = "https://quicklatex.com/cache3/a5/ql_f205c68b4f806e3ca046f360431b28a5_l3.png"></img>', #Organonitrogen compounds/ Amines
+  '<img src = "https://quicklatex.com/cache3/a6/ql_5a2b50a7e133d1fe9d9143831e9565a6_l3.png"></img>', #Carboxylic acids and derivatives/ Amino acids, peptides, and analogues
+  '<img src = "https://quicklatex.com/cache3/ed/ql_6300e7188c217c37af783df0497e9aed_l3.png"></img>', #Benzene and substituted derivatives/ Anilides
+  '<img src = "https://quicklatex.com/cache3/e1/ql_48bf2231d1310c1a1f8d423fb1c848e1_l3.png"></img>', #Phenols/ Benzenediols
+  '<img src = "https://quicklatex.com/cache3/29/ql_7e2caeb3d180da0f1f8343626f611429_l3.png"></img>', #Benzene and substituted derivatives/ Benzenesulfonamides
+  '<img src = "https://quicklatex.com/cache3/19/ql_6c298065185f6215058b4c9c9dc4e819_l3.png"></img>', #Steroids and steroid derivatives/ Bile acids, alcohols and derivatives
+  '<img src = "https://quicklatex.com/cache3/95/ql_6a9e5c661093d145ff2c3ba838983e95_l3.png"></img>', #Benzene and substituted derivatives/ Biphenyls and derivatives
+  '<img src = "https://quicklatex.com/cache3/c1/ql_48470f7e27443f0b06b31405de27b4c1_l3.png"></img>', #Organooxygen compounds/ Carbohydrates and carbohydrate conjugates
+  '<img src = "https://quicklatex.com/cache3/cb/ql_07ba42d2a557545ec569752ef3405fcb_l3.png"></img>', #Organooxygen compounds/ Carbonyl compounds
+  '<img src = "https://quicklatex.com/cache3/f1/ql_8ffded55a709516c7d8f73dc46d9ebf1_l3.png"></img>', #Peptidomimetics/ Depsipeptides
+  '<img src = "https://quicklatex.com/cache3/53/ql_3b610dfbffd14ac19ae9514cc7f34d53_l3.png"></img>', #Benzene and substituted derivatives/ Diphenylethers
+  '<img src = "https://quicklatex.com/cache3/f5/ql_ab2cd75a2e789846a0da81617805eff5_l3.png"></img>', #Fatty Acyls/ Fatty acids and conjugates
+  '<img src = "https://quicklatex.com/cache3/80/ql_e41513552ba1ba2f399ad7bc5c711780_l3.png"></img>', #Glycerophospholipids/ Glycerophosphates
+  '<img src = "https://quicklatex.com/cache3/1b/ql_cfb10593cc201ca42c5cd4410f9aa21b_l3.png"></img>', #Glycerophospholipids/ Glycerophosphocholines
+  '<img src = "https://quicklatex.com/cache3/38/ql_406c88a608aa2b1c4989422402989b38_l3.png"></img>', #Glycerophospholipids/ Glycerophosphoethanolamines
+  '<img src = "https://quicklatex.com/cache3/e1/ql_882c697487be427b191e7a54665379e1_l3.png"></img>', #Glycerophospholipids/ Glycerophosphoserines
+  '<img src = "https://quicklatex.com/cache3/51/ql_eeed477b1f87e52d34423cfd8c1e0a51_l3.png"></img>', #Sphingolipids/ Glycosphingolipids
+  '<img src = "https://quicklatex.com/cache3/df/ql_f2daab48ec9875a2e44161b64584a3df_l3.png"></img>', #Azoles/ Imidazoles
+  '<img src = "https://quicklatex.com/cache3/41/ql_c08d41cc6712ab9a48ca01de82c67f41_l3.png"></img>', #Indoles and derivatives/ Indoles
+  '<img src = "https://quicklatex.com/cache3/69/ql_cf0e7032dbf5ff7614971d324da6d569_l3.png"></img>', #Indoles and derivatives/ Indolyl carboxylic acids and derivatives
+  '<img src = "https://quicklatex.com/cache3/f8/ql_95041fdbf3f6ea9f8fb47ce04a5ac5f8_l3.png"></img>', #Organofluorides/ Phosphazene and phosphazene derivatives
+  '<img src = "https://quicklatex.com/cache3/75/ql_8b8505933200efc1d38c4b2684c49075_l3.png"></img>', #Sphingolipids/ Phosphosphingolipids
+  '<img src = "https://quicklatex.com/cache3/ac/ql_7173e2cd4b5d7e90f1e891b49e36aeac_l3.png"></img>', #Purine nucleotides/ Purine deoxyribonucleotides
+  '<img src = "https://quicklatex.com/cache3/f5/ql_5b1c02a5871579e128ca899fd215a2f5_l3.png"></img>', #Purine nucleotides/ Purine nucleotide sugars
+  '<img src = "https://quicklatex.com/cache3/44/ql_d86bac4300df18903c29be99ad602544_l3.png"></img>', #Imidazopyrimidines/ Purines and purine derivatives
+  '<img src = "https://quicklatex.com/cache3/f8/ql_3e00f56f00c93b289d9938401c19f4f8_l3.png"></img>', #Pyridines and derivatives/ Pyridinecarboxylic acids and derivatives
+  '<img src = "https://quicklatex.com/cache3/09/ql_31114a0f003c3d5970421afb25bf2509_l3.png"></img>', #Pyrimidine nucleotides/ Pyrimidine nucleotide sugars
+  '<img src = "https://quicklatex.com/cache3/d5/ql_e1bfd3faabb36377aa0fcd863c93bcd5_l3.png"></img>', #Pyrimidine nucleotides/ Pyrimidine ribonucleotides
+  '<img src = "https://quicklatex.com/cache3/a5/ql_b1a6bd2d21e67ba1e94a46d09a778aa5_l3.png"></img>', #Diazines/ Pyrimidines and pyrimidine derivatives
+  '<img src = "https://quicklatex.com/cache3/22/ql_2f307450e1da1f4c9eb575e5171c4022_l3.png"></img>', #Organonitrogen compounds/ Quaternary ammonium salts
+  '<img src = "https://quicklatex.com/cache3/80/ql_41b7120b8378845b03396261c4087880_l3.png"></img>', #Quinolines and derivatives/ Quinoline carboxylic acids
+  '<img src = "https://quicklatex.com/cache3/17/ql_e573784932064b4135c95235f573ef17_l3.png"></img>' #Indoles and derivatives/ Tryptamines and derivatives     
+  )
 
 ####################################################################################################################
 
@@ -111,7 +124,7 @@ server <- function(input, output, session) {
   output$allPlot <- renderPlotly({
     c <- plot_ly() %>% 
       layout(
-        title = "<b>Interactive Compendium (n>3800)</b>",
+        title = "<b>Interactive Compendium</b>",
         titlefont = list(family = "Arial", size = 30, color = "#000000"),
         autosize = TRUE,
         xaxis = list(title = "<b>m/z</b>",
@@ -128,10 +141,10 @@ server <- function(input, output, session) {
                      showgrid = FALSE),
         margin = list(t = 100, l = 100, b = 100))
 
-      data <- all
+      data <- allclean
 
       if(input$adduct != "."){
-        data <- filter(data, Adduct == input$adduct)
+        data <- filter(data, Ion.Species == input$adduct)
       }
       if(input$supclass != "."){
         data <- filter(data, Super.Class == input$supclass)
@@ -140,7 +153,7 @@ server <- function(input, output, session) {
         data <- filter(data, Class == input$class)
       }
       if(input$source != "."){
-        data <- filter(data, Source == input$source)
+        data <- filter(data, Sources == input$source)
       }
       if(input$pol == "pos"){
         data <- filter(data, Charge > 0)
@@ -159,14 +172,15 @@ server <- function(input, output, session) {
                   color = ~data$Super.Class, colors = ~super.col,
                   marker = list(size = 12, opacity = 0.6), symbol = ~data$Shape, symbols = ~sym,
                   text = ~paste("Name: ", data$Compound,
-                                "<br>Formula", data$Formula,
-                                "<br>CAS: ", data$CAS,
-                                "<br>m/z:", data$mz,
-                                "<br>Charge Species: ", data$Adduct,
+                                "<br> Neutral Formula: ", data$Neutral.Formula,
+                                "<br>InChi Key: ", data$InChiKey,
+                                "<br><i>m/z</i>:", data$mz,
+                                "<br>Charge Species: ", data$Ion.Species,
                                 "<br>CCS/z:",data$CCS.z,"+/-", data$SD,
+                                "<br>Peak Number: ", data$Peak.N,
                                 "<br>Class/Subclass: ", data$Class,"/",data$Subclass,
-                                "<br>Source: ", data$Source,
-                                "<br>DOI: ", data$DOI),
+                                "<br>Source References: ", data$Sources
+                                ),
                   hoverlabel = list(font = list(family = "Arial", size = 14, color = "#000000"))
                   )
       return(c)
@@ -178,17 +192,30 @@ server <- function(input, output, session) {
       paste0("UnifiedCCSCompendium_FullDataSet_",Sys.Date(),".csv")
     },
     content = function(file) {
-      file.copy("data/allMASTER.csv", file)
+      write.csv(allclean, file, row.names = FALSE, fileEncoding = "UTF-8")
+    }
+  )
+  
+  output$pcdl <- renderUI({
+      tagList(a("Download the CCS Compendium PCDL Here", href="https://github.com/McLeanResearchGroup/CCS-Compendium/blob/master/Shiny/data/CCS-Compendium_McLean_20190502.cdb", target="_blank"))
+    }
+  )
+  
+  output$ref <- downloadHandler(
+    filename = function() {
+      paste0("UnifiedCCSCompendium_References_",Sys.Date(),".pdf")
+    },
+    content = function(file) {
+      file.copy("data/References.pdf", file)
     }
   )
   
   output$table <- DT::renderDataTable({
-    datatable(all[,c(1:7, 10, 8:9, 11:16)],
-              colnames = c("Compound", "Formula", "CAS", "m/z", "Adduct", "Charge State", "CCS", "CCS/z", "SD", "RSD", "Kingdom", "Super Class", "Class", "Subclass", "Source", "DOI"),
-              options = list(pageLength = 10, autoWidth = TRUE, columnDefs = list(list(width = '100px', targets = c(1, 10:13, 15))))
-    )
+    datatable(data.frame(allclean[, c(1:13, 20, 14:18)]),
+              colnames = c("Compound", "Neutral Formula", "CAS", "InChi", "InChi Key", "m/z", "Ion Species", "Charge State", "CCS", " CCS SD", "CCS RSD", "CCS/z", "Peak Number", "Replicates (N)", "Kingdom", "Super Class", "Class", "Subclass", "Source(s)"),
+              options = list(pageLength = 10, autoWidth = TRUE, columnDefs = list(list(width = '100px'))))
   })
-  
+
 #trends   
   dataVals <- eventReactive(input$action, {
     as.list(input$trendclass)
@@ -206,30 +233,30 @@ server <- function(input, output, session) {
     #layer trendlines
     # datalist <- datasetInput()
     if(!is.null(dataVals())){
-      for(i in seq_along(dataVals())){
-        dataset <- curves[[dataVals()[[i]]]]
+      for(i in c(1:length(dataVals()))){
         name <- dataVals()[[i]]
-        linecol <- as.character(classtree[[which(classtree[, 2] == name), 4]])
-        shadecol <- as.character(classtree[[which(classtree[, 2] == name), 5]])
+        dataset <- curves[[name]]
+        linecol <- as.character(classtree[[which(classtree[, 2] == name)[1], 4]])
+        shadecol <- as.character(classtree[[which(classtree[, 2] == name)[1], 5]])
         p <- p %>% 
           add_trace(data = dataset, x = dataset[,5], y = dataset[,6],
-                    name = dataVals()[[i]], type = 'scatter', mode = 'lines',
+                    name = name, type = 'scatter', mode = 'lines',
                     line = list(color = linecol, width = 3), legendgroup = name, 
                     showlegend = TRUE, inherit = FALSE) %>%
           add_trace(data = dataset, x = dataset[,5], y = dataset[,9],
-                    name = dataVals()[[i]], type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = shadecol,
+                    name = name, type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = shadecol,
                     line = list(color = linecol, width = 3, dash = 'dash'), 
                     legendgroup = name, showlegend = F, inherit = F) %>%
           add_trace(data = dataset, x = dataset[,5], y =  dataset[,10],
-                    name = dataVals()[[i]], type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = shadecol,
+                    name = name, type = 'scatter', mode = 'lines', fill = "tonexty", fillcolor = shadecol,
                     line = list(color = linecol, width = 3, dash = 'dash'), 
                     legendgroup = name, showlegend = F,  inherit = F) %>%
           add_trace(data = dataset, x = dataset[,5], y = dataset[,7],
-                    name = dataVals()[[i]], type = 'scatter', mode = 'lines',
+                    name = name, type = 'scatter', mode = 'lines',
                     line = list(color = linecol, width = 3, dash = 'dash'), 
                     legendgroup = name, showlegend = F,  inherit = F) %>%
           add_trace(data = dataset, x = dataset[,5], y = dataset[,8],
-                    name = dataVals()[[i]], type = 'scatter', mode = 'lines',
+                    name = name, type = 'scatter', mode = 'lines',
                     line = list(color = linecol, width = 3, dash = 'dash'), 
                     legendgroup = name, showlegend = F,  inherit = F)
       }
@@ -241,7 +268,7 @@ server <- function(input, output, session) {
   output$fitTable <- DT::renderDataTable({
     datatable(data.frame(ft[, 1:3], eq = eq, ft[, 5:6]),
               colnames = c("Class", "Subclass", "Fit Type", "Regression Equation", "Standard Error", "Standard Deviation"),
-              options = list(pageLength = 10, autowidth = FALSE, columnDefs = list(list(className = 'dt-center', targets = 2:5))),
+              options = list(pageLength = 25, autowidth = FALSE, columnDefs = list(list(className = 'dt-center', targets = 2:5))),
               escape = FALSE)
   })
   
@@ -254,6 +281,15 @@ server <- function(input, output, session) {
 
   }, deleteFile = FALSE)
 
+  output$pea <- downloadHandler(
+    filename = function() {
+      paste0("PeakAnnotationGuidelines_",Sys.Date(),".pdf")
+    },
+    content = function(file) {
+      file.copy("data/PeakAnnotationGuidelines.pdf", file)
+    }
+  )
+  
   output$singleguide <- downloadHandler(
     filename = function() {
       paste0("SingleFieldGuidelines_",Sys.Date(),".pdf")
@@ -268,7 +304,7 @@ server <- function(input, output, session) {
       paste0("SI_SingleField_DataFormat_",Sys.Date(),".xlsx")
     },
     content = function(file) {
-      file.copy("data/SI_SingleField_DataFormat.xlsx", file)
+      file.copy("data/SI_SingleField_DataFormat_online.xlsx", file)
     }
   )
 
@@ -286,12 +322,9 @@ server <- function(input, output, session) {
       paste0("SI_SteppedField_ScaleAndDataFormat_",Sys.Date(),".xlsx")
     },
     content = function(file) {
-      file.copy("data/SI_SteppedField_ScaleAndDataFormat.xlsx", file)
+      file.copy("data/SI_SteppedField_ScaleAndDataFormat_online.xlsx", file)
     }
   )
 
 }
 
-
-#runApp
-#shinyApp(ui, server)
