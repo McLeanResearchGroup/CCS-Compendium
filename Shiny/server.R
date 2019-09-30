@@ -7,7 +7,7 @@ library(DT)
 
 #plotlyInput
 all <- read.csv("data/allMASTER.csv", header = TRUE)
-allclean <- all[,c("Compound", "Neutral.Formula", "CAS", "InChi", "InChiKey", "mz", "Ion.Species", "Ion.Species.Agilent", "Charge", "CCS", "SD", "RSD", "CCS.z", "Peak.N", "Kingdom", "Super.Class", "Class", "Subclass", "Sources", "N.Rep")]
+allclean <- all[,c("Compound", "Neutral.Formula", "CAS", "InChi", "InChiKey", "mz", "Ion.Species", "Ion.Species.Agilent", "Charge", "CCS", "SD", "RSD", "CCS.z", "Peak.N", "Kingdom", "Super.Class", "Class", "Subclass", "Sources","Shape", "N.Rep")]
 
 classtree <- read.csv("data/classlist.csv", header = TRUE)
 super.col <- c("#A5142A", "#F42813", "#DF7F12", "#C9A544", "#E3CD10", 
@@ -193,13 +193,11 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       write.csv(allclean, file, row.names = FALSE, fileEncoding = "UTF-8")
-    }
-  )
+    })
   
   output$pcdl <- renderUI({
-      tagList(a("Download the CCS Compendium PCDL Here", href="https://github.com/McLeanResearchGroup/CCS-Compendium/tree/master/PCDL", target="_blank"))
-    }
-  )
+      tagList(a("CCS Compendium PCDL", href="https://github.com/McLeanResearchGroup/CCS-Compendium/tree/master/PCDL", target="_blank"))
+    })
   
   output$ref <- downloadHandler(
     filename = function() {
@@ -207,11 +205,10 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       file.copy("data/References.pdf", file)
-    }
-  )
+    })
   
   output$table <- DT::renderDataTable({
-    datatable(data.frame(allclean[, c(1:13, 20, 14:18)]),
+    datatable(data.frame(allclean[, c("Compound", "Neutral.Formula", "CAS", "InChi", "InChiKey", "mz", "Ion.Species", "Charge", "CCS", "SD", "RSD", "CCS.z", "Peak.N", "N.Rep", "Kingdom", "Super.Class", "Class", "Subclass", "Sources")]),
               colnames = c("Compound", "Neutral Formula", "CAS", "InChi", "InChi Key", "m/z", "Ion Species", "Charge State", "CCS", " CCS SD", "CCS RSD", "CCS/z", "Peak Number", "Replicates (N)", "Kingdom", "Super Class", "Class", "Subclass", "Source(s)"),
               options = list(pageLength = 10, autoWidth = TRUE, columnDefs = list(list(width = '100px'))))
   })
