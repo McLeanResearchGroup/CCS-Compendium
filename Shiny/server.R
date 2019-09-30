@@ -7,7 +7,7 @@ library(DT)
 
 #plotlyInput
 all <- read.csv("data/allMASTER.csv", header = TRUE)
-allclean <- all[,c(1:7, 9:21)]
+allclean <- all[,c("Compound", "Neutral.Formula", "CAS", "InChi", "InChiKey", "mz", "Ion.Species", "Ion.Species.Agilent", "Charge", "CCS", "SD", "RSD", "CCS.z", "Peak.N", "Kingdom", "Super.Class", "Class", "Subclass", "Sources", "N.Rep")]
 
 classtree <- read.csv("data/classlist.csv", header = TRUE)
 super.col <- c("#A5142A", "#F42813", "#DF7F12", "#C9A544", "#E3CD10", 
@@ -197,7 +197,7 @@ server <- function(input, output, session) {
   )
   
   output$pcdl <- renderUI({
-      tagList(a("Download the CCS Compendium PCDL Here", href="https://github.com/McLeanResearchGroup/CCS-Compendium/blob/master/Shiny/data/CCS-Compendium_McLean_20190502.cdb", target="_blank"))
+      tagList(a("Download the CCS Compendium PCDL Here", href="https://github.com/McLeanResearchGroup/CCS-Compendium/tree/master/PCDL", target="_blank"))
     }
   )
   
