@@ -7,7 +7,7 @@ library(DT)
 
 #plotlyInput
 all <- read.csv("data/allMASTER.csv", header = TRUE)
-allclean <- all[,c("Compound", "Neutral.Formula", "CAS", "InChi", "InChiKey", "mz", "Ion.Species", "Ion.Species.Agilent", "Charge", "CCS", "SD", "RSD", "CCS.z", "Peak.N", "Kingdom", "Super.Class", "Class", "Subclass", "Sources","Shape", "N.Rep")]
+allclean <- all[,c("Compound", "Neutral.Formula", "CAS", "InChi", "InChiKey", "Theoretical.mz", "Ion.Species", "Ion.Species.Agilent", "Charge", "CCS", "SD", "RSD", "CCS.z", "Peak.N", "Kingdom", "Super.Class", "Class", "Subclass", "Sources","Shape", "N.Rep")]
 
 classtree <- read.csv("data/classlist.csv", header = TRUE)
 super.col <- c("#A5142A", "#F42813", "#DF7F12", "#C9A544", "#E3CD10", 
@@ -167,14 +167,14 @@ server <- function(input, output, session) {
       )
 
       c <- c %>% 
-        add_trace(data, x= ~data$mz, x0 = 0, y= ~data$CCS.z, y0 = 0,
+        add_trace(data, x= ~data$Theoretical.mz, x0 = 0, y= ~data$CCS.z, y0 = 0,
                   type = "scatter", mode = "markers", showlegend = T,
                   color = ~data$Super.Class, colors = ~super.col,
                   marker = list(size = 12, opacity = 0.6), symbol = ~data$Shape, symbols = ~sym,
                   text = ~paste("Name: ", data$Compound,
                                 "<br> Neutral Formula: ", data$Neutral.Formula,
                                 "<br>InChi Key: ", data$InChiKey,
-                                "<br><i>m/z</i>:", data$mz,
+                                "<br><i>m/z</i>:", data$Theoretical.mz,
                                 "<br>Charge Species: ", data$Ion.Species,
                                 "<br>CCS/z:",data$CCS.z,"+/-", data$SD,
                                 "<br>Peak Number: ", data$Peak.N,
@@ -208,8 +208,8 @@ server <- function(input, output, session) {
     })
   
   output$table <- DT::renderDataTable({
-    datatable(data.frame(allclean[, c("Compound", "Neutral.Formula", "CAS", "InChi", "InChiKey", "mz", "Ion.Species", "Charge", "CCS", "SD", "RSD", "CCS.z", "Peak.N", "N.Rep", "Kingdom", "Super.Class", "Class", "Subclass", "Sources")]),
-              colnames = c("Compound", "Neutral Formula", "CAS", "InChi", "InChi Key", "m/z", "Ion Species", "Charge State", "CCS", " CCS SD", "CCS RSD", "CCS/z", "Peak Number", "Replicates (N)", "Kingdom", "Super Class", "Class", "Subclass", "Source(s)"),
+    datatable(data.frame(allclean[, c("Compound", "Neutral.Formula", "CAS", "InChi", "InChiKey", "Theoretical.mz", "Ion.Species", "Charge", "CCS", "SD", "RSD", "CCS.z", "Peak.N", "N.Rep", "Kingdom", "Super.Class", "Class", "Subclass", "Sources")]),
+              colnames = c("Compound", "Neutral Formula", "CAS", "InChi", "InChi Key", "Theoretical m/z", "Ion Species", "Charge State", "CCS", " CCS SD", "CCS RSD", "CCS/z", "Peak Number", "Replicates (N)", "Kingdom", "Super Class", "Class", "Subclass", "Source(s)"),
               options = list(pageLength = 10, autoWidth = TRUE, columnDefs = list(list(width = '100px'))))
   })
 
@@ -278,7 +278,7 @@ server <- function(input, output, session) {
 
   }, deleteFile = FALSE)
 
-  output$pea <- downloadHandler(
+  output$peakannotate <- downloadHandler(
     filename = function() {
       paste0("PeakAnnotationGuidelines_",Sys.Date(),".pdf")
     },
