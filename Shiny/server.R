@@ -3,7 +3,7 @@ library(shinythemes)
 library(plotly)
 library(DT)
 
-setwd("/Users/JAPicache/Box Sync/R_Scripts&Data/20171218JAP_iceberg/Shiny/CCScompendium_Shiny")
+# setwd("/Users/JAPicache/Box Sync/R_Scripts&Data/20171218JAP_iceberg/Shiny/CCScompendium_Shiny")
 
 #plotlyInput
 all <- read.csv("data/allMASTER.csv", header = TRUE)
