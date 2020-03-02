@@ -3,7 +3,7 @@ library(shinythemes)
 library(plotly)
 library(DT)
 
-#setwd("/Users/JAPicache/Box Sync/R_Scripts&Data/20171218JAP_iceberg/Shiny/CCScompendium_Shiny")
+setwd("/Users/JAPicache/Box Sync/R_Scripts&Data/20171218JAP_iceberg/Shiny/CCScompendium_Shiny")
 
 #plotlyInput
 all <- read.csv("data/allMASTER.csv", header = TRUE)
@@ -35,69 +35,6 @@ names(choice) <- names(curves)
 
 #fitTable
 ft <- read.csv("data/regeq.csv", header = TRUE)
-
-eq <- c(#classes
-  '<img src = "https://quicklatex.com/cache3/29/ql_64be5fb2660901784aec26e398620829_l3.png"></img>', #(5'->5')-dinucleotides
-  '<img src = "https://quicklatex.com/cache3/09/ql_5f273559d3da063d1afad977ce9ee809_l3.png"></img>', #Alkali metal salts
-  '<img src = "https://quicklatex.com/cache3/0d/ql_c5b92f1c6dbb1cb628e68f29c1f8290d_l3.png"></img>', #Azoles
-  '<img src = "https://quicklatex.com/cache3/fe/ql_c2ec4507569d190ff3da6eccde24befe_l3.png"></img>', #Benzene and substituted derivatives
-  '<img src = "https://quicklatex.com/cache3/92/ql_499b90815e2731bf1024ac50429f0a92_l3.png"></img>', #Carboxylic acids and derivatives
-  '<img src = "https://quicklatex.com/cache3/a5/ql_b1a6bd2d21e67ba1e94a46d09a778aa5_l3.png"></img>', #Diazines
-  '<img src = "https://quicklatex.com/cache3/fc/ql_4981a4dac8277e8466c039a946545ffc_l3.png"></img>', #Fatty acyls
-  '<img src = "https://quicklatex.com/cache3/d9/ql_4eeab06750e4dae6dcd97c28420172d9_l3.png"></img>', #Flavonoids
-  '<img src = "https://quicklatex.com/cache3/cd/ql_8db9e7981fe6f69e327fd06ede56e2cd_l3.png"></img>', #Glycerophospholipids
-  '<img src = "https://quicklatex.com/cache3/1d/ql_a0acdfc360cc19ed1744f3bad78acc1d_l3.png"></img>', #Imidazopyrimidines
-  '<img src = "https://quicklatex.com/cache3/f6/ql_1a7b22564cc45df4787c66e17c9debf6_l3.png"></img>', #Isoflavonoids
-  '<img src = "https://quicklatex.com/cache3/13/ql_f4b36d53c7b09e749371de91fd3cad13_l3.png"></img>', #Naphthalenes
-  '<img src = "https://quicklatex.com/cache3/f8/ql_95041fdbf3f6ea9f8fb47ce04a5ac5f8_l3.png"></img>', #Organofluorides
-  '<img src = "https://quicklatex.com/cache3/62/ql_c1be82faeb03f6f3eb1bb2ff23064262_l3.png"></img>', #Organonitrogen compounds
-  '<img src = "https://quicklatex.com/cache3/2b/ql_c6b8c5a0d04ed10d95e9621ad37a722b_l3.png"></img>', #Organooxygen compounds
-  '<img src = "https://quicklatex.com/cache3/d0/ql_732ef7344945fa1b9da5bb162d9279d0_l3.png"></img>', #Peptidomimetics
-  '<img src = "https://quicklatex.com/cache3/c2/ql_71dc7b1a1c8f7ccb1f9392ddabdeefc2_l3.png"></img>', #Polypeptides
-  '<img src = "https://quicklatex.com/cache3/7b/ql_abf8a575e7c7543ee726260a1218be7b_l3.png"></img>', #Prenol lipids
-  '<img src = "https://quicklatex.com/cache3/95/ql_5d098ce7d7585168800ebf2d76636895_l3.png"></img>', #Proteins
-  '<img src = "https://quicklatex.com/cache3/f8/ql_c0899e2494468e8dc5e62e3fc71409f8_l3.png"></img>', #Pteridines and derivatives
-  '<img src = "https://quicklatex.com/cache3/70/ql_e421db66e142c34b420c6b19bfc13970_l3.png"></img>', #Purine nucleotides
-  '<img src = "https://quicklatex.com/cache3/3f/ql_1b44df96a11a620342ad8a3cbe9f9e3f_l3.png"></img>', #Pyrenes
-  '<img src = "https://quicklatex.com/cache3/37/ql_9b8e7212b22f48828e10b34c2154fc37_l3.png"></img>', #Pyridines and derivatives
-  '<img src = "https://quicklatex.com/cache3/88/ql_c036df89ae63fd5ec0557c7d1b516c88_l3.png"></img>', #Pyrimidine nucleotides
-  '<img src = "https://quicklatex.com/cache3/87/ql_f9f344fa542dd565a0eab0ea1b89fb87_l3.png"></img>', #Quinolines and derivatives
-  #subclasses
-  '<img src = "https://quicklatex.com/cache3/48/ql_4037988c5929ee001b751342f54ebc48_l3.png"></img>', #Organooxygen compounds/ Alcohols and polyols
-  '<img src = "https://quicklatex.com/cache3/09/ql_5f273559d3da063d1afad977ce9ee809_l3.png"></img>', #Alkali metal salts/ Alkali metal iodides
-  '<img src = "https://quicklatex.com/cache3/a5/ql_f205c68b4f806e3ca046f360431b28a5_l3.png"></img>', #Organonitrogen compounds/ Amines
-  '<img src = "https://quicklatex.com/cache3/a6/ql_5a2b50a7e133d1fe9d9143831e9565a6_l3.png"></img>', #Carboxylic acids and derivatives/ Amino acids, peptides, and analogues
-  '<img src = "https://quicklatex.com/cache3/ed/ql_6300e7188c217c37af783df0497e9aed_l3.png"></img>', #Benzene and substituted derivatives/ Anilides
-  '<img src = "https://quicklatex.com/cache3/e1/ql_48bf2231d1310c1a1f8d423fb1c848e1_l3.png"></img>', #Phenols/ Benzenediols
-  '<img src = "https://quicklatex.com/cache3/29/ql_7e2caeb3d180da0f1f8343626f611429_l3.png"></img>', #Benzene and substituted derivatives/ Benzenesulfonamides
-  '<img src = "https://quicklatex.com/cache3/19/ql_6c298065185f6215058b4c9c9dc4e819_l3.png"></img>', #Steroids and steroid derivatives/ Bile acids, alcohols and derivatives
-  '<img src = "https://quicklatex.com/cache3/95/ql_6a9e5c661093d145ff2c3ba838983e95_l3.png"></img>', #Benzene and substituted derivatives/ Biphenyls and derivatives
-  '<img src = "https://quicklatex.com/cache3/c1/ql_48470f7e27443f0b06b31405de27b4c1_l3.png"></img>', #Organooxygen compounds/ Carbohydrates and carbohydrate conjugates
-  '<img src = "https://quicklatex.com/cache3/cb/ql_07ba42d2a557545ec569752ef3405fcb_l3.png"></img>', #Organooxygen compounds/ Carbonyl compounds
-  '<img src = "https://quicklatex.com/cache3/f1/ql_8ffded55a709516c7d8f73dc46d9ebf1_l3.png"></img>', #Peptidomimetics/ Depsipeptides
-  '<img src = "https://quicklatex.com/cache3/53/ql_3b610dfbffd14ac19ae9514cc7f34d53_l3.png"></img>', #Benzene and substituted derivatives/ Diphenylethers
-  '<img src = "https://quicklatex.com/cache3/f5/ql_ab2cd75a2e789846a0da81617805eff5_l3.png"></img>', #Fatty Acyls/ Fatty acids and conjugates
-  '<img src = "https://quicklatex.com/cache3/80/ql_e41513552ba1ba2f399ad7bc5c711780_l3.png"></img>', #Glycerophospholipids/ Glycerophosphates
-  '<img src = "https://quicklatex.com/cache3/1b/ql_cfb10593cc201ca42c5cd4410f9aa21b_l3.png"></img>', #Glycerophospholipids/ Glycerophosphocholines
-  '<img src = "https://quicklatex.com/cache3/38/ql_406c88a608aa2b1c4989422402989b38_l3.png"></img>', #Glycerophospholipids/ Glycerophosphoethanolamines
-  '<img src = "https://quicklatex.com/cache3/e1/ql_882c697487be427b191e7a54665379e1_l3.png"></img>', #Glycerophospholipids/ Glycerophosphoserines
-  '<img src = "https://quicklatex.com/cache3/51/ql_eeed477b1f87e52d34423cfd8c1e0a51_l3.png"></img>', #Sphingolipids/ Glycosphingolipids
-  '<img src = "https://quicklatex.com/cache3/df/ql_f2daab48ec9875a2e44161b64584a3df_l3.png"></img>', #Azoles/ Imidazoles
-  '<img src = "https://quicklatex.com/cache3/41/ql_c08d41cc6712ab9a48ca01de82c67f41_l3.png"></img>', #Indoles and derivatives/ Indoles
-  '<img src = "https://quicklatex.com/cache3/69/ql_cf0e7032dbf5ff7614971d324da6d569_l3.png"></img>', #Indoles and derivatives/ Indolyl carboxylic acids and derivatives
-  '<img src = "https://quicklatex.com/cache3/f8/ql_95041fdbf3f6ea9f8fb47ce04a5ac5f8_l3.png"></img>', #Organofluorides/ Phosphazene and phosphazene derivatives
-  '<img src = "https://quicklatex.com/cache3/75/ql_8b8505933200efc1d38c4b2684c49075_l3.png"></img>', #Sphingolipids/ Phosphosphingolipids
-  '<img src = "https://quicklatex.com/cache3/ac/ql_7173e2cd4b5d7e90f1e891b49e36aeac_l3.png"></img>', #Purine nucleotides/ Purine deoxyribonucleotides
-  '<img src = "https://quicklatex.com/cache3/f5/ql_5b1c02a5871579e128ca899fd215a2f5_l3.png"></img>', #Purine nucleotides/ Purine nucleotide sugars
-  '<img src = "https://quicklatex.com/cache3/44/ql_d86bac4300df18903c29be99ad602544_l3.png"></img>', #Imidazopyrimidines/ Purines and purine derivatives
-  '<img src = "https://quicklatex.com/cache3/f8/ql_3e00f56f00c93b289d9938401c19f4f8_l3.png"></img>', #Pyridines and derivatives/ Pyridinecarboxylic acids and derivatives
-  '<img src = "https://quicklatex.com/cache3/09/ql_31114a0f003c3d5970421afb25bf2509_l3.png"></img>', #Pyrimidine nucleotides/ Pyrimidine nucleotide sugars
-  '<img src = "https://quicklatex.com/cache3/d5/ql_e1bfd3faabb36377aa0fcd863c93bcd5_l3.png"></img>', #Pyrimidine nucleotides/ Pyrimidine ribonucleotides
-  '<img src = "https://quicklatex.com/cache3/a5/ql_b1a6bd2d21e67ba1e94a46d09a778aa5_l3.png"></img>', #Diazines/ Pyrimidines and pyrimidine derivatives
-  '<img src = "https://quicklatex.com/cache3/22/ql_2f307450e1da1f4c9eb575e5171c4022_l3.png"></img>', #Organonitrogen compounds/ Quaternary ammonium salts
-  '<img src = "https://quicklatex.com/cache3/80/ql_41b7120b8378845b03396261c4087880_l3.png"></img>', #Quinolines and derivatives/ Quinoline carboxylic acids
-  '<img src = "https://quicklatex.com/cache3/17/ql_e573784932064b4135c95235f573ef17_l3.png"></img>' #Indoles and derivatives/ Tryptamines and derivatives     
-  )
 
 ####################################################################################################################
 
@@ -263,8 +200,95 @@ server <- function(input, output, session) {
 
 #eq
   output$fitTable <- DT::renderDataTable({
-    datatable(data.frame(ft[, 1:3], eq = eq, ft[, 5:6]),
-              colnames = c("Class", "Subclass", "Fit Type", "Regression Equation", "Standard Error", "Standard Deviation"),
+   datatable(data.frame(ft[, 1:3],
+                         eq = c(HTML("y=19.69 &bull; x<sup>0.375</sup>"),
+                                HTML("y=19.16 &bull; x<sup>0.381</sup>"),
+                                HTML("y=0.61 &bull; x<sup>0.7380</sup>+96.07"),
+                                HTML("y=0.61 &bull; x<sup>0.738</sup>+96.07"),
+                                HTML("y=15.32 &bull; x<sup>0.4255</sup>"),
+                                HTML("y=17.71 &bull; x<sup>0.398</sup>"),
+                                HTML("y=281.33+ <sup>-126.02</sup>&frasl;<sub>1+10^<sub>308.51&bull;-0.3108</sup></sub>"),
+                                HTML("y=176.22+ <sup>-27.85</sup>&frasl;<sub>1+10^<sub>272.34&bull;-0.0294</sup></sub>"),
+                                HTML("y=63.39+ <sup>162.76</sup>&frasl;<sub>1+10^<sub>192.89&bull;0.0042</sup></sub>"),
+                                HTML("y=126.23+ <sup>68.81</sup>&frasl;<sub>1+10^<sub>293.54&bull;0.0043</sup></sub>"),
+                                HTML("y=238.44+ <sup>-188.26</sup>&frasl;<sub>1+10^<sub>172.50&bull;-0.0009</sup></sub>"),
+                                HTML("y=26.52 &bull; x<sup>0.320</sup>"),
+                                HTML("y=-105.48+ <sup>637.19</sup>&frasl;<sub>1+10^<sub>548.19&bull;0.0006</sup></sub>"),
+                                HTML("y=69.54 &bull; x<sup>0.1334</sup>"),
+                                HTML("y=-115.04+ <sup>649.37</sup>&frasl;<sub>1+10^<sub>530.92&bull;0.0006</sup></sub>"),
+                                HTML("y=-1217.89 &bull; x<sup>-0.4503</sup>+262.06"),
+                                HTML("y=-1217.89 &bull; x<sup>-0.450</sup>+262.06"),
+                                HTML("y=9.97 &bull; x<sup>0.5048</sup>"),
+                                HTML("y=6.36 &bull; x<sup>0.5822</sup>"),
+                                HTML("y=206.73 &bull; x<sup>0.1549</sup>-320.07"),
+                                HTML("y=4.45 &bull; x<sup>0.6514</sup>"),
+                                HTML("y=18.11 &bull; x<sup>0.402</sup>"),
+                                HTML("y=10.51 &bull; x<sup>0.4941</sup>"),
+                                HTML("y=14.69 &bull; x<sup>0.433</sup>"),
+                                HTML("y=7.62 &bull; x<sup>0.550</sup>"),
+                                HTML("y=9.65 &bull; x<sup>0.5067</sup>"),
+                                HTML("y=10.60 &bull; x<sup>0.4953</sup>"),
+                                HTML("y=45.54+ <sup>272.81</sup>&frasl;<sub>1+10^<sub>345.27&bull;0.0019</sup></sub>"),
+                                HTML("y=9.40 &bull; x<sup>0.5096</sup>"),
+                                HTML("y=7.88 &bull; x<sup>0.5423</sup>"),
+                                HTML("y=24.93 &bull; x<sup>0.393</sup>+-57.28"),
+                                HTML("y=18.53 &bull; x<sup>0.3869</sup>"),
+                                HTML("y=18.53 &bull; x<sup>0.387</sup>"),
+                                HTML("y=127.43+ <sup>32.04</sup>&frasl;<sub>1+10^<sub>195.59&bull;0.0204</sup></sub>"),
+                                HTML("y=17.68 &bull; x<sup>0.3961</sup>"),
+                                HTML("y=41.54 &bull; x<sup>0.2385</sup>"),
+                                HTML("y=18.13 &bull; x<sup>0.393</sup>"),
+                                HTML("y=8.71 &bull; x<sup>0.527</sup>"),
+                                HTML("y=196.71 &bull; x<sup>-0.074</sup>"),
+                                HTML("y=6.49 &bull; x<sup>0.561</sup>"),
+                                HTML("y=16.93 &bull; x<sup>0.401</sup>"),
+                                HTML("y=6.37 &bull; x<sup>0.5326</sup>"),
+                                HTML("y=6.37 &bull; x<sup>0.533</sup>"),
+                                HTML("y=94.33+ <sup>151.81</sup>&frasl;<sub>1+10^<sub>262.58&bull;0.0044</sup></sub>"),
+                                HTML("y=-29.20+ <sup>413.90</sup>&frasl;<sub>1+10^<sub>270.42&bull;0.0017</sup></sub>"),
+                                HTML("y=26.74+ <sup>349.62</sup>&frasl;<sub>1+10^<sub>335.14&bull;0.0020</sup></sub>"),
+                                HTML("y=29.78 &bull; x<sup>0.2956</sup>"),
+                                HTML("y=-26.62+ <sup>496.70</sup>&frasl;<sub>1+10^<sub>567.65&bull;0.0008</sup></sub>"),
+                                HTML("y=119.84+ <sup>32.26</sup>&frasl;<sub>1+10^<sub>175.73&bull;0.0590</sup></sub>"),
+                                HTML("y=177.27+ <sup>187.55</sup>&frasl;<sub>1+10^<sub>930.00&bull;0.0053</sup></sub>"),
+                                HTML("y=177.27+ <sup>187.55</sup>&frasl;<sub>1+10^<sub>930.00&bull;0.0053</sup></sub>"),
+                                HTML("y=10.63 &bull; x<sup>0.4820</sup>"),
+                                HTML("y=149.53+ <sup>229.81</sup>&frasl;<sub>1+10^<sub>869.97&bull;0.0026</sup></sub>"),
+                                HTML("y=25.10 &bull; x<sup>0.324</sup>"),
+                                HTML("y=140.28+ <sup>-26.99</sup>&frasl;<sub>1+10^<sub>135.30&bull;-0.0363</sup></sub>"),
+                                HTML("y=19.68 &bull; x<sup>0.380</sup>"),
+                                HTML("y=0.20 &bull; x<sup>0.991</sup>+76.78"),
+                                HTML("y=0.42 &bull; x<sup>0.919</sup>+93.91"),
+                                HTML("y=-342648.87 &bull; x<sup>-1.275</sup>+285.94"),
+                                HTML("y=204.29+ <sup>-127.12</sup>&frasl;<sub>1+10^<sub>191.50&bull;-0.0047</sup></sub>"),
+                                HTML("y=23.36 &bull; x<sup>0.345</sup>"),
+                                HTML("y=12.78 &bull; x<sup>0.4482</sup>"),
+                                HTML("y=32.31 &bull; x<sup>0.2823</sup>"),
+                                HTML("y=4.14 &bull; x<sup>0.6180</sup>"),
+                                HTML("y=11.47 &bull; x<sup>0.4576</sup>"),
+                                HTML("y=15.61 &bull; x<sup>0.408</sup>"),
+                                HTML("y=23.55 &bull; x<sup>0.337</sup>"),
+                                HTML("y=18.45 &bull; x<sup>0.3834</sup>"),
+                                HTML("y=38.88 &bull; x<sup>0.2415</sup>"),
+                                HTML("y=30.29 &bull; x<sup>0.292</sup>"),
+                                HTML("y=9.72 &bull; x<sup>0.503</sup>"),
+                                HTML("y=31.44 &bull; x<sup>0.2893</sup>"),
+                                HTML("y=9.02 &bull; x<sup>0.4957</sup>"),
+                                HTML("y=12.55 &bull; x<sup>0.4427</sup>"),
+                                HTML("y=152.74+ <sup>88.26</sup>&frasl;<sub>1+10^<sub>505.58&bull;0.0043</sup></sub>"),
+                                HTML("y=25.59 &bull; x<sup>0.3237</sup>"),
+                                HTML("y=7.48 &bull; x<sup>0.5543</sup>"),
+                                HTML("y=7.48 &bull; x<sup>0.554</sup>"),
+                                HTML("y=1.19 &bull; x<sup>0.8461</sup>"),
+                                HTML("y=280.68+ <sup>28.45</sup>&frasl;<sub>1+10^<sub>788.85&bull;0.0146</sup></sub>"),
+                                HTML("y=11.40 &bull; x<sup>0.488</sup>"),
+                                HTML("y=202.83+ <sup>17.11</sup>&frasl;<sub>1+10^<sub>505.62&bull;0.1890</sup></sub>"),
+                                HTML("y=1.43 &bull; x<sup>0.8366</sup>"),
+                                HTML("y=31.06 &bull; x<sup>0.3119</sup>"),
+                                HTML("y=20.02 &bull; x<sup>0.387</sup>")
+                                ),
+                         ft[, 4:5]),
+              colnames = c("Class", "Subclass", "Fit Type", "Regression Equation", "AICc", "Standard Error"),
               options = list(pageLength = 25, autowidth = FALSE, columnDefs = list(list(className = 'dt-center', targets = 2:5))),
               escape = FALSE)
   })

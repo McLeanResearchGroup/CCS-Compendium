@@ -41,7 +41,7 @@ fillcols <- c("rgba(111, 152, 255, 0.2)", "rgba(203, 161, 254, 0.23)","rgba(255,
 ####################################################################################################################
 
 #ui
-ui <- fluidPage(theme = shinytheme("simplex"),
+ui <- fluidPage(theme = shinytheme("simplex"), withMathJax(),
                 titlePanel("Unified CCS Compendium"),
                 
                 mainPanel(
