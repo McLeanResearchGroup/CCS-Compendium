@@ -1,0 +1,401 @@
+---
+title: "model_test"
+author: "B Rose"
+date: "7/16/2018"
+output: html_document
+---
+
+#Setup and import data
+```{r}
+library(plotly)
+library(ggplot2)
+library(plyr)
+library(basicTrendline)
+
+setwd("~/Documents/GitHub/CCS-Compendium")
+all <- read.csv("Shiny/data/allMASTER.csv")
+
+classes <- levels(all$Class)
+fulldata = list()
+for(i in seq_along(classes)) {
+  class <- classes[i]
+  dat <- as.data.frame(subset(all, Class == class))
+  fulldata[[i]] <- dat
+}
+names(fulldata) <- classes
+names(fulldata)[[1]] <- "none"
+
+```
+
+#Initialize functions
+```{r}
+
+.yTOz <- function(y){
+    bottom <- as.numeric(quantile(y, .025, na.rm=TRUE))
+    top <- as.numeric(quantile(y, .975, na.rm=TRUE))
+    z <- (y - bottom)/(top - bottom)
+    z[z<=0] <- 0.05; z[z>=1] <- 0.95
+    z
+}
+
+.lmlz <- function(x, y){
+    z <- .yTOz(y)
+    z <- as.vector(by(z, x, mean, na.rm = TRUE))
+    lz <- log(z/(1-z))
+    lm(lz ~ unique(x))
+}
+
+.estimScal <- function(x, y){
+    model <- .lmlz(x, y)
+    return(coef(model)[2])
+}
+
+.estimMid <- function(x, y){
+    model <- .lmlz(x, y)
+    fit <- model$fitted.values
+    predict(model, data.frame(x = median(fit, na.rm = TRUE)))  
+}
+
+.initPars <- function(x, y, npars){
+    if(npars<5) s <- 1 else s <- 1
+    if(npars<4) bottom <- 0 else bottom <- quantile(y, .05, na.rm=TRUE)
+    if(npars<3) top <-1 else top <- quantile(y, .95, na.rm=TRUE)
+    xmid <- (max(x, na.rm = TRUE) + min(x, na.rm = TRUE))/2
+    scal <- .estimScal(x, y)
+    return(c(bottom, top, xmid, scal, s))
+}
+
+CI <- function(stdErr, yobs, newy){
+  n <- length(yobs)
+  ybar <- mean(yobs, na.rm = TRUE)
+  t <- qt(.99, n-2)
+  ci <- t*stdErr*sqrt((1/n+(newy - ybar)^2/sum((newy - ybar)^2)))
+  lo <- newy - ci
+  hi <- newy + ci
+  return(list(lo = lo, hi = hi))
+}
+
+PI <- function(stdErr, yobs, newy){
+  n <- length(yobs)
+  ybar <- mean(yobs, na.rm = TRUE)
+  t <- qt(.99, n-2)
+  pi <- t*stdErr*sqrt((1+1/n+(newy - ybar)^2/sum((newy - ybar)^2)))
+  lo <- newy - pi
+  hi <- newy + pi
+  return(list(lo = lo, hi = hi))
+}
+
+```
+
+#Generate fits
+```{r} 
+#throw out classes where n < 10
+data <- list()
+for(i in seq_along(fulldata)){
+  if(nrow(fulldata[[i]]) > 9){
+    name <- names(fulldata)[[i]]
+    data[[name]] <- fulldata[[i]]
+  }
+}
+data[['none']] <- NULL
+
+pf2 <- list()
+for(i in seq_along(data)){
+  tryCatch( {
+    name <- names(data)[[i]]
+    x <- data[[i]][, "mz"]
+    y <- data[[i]][, "CCS.z"]
+    xy <- data.frame(cbind(x, y))
+    fit <- nls(y ~ SSpower2P(x, a, b))
+    pf2[[name]] <- fit 
+  }, error = function(e){cat("Error: ", names(data)[[i]], conditionMessage(e), "\n")})
+} 
+
+pf3 <- list()
+for(i in seq_along(data)){
+  tryCatch( {
+    name <- names(data)[[i]]
+    x <- data[[i]][, "mz"]
+    y <- data[[i]][, "CCS.z"]
+    xy <- data.frame(cbind(x, y))
+    fit <- nls(y ~ SSpower3P(x, a, b, c))
+    pf3[[name]] <- fit 
+  }, error = function(e){cat("Error: ", names(data)[[i]], conditionMessage(e), "\n")})
+} 
+
+sig.4P.nls <- list()
+for(i in seq_along(data)){
+  tryCatch( {
+    name <- names(data)[[i]]
+    x <- data[[i]][, "mz"]
+    y <- data[[i]][, "CCS.z"]
+    xy <- as.data.frame(cbind(x, y))
+    startvals <- .initPars(x, y, 4) 
+    start <- startvals[1:4]
+    names(start) <- c("b", "top", "xmid", "scal")
+    fit <- nls(y ~ b+(top-b)/(1+10^((xmid-x)*scal)), data = xy, 
+               start = start)
+    sig.4P.nls[[name]] <- fit 
+  }, error = function(e){cat("Error: ", names(data)[[i]], conditionMessage(e), "\n")})
+}
+
+sig.5P.nls <- list()
+for(i in seq_along(data)){
+  tryCatch( {
+    name <- names(data)[[i]]
+    x <- data[[i]][, "mz"]
+    y <- data[[i]][, "CCS.z"]
+    xy <- as.data.frame(cbind(x, y))
+    startvals <- .initPars(x, y, 5) 
+    start <- startvals[1:5]
+    names(start) <- c("b", "top", "xmid", "scal", "s")
+    fit <- nls(y ~ b+(top-b)/(1+10^((xmid-x)*scal))^s, data = xy, 
+               start = start)
+    sig.5P.nls[[name]] <- fit 
+  }, error = function(e){cat("Error: ", names(data)[[i]], conditionMessage(e), "\n")})
+}
+
+```
+
+#Choose a model
+```{r}
+AICs <- data.frame(names(data))
+
+AICs$PF2 <- NA
+for(i in seq_along(pf2)){
+  AIC <- AIC(pf2[[i]])
+  c <- (2*3^2 + 2*3)/(length(residuals(pf2[[i]]))-3-1)
+  AICc <- AIC + c
+  name <- names(pf2)[[i]]
+  ind <- which(AICs[, 1] == name)
+  AICs[ind, 2] <- AICc
+}
+
+AICs$PF3 <- NA
+for(i in seq_along(pf3)){
+  AIC <- AIC(pf3[[i]])
+  c <- (2*3^2 + 2*3)/(length(residuals(pf3[[i]]))-3-1)
+  AICc <- AIC + c
+  name <- names(pf3)[[i]]
+  ind <- which(AICs[, 1] == name)
+  AICs[ind, 3] <- AICc
+}
+
+AICs$Sig4 <- NA
+for(i in seq_along(sig.4P.nls)){
+  AIC <- AIC(sig.4P.nls[[i]])
+  c <- (2*3^2 + 2*3)/(length(residuals(sig.4P.nls[[i]]))-3-1)
+  AICc <- AIC + c
+  name <- names(sig.4P.nls)[[i]]
+  ind <- which(AICs[, 1] == name)
+  AICs[ind, 4] <- AICc
+}
+
+AICs$Sig5 <- NA
+for(i in seq_along(sig.5P.nls)){
+  AIC <- AIC(sig.5P.nls[[i]])
+  c <- (2*3^2 + 2*3)/(length(residuals(sig.5P.nls[[i]]))-3-1)
+  AICc <- AIC + c
+  name <- names(sig.5P.nls)[[i]]
+  ind <- which(AICs[, 1] == name)
+  AICs[ind, 5] <- AICc
+}
+
+for(i in seq_along(AICs[, 1])){
+  if(!(is.na(AICs[i, 2]) & is.na(AICs[i, 3]) & is.na(AICs[i, 4]))){
+    p2 <- AICs[i, 2]
+    p3 <- AICs[i, 3]
+    r <- AICs[i, 4]
+    v <- AICs[i, 5]
+    f <- c(p2 = p2, p3 = p3, r = r, v = v)
+    fit <- names(which(f == min(f, na.rm = TRUE)))
+    AICs[i, 6] <- fit
+  }
+}
+
+```
+
+#Build final dataframes
+```{r}
+fitteddata <- list()
+for(i in seq_along(data)){
+  if(!is.na(AICs[i, 6])) {
+    name = names(data)[[i]]
+    fitteddata[[name]] <- data[[i]]
+    fitteddata[[name]] <- fitteddata[[name]][, c("Compound", "mz", "CCS.z", "RSD")]
+  } else{}
+}
+
+rm(data, fulldata, all)
+
+#Generate tables of parameters
+power2table <- data.frame()
+power3table <- data.frame()
+fourtable <- data.frame()
+fivetable <- data.frame()
+
+
+for(i in seq_along(fitteddata)){
+  name <- names(fitteddata)[[i]]
+  fit <- AICs[which(AICs[, 1] == name), 6]
+  if(fit == 'p2'){
+    pars <- coef(pf2[[name]])
+    row <- as.data.frame(t(c(name, pars)))
+    power2table <- rbind(power2table, row)
+  }
+  if(fit == 'p3'){
+    pars <- coef(pf3[[name]])
+    row <- as.data.frame(t(c(name, pars)))
+    power3table <- rbind(power3table, row)
+  }
+  if(fit == 'r'){
+    pars <- coef(sig.4P.nls[[name]])
+    row <- as.data.frame(t(c(name, pars)))
+    fourtable <- rbind(fourtable, row)
+  }
+  if(fit == 'v'){
+    pars <- coef(sig.5P.nls[[name]])
+    row <- as.data.frame(t(c(name, pars)))
+    fivetable <- rbind(fivetable, row)
+  }
+}
+
+colnames(power2table) <- c('class', 'a', 'k')
+colnames(power3table) <- c('class', 'a', 'k', 'y0')
+colnames(fourtable) <- c('class', 'y0', 'ymax', 'y50', 'H')
+tryCatch({colnames(fivetable) <- c('class', 'y0', 'ymax', 'y50', 'H', 's')}, 
+         error = function(e){cat("no 5P fits today")})
+
+```
+
+#Generate Equation curves, CIs, and PIs
+```{r}
+#Generate curves
+for(i in seq_along(fitteddata)){
+  x <- fitteddata[[i]]$mz
+  name <- names(fitteddata)[[i]]
+  fit <- AICs[which(AICs[, 1] == name), 6]
+  fitteddata[[i]]$Xcurve <- seq(from = min(x), to = max(x), length.out = length(x))
+  if(fit == 'p2'){
+    fitteddata[[i]]$Ycurve <- predict(pf2[[name]], newdata = data.frame(x = fitteddata[[i]]$Xcurve))
+  }
+  if(fit == 'p3'){
+    fitteddata[[i]]$Ycurve <- predict(pf3[[name]], newdata = data.frame(x = fitteddata[[i]]$Xcurve))
+  }
+  if(fit == 'r'){
+    fitteddata[[i]]$Ycurve <- predict(sig.4P.nls[[name]], newdata = data.frame(x = fitteddata[[i]]$Xcurve))  
+  }
+  if(fit == 'v'){
+    fitteddata[[i]]$Ycurve <- predict(sig.5P.nls[[name]], newdata = data.frame(x = fitteddata[[i]]$Xcurve))
+  }
+}
+
+
+models <- list()
+AICs$stderr <- NA
+
+#std error calculation
+
+for(i in seq_along(fitteddata)){
+  name <- names(fitteddata)[[i]]
+  fit <- AICs[which(AICs[, 1] == name), 6]
+  y <- fitteddata[[i]][, 3]
+  if(fit == 'p2'){
+    models[[name]] <- pf2[[name]]
+    yfit <- predict(pf2[[name]], newdata = data.frame(x = fitteddata[[i]][, 2]))
+  }
+  if(fit == 'p3'){
+    models[[name]] <- pf3[[name]]
+    yfit <- predict(pf3[[name]], newdata = data.frame(x = fitteddata[[i]][, 2]))
+  }
+  if(fit == 'r'){
+    models[[name]] <- sig.4P.nls[[name]]
+    yfit <- predict(sig.4P.nls[[name]], newdata = data.frame(x = fitteddata[[i]][, 2]))
+  } 
+  if(fit == 'v'){
+    models[[name]] <- sig.5P.nls[[name]]
+    yfit <- predict(sig.5P.nls[[name]], newdata = data.frame(x = fitteddata[[i]][, 2]))
+  } 
+  stdErr <- sqrt(1/(length(y)-2)*sum((yfit - y)^2))
+  AICs[which(AICs[, 1] == name), ]$stderr <- stdErr 
+}
+
+
+#Add CIs and PIs
+for(i in seq_along(fitteddata)){
+  name <- names(fitteddata)[[i]]
+  fit <- AICs[which(AICs[, 1] == name), 6]
+  y <- fitteddata[[i]][, 3]
+  if(fit == 'p2'){
+    yfit <- predict(pf2[[name]], newdata = data.frame(x = fitteddata[[i]][, 2]))
+  }
+  if(fit == 'p3'){
+    yfit <- predict(pf3[[name]], newdata = data.frame(x = fitteddata[[i]][, 2]))
+  }
+  if(fit == 'r'){
+    yfit <- predict(sig.4P.nls[[name]], newdata = data.frame(x = fitteddata[[i]][, 2]))
+  }
+  if(fit == 'v'){
+    yfit <- predict(sig.5P.nls[[name]], newdata = data.frame(x = fitteddata[[i]][, 2]))
+  }
+  stdErr <- sqrt(1/(length(y)-2)*sum((yfit - y)^2))
+  stdDev <- sd(fitteddata[[i]][, "CCS.z"])
+  ci <- CI(stdErr, y, fitteddata[[i]][, "Ycurve"])
+  pi <- PI(stdErr, y, fitteddata[[i]][, "Ycurve"])
+  fitteddata[[i]] <- cbind(fitteddata[[i]], ci, pi, stdErr, stdDev)
+  colnames(fitteddata[[i]]) <- c('Compound', 'm/z', 'CCS/z', 'rsd', 'X curve', 'Y curve', 
+                                    'CI lo', 'CI hi', 'PI lo', 'PI hi', 'std error', 'SD')
+}
+
+rm(pf2, pf3, sig.4P.nls, sig.5P.nls)
+```
+
+#Export data
+```{r}
+datestamp <- format.Date(Sys.Date(), "%Y%m")
+
+for(i in names(fitteddata)){
+  write.csv(fitteddata[[i]], paste0("Shiny/data/ClassTrends_R/", i,".csv"))
+}
+
+write.csv(AICs, "class_AICs.csv")
+write.csv(power2table, paste0(datestamp, "_class_2Powerfit_equations.csv"))
+write.csv(power3table, paste0(datestamp, "_class_3Powerfit_equations.csv"))
+write.csv(fourtable, paste0(datestamp, "_class_4Psigfit_equations.csv"))
+write.csv(fivetable, paste0(datestamp, "_class_5Psigfit_equations.csv"))
+```
+
+#Test plot
+```{r}
+plot_ly(data = fitteddata[[12]]) %>%
+  add_trace(x = fitteddata[[12]][, 2], y = fitteddata[[12]][, 3], 
+             type = 'scatter', mode = 'markers', showlegend = F,
+            marker = list(color = 'grey')) %>%
+  add_trace(x = fitteddata[[12]][, 5], y = fitteddata[[12]][, 6],
+            type = 'scatter', mode = 'line', name = 'eq', 
+            line = list(color = 'orange')) %>%
+  add_trace(x = fitteddata[[12]][, 5], y = fitteddata[[12]][, 7],
+            type = 'scatter', mode = 'line', name = 'ci lo',
+            line = list(color = 'orange', dash = 'dash')) %>%
+  add_trace(x = fitteddata[[12]][, 5], y = fitteddata[[12]][, 8],
+            type = 'scatter', mode = 'line', name = 'ci hi', 
+            line = list(color = 'orange', dash = 'dash')) %>%
+  add_trace(x = fitteddata[[12]][, 5], y = fitteddata[[12]][, 9],
+            type = 'scatter', mode = 'line', name = 'pi lo',
+            line = list(color = 'orange', dash = 'dash')) %>%
+  add_trace(x = fitteddata[[12]][, 5], y = fitteddata[[12]][, 10],
+            type = 'scatter', mode = 'line', name = 'pi hi',
+            line = list(color = 'orange', dash = 'dash')) %>%
+    layout(
+         title = names(fitteddata)[[12]],
+         autosize = TRUE,
+         xaxis = list(title = "<b>m/z</b>",
+                      zeroline = FALSE, showline = TRUE,
+                      ticks = "outside",
+                      showgrid = FALSE),
+         yaxis = list(title = "<b>CCS/z</b>",
+                      zeroline = FALSE, showline = TRUE,
+                      ticks = "outside",
+                      showgrid = FALSE))
+
+```
