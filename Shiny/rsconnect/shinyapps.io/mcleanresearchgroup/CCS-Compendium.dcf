@@ -5,9 +5,9 @@ account: mcleanresearchgroup
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 399282
-bundleId: 5143459
+bundleId: 5143584
 url: https://mcleanresearchgroup.shinyapps.io/CCS-Compendium/
-when: 1634326281.0963
-lastSyncTime: 1634326281.09631
+when: 1634329130.18043
+lastSyncTime: 1634329130.18045
 asMultiple: FALSE
 asStatic: FALSE
