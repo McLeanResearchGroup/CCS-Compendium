@@ -61,7 +61,7 @@ ui <- fluidPage(theme = shinytheme("simplex"), withMathJax(),
                              helpText(div(h4(HTML("<br>Use the menu on the left to navigate this interactive tool."), style = "color:red"))),
                              
                              helpText(div(h5(HTML("<br><br>Launched: 13 August 2018
-                                                  <br>Updated: 25 April 2019"), style = "color:grey")))
+                                                  <br>Updated: 15 October 2021"), style = "color:grey")))
                     ),
                     
                     tabPanel("Interactive Compendium", 
