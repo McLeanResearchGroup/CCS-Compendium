@@ -128,7 +128,7 @@ server <- function(input, output, session) {
       paste0("UnifiedCCSCompendium_FullDataSet_",Sys.Date(),".csv")
     },
     content = function(file) {
-      write.csv(allclean, file, row.names = FALSE, fileEncoding = "UTF-8")
+      write.csv(all, file, row.names = FALSE, fileEncoding = "UTF-8")
     })
   
   output$pcdl <- renderUI({
