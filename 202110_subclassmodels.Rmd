@@ -12,10 +12,11 @@ library(ggplot2)
 library(plyr)
 library(basicTrendline)
 
-setwd("~/Documents/GitHub/CCS-Compendium")
+setwd("C:/Users/gamta/Desktop/CCS-Compendium/CCS-Compendium")
 all <- read.csv("Shiny/data/allMASTER.csv")
+colnames(all)[1] <- "Compound"
 
-classes <- levels(all$Subclass)
+classes <- unique(all$Subclass)
 fulldata = list()
 for(i in seq_along(classes)) {
   subclass <- classes[i]
